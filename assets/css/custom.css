@@ -1,0 +1,60 @@
+/**
+ *
+ * Apply Here your Custom CSS
+ *
+ * Author : Robin
+ * Date : 2017.4.10
+*/
+
+body.login-page, .login-page .login-header {
+	background: #fff;
+}
+
+.login-page .login-header.login-caret:after{
+     border-color: #03bdb0 transparent transparent transparent;   
+}
+.login-page .login-form .form-group .input-group{
+    background: #fff;
+    border-color: #dfdfdf;
+}
+.login-page .login-form .form-group .input-group.focused {
+  border-color: #03bdb0;
+  border-color: rgba(3, 189, 176, 0.5);
+}
+.login-page .login-form .form-group .input-group .input-group-addon:after {
+    background:#dfdfdf;
+  
+}
+
+[class^="entypo-"]:before, [class*=" entypo-"]:before {
+    color:#908c8c;
+}
+.login-page .login-form .form-group .input-group .form-control{
+    color:black;
+}
+.login-page .login-form .form-group .btn-login {
+  border: 1px solid #f1b300;
+  background: #f1b300;
+  color: #fff;
+}
+
+.login-page .login-form .form-group .btn-login:hover,
+.login-page .login-form .form-group .btn-login:active {
+  background: #d49e02;
+  color: #fff;
+}
+.entypo-login:before {
+    color:#fff;
+}
+.login-page .login-form .form-group .btn-login:active {
+    outline: orange;
+}
+.login-page.logging-in .login-progressbar {
+  background: #f1b300;
+}
+.login-page.logging-in .login-progressbar div {
+  background: #03bdb0;
+}
+.login-page .login-progressbar-indicator h3 {
+    color:#03bdb0;
+}
