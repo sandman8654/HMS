@@ -829,7 +829,7 @@ class Admin extends CI_Controller {
             $this->load->view('backend/index', $data);
         }    
     }
-    //patient
+    //laboratory management
     function labreq($task = "", $labreq_id = "") {
         
         if ($this->session->userdata('admin_login') != 1) {
@@ -848,21 +848,117 @@ class Admin extends CI_Controller {
             $this->load->view('backend/index', $data);
         }else {
             
-            if ($task == "update") {
-                    $this->crud_model->update_labreq_info($labreq_id);
-                    $this->session->set_flashdata('message', get_phrase('patient_info_updated_successfuly'));
-                    redirect(base_url() . "index.php?admin/patient/edit/$patient_id");
-            }
+          
 
-            if ($task == "delete") {
-                $this->crud_model->delete_labreq_info($patient_id);
-                redirect(base_url() . 'index.php?admin/patient');
+            if ($task == "delete" && strlen($labreq_id)>0) {
+                $this->crud_model->delete_labreq_info($labreq_id);
+                redirect(base_url() . 'index.php?admin/labreq');
             }
             $data['page_name'] = 'manage_laboratory';
             $data['page_title'] = get_phrase('laboratory');
             $this->load->view('backend/index', $data);
         }    
+    }
+    //radiology management
+    function radreq($task = "", $radreq_id = "") {
         
+        if ($this->session->userdata('admin_login') != 1) {
+            $this->session->set_userdata('last_page', current_url());
+            redirect(base_url(), 'refresh');
+        }
+        if($task=="register"||$task=="edit"){
+            $comm =  "add_radiology";
+            $data['page_name'] = $comm;
+            $data['page_title'] = get_phrase("radiology_process");
+            if (count($radreq_id)==0){
+                redirect(base_url(), 'refresh');
+                return;
+            }
+            $data['param2'] = $radreq_id;
+            $this->load->view('backend/index', $data);
+        }else {
+       
+            if ($task == "delete" && strlen($radreq_id)>0) {
+                $this->crud_model->delete_labreq_info($radreq_id);
+                redirect(base_url() . 'index.php?admin/radreq');
+            }
+            $data['page_name'] = 'manage_radiology';
+            $data['page_title'] = get_phrase('radiology');
+            $this->load->view('backend/index', $data);
+        }    
+    }
+    //pharmacy management
+    function pharmreq($task = "", $req_id = "") {
+        
+        if ($this->session->userdata('admin_login') != 1) {
+            $this->session->set_userdata('last_page', current_url());
+            redirect(base_url(), 'refresh');
+        }
+        if($task=="register"||$task=="edit"){
+            $comm =  "add_pharmacy_bill";
+            $data['page_name'] = $comm;
+            $data['page_title'] = get_phrase("pharmacy_bill_process");
+            if (count($req_id)==0){
+                redirect(base_url(), 'refresh');
+                return;
+            }
+            $data['param2'] = $req_id;
+            $this->load->view('backend/index', $data);
+        }else {
+       
+            if ($task == "delete" && strlen($req_id)>0) {
+                $this->crud_model->delete_pharmreq_info($req_id);
+                redirect(base_url() . 'index.php?admin/pharmreq');
+            }
+            $data['page_name'] = 'manage_pharmacy_bill';
+            $data['page_title'] = get_phrase('pharmacy_request_list');
+            $this->load->view('backend/index', $data);
+        }    
+    }
+    // manage billing service
+    function mngbillserv(){
+        if ($this->session->userdata('admin_login') != 1) {
+            $this->session->set_userdata('last_page', current_url());
+            redirect(base_url(), 'refresh');
+        };
+        $data['page_name'] = 'manage_billing_services';
+        $data['page_title'] = get_phrase('manage_billing_services');
+        $this->load->view('backend/index', $data);
+    }
+    // manage journal entries
+    function journalentry($task = "",$id="") {
+        if ($this->session->userdata('admin_login') != 1) {
+            $this->session->set_userdata('last_page', current_url());
+            redirect(base_url(), 'refresh');
+        }
+
+        if ($task == "create") {
+            $email = $_POST['email'];
+            $nurse = $this->db->get_where('nurse', array('email' => $email))->row()->name;
+            if ($nurse == null) {
+                $this->crud_model->save_nurse_info();
+                $this->session->set_flashdata('message', get_phrase('nurse_info_saved_successfuly'));
+            } else {
+                $this->session->set_flashdata('message', get_phrase('duplicate_email'));
+            }
+            redirect(base_url() . 'index.php?admin/journalentry');
+        }elseif($task=="post"){
+            // post ledger entries to general ledger
+            $b = $this->crud_model->post_ledger_entries($id);
+            $msg="";
+            if($b){
+                $msg = 'All ledger entries was posted to general ledger successfully';
+            }else{
+                $msg = "Got some errors, so not posted yet.";
+            }
+            $this->session->set_flashdata('message', $msg);
+            redirect(base_url() . 'index.php?admin/journalentry');
+            return;
+        }
+        $data['journal_entry_info'] = $this->crud_model->select_journal_entry_info();
+        $data['page_name'] = 'manage_journal';
+        $data['page_title'] = get_phrase('journal_entries');
+        $this->load->view('backend/index', $data);
     }
 }
 

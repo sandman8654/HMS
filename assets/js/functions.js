@@ -19,8 +19,10 @@ function submitBill(data,afterCallback){
             type:"POST",
             success:function(res){
                 if(res=="success"){
-                    $.alert("Transactions are created successfully","Success");
-                    $.isFunction(afterCallback)&&afterCallback();
+                    $.alert("Transactions are created successfully","Success").close(function(){
+                        $.isFunction(afterCallback)&&afterCallback();
+                    });
+                    
                 }else{
                     $.alert("While creating the transaction, some errors raised!","Error");
                 }

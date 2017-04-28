@@ -17,14 +17,14 @@
     <tbody>
         <?php 
         $pending_list = $this->crud_model->get_pending_list_for_payment();
-        echo $pending_list;
+       
         foreach ($pending_list as $row) { ?>   
             <tr>
                 <td><?php echo $row['recep_id']?></td>
                 <td><?php echo $row['patient_id']?></td>
                 <td><?php echo $row['patient_name']?></td>
                 <td><?php echo $row['total']?></td>
-                <td><?php echo $row['posted_date']?></td>
+                <td><?php echo date("Y/m/d H:i",$row['posted_date'])?></td>
                
                 <td>
                     <a  href="<?php echo base_url();?>index.php?admin/payment/register/<?php echo $row['recep_id']?>" 

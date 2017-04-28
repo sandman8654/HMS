@@ -16,9 +16,9 @@
 
     <tbody>
         <?php 
-            $labreq_info = $this->crud_model->select_lab_req_info();
+            $req_info = $this->crud_model->select_rad_req_info();
         ?>
-        <?php foreach ($labreq_info as $row) { ?>   
+        <?php foreach ($req_info as $row) { ?>   
             <tr>
                 <td><?php echo $row['req_id']?></td>
                 <td><?php echo $row['recept_id']?></td>
@@ -27,12 +27,12 @@
                 <td><?php echo $row['req_date']?></td>
                 <td><?php echo $row['status']?></td>
                 <td>
-                    <a  href="<?php echo base_url();?>index.php?admin/labreq/edit/<?php echo $row['req_id']?>" 
+                    <a  href="<?php echo base_url();?>index.php?admin/radreq/register/<?php echo $row['req_id']?>" 
                         class="btn btn-default btn-sm btn-icon icon-left">
                             <i class="entypo-pencil"></i>
                             start
                     </a>
-                    <a href="<?php echo base_url();?>index.php?admin/labreq/delete/<?php echo $row['req_id']?>" 
+                    <a href="<?php echo base_url();?>index.php?admin/radreq/delete/<?php echo $row['req_id']?>" 
                         class="btn btn-danger btn-sm btn-icon icon-left" onclick="return checkDelete();">
                             <i class="entypo-cancel"></i>
                             Delete

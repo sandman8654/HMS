@@ -103,6 +103,8 @@
                         <li class="dropdown <?php if (strpos($page_name,'reception')>-1||
                                                       strpos($page_name,'triage')>-1||
                                                       strpos($page_name,'laboratory')>-1||
+                                                      strpos($page_name,'radiology')>-1||
+                                                      strpos($page_name,'pharmacy')>-1||
                                                       strpos($page_name,'consultation')>-1) echo 'active'; ?>">
                             <a href="#" data-hover="dropdown-hover" aria-haspopup="true" data-close-others="true"><div class="round"><i class="fa fa-heartbeat custom" ></i></div>activities</a>
                             <ul class="dropdown-menu">
@@ -113,27 +115,16 @@
                                     </ul>
                                 </li>    
                                 <li><a href="<?php echo base_url();?>index.php?admin/payment">Payment</a></li>    
-                                <li class="dropdown  dropdown-submenu"><a href="<?php echo base_url(); ?>index.php?admin/triage" ><?php echo get_phrase('triage'); ?></a>
-                                    <ul class="dropdown-menu">
-                                        <li><a href="<?php echo base_url();?>index.php?admin/triage"><?php echo get_phrase('triage_list'); ?></a></li>    
-                                        <li><a href="<?php echo base_url();?>index.php?admin/triage/register"><?php echo get_phrase('add_triage'); ?></a></li>    
-                                    </ul>
+                                <li><a href="<?php echo base_url(); ?>index.php?admin/triage" ><?php echo get_phrase('triage'); ?></a>
                                 </li>
                                 <li><a href="<?php echo base_url();?>index.php?admin/consultation"><?php echo get_phrase('consultaions'); ?></a></li>
-                                <li class="dropdown <?php if (strpos($page_name,'laboratory')>-1) echo 'active'; ?>"><a href="<?php echo base_url();?>index.php?admin/labreq"><?php echo get_phrase('laboratory'); ?></a>
-                                   <!-- <ul class="dropdown-menu">
-                                        <li><a href="<?php echo base_url();?>index.php?admin/laboratory/billing"><?php echo get_phrase('lab_billing'); ?></a></li>    
-                                        <li><a href="<?php echo base_url();?>index.php?admin/laboratory/reception"><?php echo get_phrase('lab_reception'); ?></a></li>    
-                                        <li><a href="<?php echo base_url();?>index.php?admin/laboratory/analysis"><?php echo get_phrase('lab_analysis'); ?></a></li>    
-                                    </ul>-->
-                                </li>
-                                <li><a href="#">Radiology Billing</a></li>
-                                <li><a href="#">Radiology Analysis</a></li>
-                                <li><a href="#">Pharmacy</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/labreq"><?php echo get_phrase('laboratory'); ?></a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/radreq"><?php echo get_phrase('radiology'); ?></a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/pharmreq"><?php echo get_phrase('pharmacy'); ?></a></li>
                                 <li><a href="#">Theatre</a></li>
                                 <li><a href="#">Consolidate Invoice</a></li>
                                 <li><a href="#">Patient History</a></li>
-                                <li><a href="#">Manage Billing Service</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/mngbillserv">Manage Billing Service</a></li>
                                 <li><a href="#">Reprint Receipt/Invoice</a></li>
                                 <li><a href="#">Mother Child Health</a></li>
                                 <li><a href="#">Comprehensive Care Center</a></li>
@@ -379,8 +370,7 @@
                         </li> 
                         <li class=""><a href="#" data-hover="dropdown-hover" aria-haspopup="true" data-close-others="true"><div class="round"><i class="fa fa-dollar custom"></i></div>accounts</a>
                             <ul class="dropdown-menu">
-                                <li><a href="#">Make Journal Entries</a></li>    
-                                <li><a href="#">Find Journal Entries</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/journalentry">Journal Entries</a></li>    
                                 <li><a href="#">Ledgers Panel</a></li>
                                 <li><a href="#">Debtors Management</a></li>
                                 <li><a href="#">Creditors Mangement</a></li>

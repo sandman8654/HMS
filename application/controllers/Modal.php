@@ -167,10 +167,9 @@ class Modal extends CI_Controller {
 		$data["recept_id"] = $_POST['recept_id'];
 		$data["cons_id"] = $_POST['cons_id'];
 		$data["patient_id"] = $_POST['patient_id'];
-		$data["medications"] = $_POST['content'];
-		if (isset($_POST["status"])) $data["status"] =  $_POST['status'];
-		$this->crud_model->save_pharmacy_request_for_patient($data);
-		echo "success"; 
+	//	$data["medications"] = $_POST['presc_list'];
+		$data["status"] =  0;
+		echo $this->crud_model->save_pharmacy_request_for_patient($data,$_POST['presc_list']);
 	}
 	function savelaboratory(){
 		$data["recept_id"] = $_POST['recept_id'];
@@ -197,6 +196,32 @@ class Modal extends CI_Controller {
 		$data["carts"] = $_POST["carts"];
 		$data["bal"] = $_POST["bal"];
 		echo $this->crud_model->submit_payment_for_patient($data);
+	}
+	function savelabreception($param){
+		$data["req_id"]=$param;
+		$data["patient_id"]=$_POST["patient_id"];
+		$data["recept_id"] = $_POST["recept_id"];
+		$data["sample_id"]=$_POST["sample_id"];
+		$data["sample_cond"]=$_POST["sample_condition"];
+		$data["reject_accept_status"]=$_POST["ra_status"];
+		$data["source"]=$_POST["source"];
+		$data["other_details"]=$_POST["other_details"];
+		$data["result"]=$_POST["result"];
+		echo $this->crud_model->save_lab_recept_for_patient($data);
+	}
+	function saveradresult($param){
+//		$data["patient_id"]=$_POST["patient_id"];
+//		$data["recept_id"] = $_POST["recept_id"];
+		$data["rad_result"]=$_POST["result"];
+		echo $this->crud_model->save_rad_result_for_patient($data,$param);
+	}
+	function reversejournalentry($trans_id){
+		if ($this->session->userdata('admin_login') != 1 &&
+			$this->session->userdata('accountant_login') != 1) {
+            $this->session->set_userdata('last_page', current_url());
+            redirect(base_url(), 'refresh'); return;
+        };
+		echo $this->crud_model->reverse_journal_entry($trans_id);
 	}
 }
 

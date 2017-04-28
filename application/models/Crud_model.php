@@ -1608,21 +1608,50 @@ class Crud_model extends CI_Model {
          };
     }
     //save pharmacy request
-    function save_pharmacy_request_for_patient($params){
+    function save_pharmacy_request_for_patient($params,$presc_list){
          $data = $params;
          $now = date("m/d/Y H:i:s");
          $table = "pharmacy_request";
          $data["timestamp"] = strtotime($now);
          $data['sender_account_type'] = $this->session->userdata('login_type');
          $data['sender_account_id'] = $this->session->userdata('login_user_id');
-         
+         $req_id = 0;
+         $b=true;
          $arr = $this->db->get_where($table,array("cons_id"=>$data["cons_id"]))->result_array();
          if (count($arr)==0){
-            $this->db->insert($table,$data);
+            $b&=$this->db->insert($table,$data);
+            $req_id = $this->insert_id();
          }else{
             $this->db->where("id",$arr[0]["id"]);
-            $this->db->update($table,$data);
+            $b&=$this->db->update($table,$data);
+            $req_id = $arr[0]["id"];
          };
+         if ($req_id==0)
+            $b=false;
+          else
+            $b&=$this->save_prescriptions_for_pharmacy_request($req_id,$data,$presc_list);
+         return ($b)?"success":"failure";
+    }
+    // save_prescriptions_for_pharmacy_request
+    function save_prescriptions_for_pharmacy_request($req_id,$params,$presc_list){
+        $data["cons_id"] = $params["cons_id"];
+        $data["recept_id"] = $params["recept_id"];
+        $data["patient_id"] = $params["patient_id"];
+        $data["req_id"] = $req_id;
+        $now = date("m/d/Y H:i:s");
+        $data["timestamp"] = strtotime($now);
+        $data['doctor_account_type'] = $this->session->userdata('login_type');
+        $data['doctor_id'] = $this->session->userdata('login_user_id');
+        $b=true;
+        $table = "prescription";
+        foreach($presc_list as $list){
+            $data["drug_id"] = $list["drug_id"];
+            $data["drug_qty"] = $list["drug_qty"];
+            $data["medication"] = $list["prescription"];
+            $data["note"] = $list["note"];
+            $b&=$this->db->insert($table,$data);
+        }
+        return $b;
     }
     //save laboratory request
     function save_lab_request_for_patient($params){
@@ -1869,11 +1898,7 @@ class Crud_model extends CI_Model {
         $tmp["cashier_id"] = $login_id;
         $this->db->where("recep_id",$recepid);
         $this->db->update("sales",$tmp);
-        //update lab table,radiology table,pharmacy table,theatre table.
-        $this->db->where("recept_id",$recepid);
-        $b &=$this->db->update($tables["lab_req"],array("status"=>1));// it means paid status
-        $this->db->where("recept_id",$recepid);
-        $b &=$this->db->update($tables["rad_req"],array("status"=>1));
+        
         
         //UPDATE DATABASE -REDUCTION OF STOCK ITEMS
         //reduce stock
@@ -1883,7 +1908,13 @@ class Crud_model extends CI_Model {
             $item_id = $row["item_id"];
             $item_info = $this->db->get_where("items",array("ItemCode"=>$item_id))->result_array();
             $total_price = $qty*$row["unit_price"]-$row["discount"];
-
+            //update lab table,radiology table,pharmacy table,theatre table.
+            $this->db->where("recept_id",$recepid);
+            $this->db->where("itemcode",$item_id);
+            $b &=$this->db->update($tables["lab_req"],array("status"=>1));// it means paid status
+            $this->db->where("recept_id",$recepid);
+            $this->db->where("itemcode",$item_id);
+            $b &=$this->db->update($tables["rad_req"],array("status"=>1));
             if (count($item_info)>0){
                 $item = $item_info[0];
                 $type = $item["Type"];
@@ -1957,11 +1988,190 @@ class Crud_model extends CI_Model {
             $tmp["item_name"] = $this->select_item_name($row["itemcode"]);
             $tmp["req_date"] = date("Y/m/d H:i:s",$row["start_time"]);
             if ($row["status"]==0) $tmp["status"] = "Pending";
-            if ($row["status"]==1) $tmp["status"] = "Billed";
+            if ($row["status"]==1) $tmp["status"] = "Process";
             if ($row["status"]==2) $tmp["status"] = "Completed";
             array_push($res,$tmp);
         }
         return $res;
+    }
+    // lab reception
+    function save_lab_recept_for_patient($param){
+        $res=array();$b=true;
+        $data=$param;
+        $data['doneby_account_type'] = $this->session->userdata('login_type');
+        $data['doneby_account_id'] = $this->session->userdata('login_user_id');
+        $table = "lab_result";
+        $date = date("Y/m/d H:i:s");
+        $arr = $this->db->get_where($table,array("req_id"=>$data["req_id"],"patient_id"=>$data["patient_id"],"recept_id"=>$data["recept_id"]))->result_array();
+        if (count($arr)>0){
+            $data["serv_time"] = strtotime($date);
+            $this->db->where("id",$arr[0]["id"]);
+            $b&=$this->db->update($table,$data);
+        }else{
+            $data["receive_time"] = strtotime($date);
+            $b&=$this->db->insert($table,$data);
+        }
+        if ($b){
+            $this->db->where("id",$data["req_id"]);
+            $b&=$this->db->update("lab_request",array("status"=>2,"end_time"=>strtotime($date)));
+        }
+        $tmp["msg"]=($b)?"success":"failure";
+        $tmp["date"]=$date;
+        array_push($res,$tmp);
+        return json_encode($res);
+    }
+    // radiology request information
+    function select_rad_req_info($req_id=""){
+        $res=array();
+        if (strlen($req_id)>0) $this->db->where("id","$req_id");
+        $this->db->order_by("start_time desc");
+        $list = $this->db->get("rad_request")->result_array();
+        foreach($list as $row){
+            $tmp=array();
+            $tmp["req_id"] = $row["id"];
+            $tmp["recept_id"]=$row["recept_id"];
+            $oinf = $this->select_patient_info_by_patient_id($row["patient_id"])[0];
+            $tmp["patient_info"] = $oinf["name"]." - ".$oinf["patient_id"];
+            $tmp["item_name"] = $this->select_item_name($row["itemcode"]);
+            $tmp["req_date"] = date("Y/m/d H:i:s",$row["start_time"]);
+            if ($row["status"]==0) $tmp["status"] = "Pending";
+            if ($row["status"]==1) $tmp["status"] = "Process";
+            if ($row["status"]==2) $tmp["status"] = "Completed";
+            array_push($res,$tmp);
+        }
+        return $res;
+    }
+     // rad result saved
+    function save_rad_result_for_patient($param,$req_id){
+        $res=array();$b=true;
+        $data=$param;
+        $data['doneby_account_type'] = $this->session->userdata('login_type');
+        $data['doneby_account_id'] = $this->session->userdata('login_user_id');
+        $data["status"] =2;
+        $table = "rad_request";
+        $date = date("Y/m/d H:i:s");
+        $data["end_time"] =strtotime($date);
+        $this->db->where("id",$req_id);
+        $b&=$this->db->update($table,$data);
+
+        $tmp["msg"]=($b)?"success":"failure";
+        $tmp["date"]=$date;
+        array_push($res,$tmp);
+        return json_encode($res);
+    }
+     // pharmacy request information
+    function select_pharmacy_req_info($req_id=""){
+        $res=array();
+        if (strlen($req_id)>0) $this->db->where("id","$req_id");
+        $this->db->order_by("status","ASC");
+        $this->db->order_by("timestamp","desc");
+        $list = $this->db->get("pharmacy_request")->result_array();
+        foreach($list as $row){
+            $tmp=array();
+            $tmp["req_id"] = $row["id"];
+            $tmp["recept_id"]=$row["recept_id"];
+            $oinf = $this->select_patient_info_by_patient_id($row["patient_id"])[0];
+            $tmp["patient_info"] = $oinf["name"]." - ".$oinf["patient_id"];
+            $tmp["req_date"] = date("Y/m/d H:i:s",$row["timestamp"]);
+            if ($row["status"]==0) $tmp["status"] = "posted";
+            if ($row["status"]==1) $tmp["status"] = "billed";
+            if ($row["status"]==2) $tmp["status"] = "paid";
+            array_push($res,$tmp);
+        }
+        return $res;
+    }
+    // select journal entries
+    function select_journal_entry_info(){
+        $table = "ledgerentries";
+        $this->db->order_by("stamp","desc");
+        $entries = $this->db->get($table)->result_array();
+        $res=array();
+        foreach($entries as $item){
+            $tmp = $item;
+            $tmp["crname"] = $this->db->get_where("ledgers",array("ledgerid"=>$item["crid"]))->row()->name;
+            $tmp["drname"] = $this->db->get_where("ledgers",array("ledgerid"=>$item["drid"]))->row()->name;
+            array_push($res,$tmp);
+        }
+        return $res;
+    }
+    //post ledger entry to general ledger
+    function post_ledger_entries(){
+        $list = array();
+        $enrty_table = "ledgerentries";
+        $gen_ledger_tabel = "generalledger";
+        $ledger_table = "ledgers";
+        $sql = "select * from ledgers WHERE ledgerid!=601 order by name";
+        $list = $this->db->query($sql)->result_array();
+        $date = date("Y/m/d");
+        $b=true;
+        foreach($list as $row){
+            $tmp["lid"]=stripslashes($row['ledgerid']);
+			$tmp["lname"]=stripslashes($row['name']);
+			$tmp["balance"]=stripslashes($row['bal']);
+            $tmp["date"]= $date;
+            $tmp["stamp"]= strtotime($date);
+            $tmp["status"]= 1;
+            $b&=$this->db->insert($gen_ledger_tabel,$tmp);
+
+        }
+        $this->db->where("status",0);
+        $b&=$this->db->update($enrty_table,array("status"=>1));
+        $b&=$this->db->update($ledger_table,array("date"=>$date));
+        return $b;
+    }
+    // reverse journal entry
+    function reverse_journal_entry($trans_id){
+        $entry_table = "ledgerentries";
+        $gen_ledger_tabel = "generalledger";
+        $ledger_table = "ledgers";
+        $date = date("Y/m/d H:i:s");
+        $row = $this->db->get_where($entry_table,array("transid"=>$trans_id))->row();
+        $tmp["crid"] =$cr = $row->crid;
+        $tmp["drid"] =$dr = $row->drid;
+        $tmp["amount"]= $amount= $row->amount;
+        $bid=NULL;
+        $bname=NULL;
+        if($cr==625||$dr==625||$cr==658||$dr==658||$cr==659||$dr==659){
+            $bid=$row->bankid;
+            $bname=$row->accname;
+        }
+        //this was a debit
+        $rowdr = $this->db->get_where($ledger_table,array("ledgerid"=>$dr))->row();
+        $drtype = $rowdr->type;
+        $drbal = $rowdr->bal;
+        if($drtype=='Liability'||$drtype=='Revenue'||$drtype=='Equity'||$drtype=='Drawings'){
+            $drbal=$drbal-$amount;
+        }
+        else{
+            $drbal=$drbal+$amount;
+        }
+        //this was a credit
+        $rowcr = $this->db->get_where($ledger_table,array("ledgerid"=>$cr))->row();
+        $crtype = $rowdr->type;
+        $crbal = $rowdr->bal;
+        if($crtype=='Asset'||$crtype=='Expense'){
+            $crbal=$crbal-$amount;												
+        }
+        else{
+            $crbal=$crbal+$amount;
+        }
+        $tmp["description"] = 'reversal for TX id: '.$trans_id;
+        $tmp["stamp"] = strtotime($date);
+        $tmp["crbal"]=$crbal;
+        $tmp["drbal"]=$drbal;
+        $tmp["bankid"]=$bid;
+        $tmp["accname"]=$bname;
+        $tmp["status"]=3;
+        $b=true;
+        $b &= $this->db->insert($entry_table,$tmp);
+        $this->db->where("transid",$trans_id);
+        $b &= $this->db->update($entry_table,array("status"=>3));
+        $this->db->where("ledgerid",$cr);
+        $b &= $this->db->update($ledger_table,array("bal"=>$crbal));
+        $this->db->where("ledgerid",$dr);
+        $b &= $this->db->update($ledger_table,array("bal"=>$drbal));
+
+        return ($b)?"success":"failure";
     }
 }
 

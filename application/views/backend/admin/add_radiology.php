@@ -6,16 +6,10 @@
 if (strlen($param2)>0) $isset_param=true;
 $row = array();
 if ($isset_param) {
-    $single_info = $this->db->get_where('lab_request', array('id' => $param2))->result_array();
-    $recept_list=array();
+    $single_info = $this->db->get_where('rad_request', array('id' => $param2))->result_array();
     if (count(single_info)>0){
         $row = $single_info[0];
-        $recepts = $this->db->get_where("lab_result",array("req_id"=>$param2,"patient_id"=>$row["patient_id"],"recept_id"=>$row["recept_id"]))->result_array();
-        if (count($recepts)>0)
-            $recept_list = $recepts[0];
     } 
-    
-
 }
 ?>
 <div class="row">
@@ -25,7 +19,7 @@ if ($isset_param) {
 
             <div class="panel-heading">
                 <div class="panel-title">
-                    <h3><?php echo get_phrase('laboratory_information'); ?></h3>
+                    <h3><?php echo get_phrase('radiology_information'); ?></h3>
                 </div>
             </div>
 
@@ -38,7 +32,7 @@ if ($isset_param) {
                     </div>
                     <div class="pull-right">
                         <a href="#" id="save" class="btn btn-success btn-md">Save</a>
-                        <a href="<?php echo base_url(); ?>index.php?admin/labreq" class="btn btn-danger btn-md">Exit</a>
+                        <a href="<?php echo base_url(); ?>index.php?admin/radreq" class="btn btn-danger btn-md">Exit</a>
                     </div>
                     <div class="col-md-12 col-md-12">
                         
@@ -132,9 +126,10 @@ if ($isset_param) {
 
                             <ul class="nav nav-tabs bordered">
                                 <li class="active"><a href="#tabs-1" data-toggle="tab"><span class="hidden-xs"><?php echo get_phrase('Billing'); ?></span></a></li>
-                                <li><a href="#tabs-2" data-toggle="tab"><span class="hidden-xs"><?php echo get_phrase('Reception'); ?></span></a></li>
-                                <li><a href="#tabs-3" data-toggle="tab"><span class="hidden-xs"><?php echo get_phrase('lab_result'); ?></span></a></li>
-                                <li><a href="#tabs-4" data-toggle="tab"><span class="hidden-xs"><?php echo get_phrase('lab_summary'); ?></span></a></li>
+                                <li><a href="#tabs-2" data-toggle="tab"><span class="hidden-xs"><?php echo get_phrase('radiology_tests'); ?></span></a></li>
+                                <li><a href="#tabs-3" data-toggle="tab"><span class="hidden-xs"><?php echo get_phrase('radiology_analysis'); ?></span></a></li>
+                                <li><a href="#tabs-4" data-toggle="tab"><span class="hidden-xs"><?php echo get_phrase('upload_scans'); ?></span></a></li>
+                                <li><a href="#tabs-5" data-toggle="tab"><span class="hidden-xs"><?php echo get_phrase('summary'); ?></span></a></li>
                             </ul>
                             <div  class="tab-content recep-tab">
                                 <div id="tabs-1" class="tab-pane active">
@@ -241,8 +236,7 @@ if ($isset_param) {
                                             $pay_status = $this->db->get_where("sales",array("item_id"=>$row["itemcode"],"recep_id"=>$row["recept_id"]))->row()->status;
                                        ?> 
                                        <h4 class="add-patient-sub-title "><?php echo get_phrase('Requested_test_detail'); ?></h4> 
-                                       <?php if ($pay_status!=1) echo"<p> you have to pay for this lab</p> ";
-                                             if ($status == 2) echo"<p> The lab reception has been submittied already.</p> ";
+                                       <?php if ($pay_status!=1) echo"<p> you have to pay for this test</p> ";
                                        ?>
                                        <div class="form-group">
                                             <label for="field-ta" class="col-md-2 control-label"><?php echo get_phrase('Test_name').":"; ?></label>
@@ -272,89 +266,49 @@ if ($isset_param) {
                                             echo "<div class='form-group'> 
                                                 <label for='field-ta' class='col-md-2 control-label'>".get_phrase('done_by').':'."</label>
                                                 <div class='col-md-10'>";
-                                                $acc_type = $recept_list["doneby_account_type"];
-                                                $acc_id = $recept_list["doneby_account_id"];
+                                                $acc_type = $row["doneby_account_type"];
+                                                $acc_id = $row["doneby_account_id"];
                                                 $sendername = $this->db->get_where($acc_type, array($acc_type."_id"=>$acc_id))->result_array()[0]["name"];
                                             echo "<p class='form-control'> $sendername</p></div></div>";
                                          }?>
                                          <div class="form-group">
                                             <label for="field-ta" class="col-md-2 control-label"><?php echo get_phrase('status').":"; ?></label>
                                             <div class="col-md-10">
-                                                <p class="form-control" ><?php if ($row["status"]==0) 
+                                                <p class="form-control" ><?php if ($status==0) 
                                                                                     echo get_phrase('pending');
-                                                                               elseif($row["status"]==1) 
+                                                                               elseif($status==1) 
                                                                                     echo get_phrase('in_process');
-                                                                               elseif($row["status"]==2)
+                                                                               elseif($status==2)
                                                                                     echo get_phrase('completed');  
                                                 ?></p>
                                             </div>
                                          </div>
-                                         <?php $status = $row["status"];?>
-                                         <div class="form-group">
-                                            <label for="field-ta" class="col-md-2 control-label"><?php echo get_phrase('sample')."*:"; ?></label>
-                                            <div class="col-md-7">
-                                                <select <?php if ($status!=1) echo 'disabled'?>  id="sampleselect" name="items_group" class="form-control" >
-                                                    <option value=0><?php echo get_phrase('selecet_sample_name');?></option> 
-                                                    <?php 
-                                                        $all_sample_info= $this->db->get('labsamples')->result_array();
-                                                        foreach ($all_sample_info as $item){ ?>
-                                                        <option value=<?php echo $item['id']; ?> <?php if ($recept_list["sample_id"]==$item["id"]) echo "selected"?> ><?php echo $item['name'] ?></option>        
-                                                    <?php } ?>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-ta" class="col-md-2 control-label"><?php echo get_phrase('condition')."*:"; ?></label>
-                                            <div class="col-md-7">
-                                                <input <?php if ($status!=1) echo 'disabled'?> type="text" name="test_condition" class="form-control" id="test_condition" value="<?php echo $recept_list["sample_cond"]; ?>" required/>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-ta" class="col-md-3 control-label"><?php echo get_phrase('rejected/Accepted')."*:"; ?></label>
-                                            <div class="col-md-7">
-                                                <select <?php if ($status!=1) echo 'disabled'?> id="raselect" name="raselect" class="form-control" >
-                                                    <option value="0" <?php if ($recept_list["reject_accept_status"]==0) echo "selected"?> ><?php echo get_phrase('accepted');?></option> 
-                                                    <option value="1" <?php if ($recept_list["reject_accept_status"]==1) echo "selected"?> ><?php echo get_phrase('rejected');?></option> 
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-ta" class="col-md-3 control-label"><?php echo get_phrase('source')."*:"; ?></label>
-                                            <div class="col-md-7">
-                                                <select <?php if ($status!=1) echo 'disabled'?>  id="sourceselect" name="raselect" class="form-control" >
-                                                    <option value="OUTPATIENT" <?php if ($recept_list["source"]=="OUTPATIENT") echo "selected"?> ><?php echo get_phrase('outpatient');?></option> 
-                                                    <option value="MALEWARD" <?php if ($recept_list["source"]=="MALEWARD") echo "selected"?>><?php echo get_phrase('male_ward');?></option> 
-                                                    <option value="FEMALEWARD" <?php if ($recept_list["source"]=="FEMALEWARD") echo "selected"?>><?php echo get_phrase('female_ward');?></option> 
-                                                    <option value="MATERNITY" <?php if ($recept_list["source"]=="MATERNITY") echo "selected"?>><?php echo get_phrase('maternity');?></option> 
-                                                    <option value="PAEDIATRICS" <?php if ($recept_list["source"]=="PAEDIATRICS") echo "selected"?>><?php echo get_phrase('paediatrics');?></option> 
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-ta" class="col-md-2 control-label"><?php echo get_phrase('other_details').":"; ?></label>
-                                            <div class="col-md-7">
-                                                <textarea <?php if ($status!=1) echo 'disabled'?> row="25" class="form-control" name="other_details" id="other_details" style="height:150px"><?php
-                                                  echo $recept_list["other_details"]; 
-                                                ?></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            
-                                        </div>
+                                         <?php if ($status==2){
+                                            echo '<div class="form-group">';
+                                            echo '<label for="field-ta" class="col-md-2 control-label">'.get_phrase('time_of_completion').":".'</label>';
+                                            echo '<div class="col-md-10">';
+                                            echo '<p  class="form-control" >'.date("Y/m/d H:i", $row["end_time"]).'</p>';
+                                            echo '</div></div>';
+                                        }?>
                                     </form>
                                 </div>
                                 <div id="tabs-3"  class="tab-pane">
                                     <div class="col-md-12 compose-message-editor">
                                         <textarea <?php if ($status==0) echo 'disabled'?> row="25" class="form-control" data-stylesheet-url="assets/css/wysihtml5-color.css"  name="lab_result_wysiwyg" 
-                                            id="lab_result_wysiwyg" style="height:380px"><?php
-                                             echo $recept_list["result"]; 
+                                            id="rad_result_wysiwyg" style="height:380px"><?php
+                                             echo $row["rad_result"]; 
                                             ?></textarea>
                                     </div>
                                 </div>
-                                <div id="tabs-4"  class="tab-pane">
+                                <div id="tabs-3"  class="tab-pane">
+                                    <div class="col-md-12 compose-message-editor">
+                                        
+                                    </div>
+                                </div>
+                                <div id="tabs-5"  class="tab-pane">
                                     <div class="col-md-12 compose-message-editor" id="lab-result-container" style="overflow:visible">
                                         <?php 
-                                            $arr_lab_req = $this->db->get_where("lab_request",array("cons_id"=>$row["cons_id"]))->result_array();
+                                            $arr_lab_req = $this->db->get_where("rad_request",array("cons_id"=>$row["cons_id"]))->result_array();
                                             $arr_status = array("Pending","Process","Complete");
                                             foreach($arr_lab_req as $req){
                                                 $icode = $req["itemcode"];
@@ -362,10 +316,10 @@ if ($isset_param) {
                                                 $time = date("Y-m-d H:i:s",$req["end_time"]);
                                                 $status = $req["status"];
                                                 echo "Date : ".$time."<br/><br/>";
-                                                echo "Lab Request - [".$arr_status[$status]."]<br/>";
+                                                echo "Radiology Request - [".$arr_status[$status]."]<br/>";
                                                 echo $iname."<br/><br/>";
-                                                echo "Lab Result"."<br/>";
-                                                $result = $this->db->get_where("lab_result",array("req_id"=>$req["id"]))->row()->result;
+                                                echo "Radiology Result"."<br/>";
+                                                $result = $req["rad_result"];
                                                 echo $result;
                                                 echo "<br/><hr/>";
                                             }
@@ -389,7 +343,7 @@ if ($isset_param) {
     {
         var $ = jQuery;
         //html editors
-        $("#lab_result_wysiwyg").wysihtml5();
+        $("#rad_result_wysiwyg").wysihtml5();
         $("#item-table").dataTable({
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-3 col-left'l><'col-xs-9 col-right'<'export-data'T>f>r>t<'row'<'col-xs-3 col-left'i><'col-xs-9 col-right'p>>"
@@ -638,31 +592,21 @@ if ($isset_param) {
         // save reception information
         function saveReceptionProc(nextCallback,callbackParam,afterCallback){
             var data={};
-            data["patient_id"] = globalPatientID;
-            data["recept_id"] = globalReceptionID;
-            data["sample_id"] = $("#sampleselect").find("option:selected").val();
-            if (data["sample_id"]==0){
-                $.alert("please select sample.","Error");
-                $("#sampleselect").focus();
-                return;
-            }
-            data["sample_condition"] = $("#test_condition").val();
-            data["ra_status"] = $("#raselect").find("option:selected").val();
-            data["source"] = $("#sourceselect").find("option:selected").val();
-            data["other_details"] = $("#other_details").text();
-            data["result"] = $("#lab_result_wysiwyg").parent().find(".wysihtml5-sandbox").contents().find("body").html();
+      //      data["patient_id"] = globalPatientID;
+    //        data["recept_id"] = globalReceptionID;
+            data["result"] = $("#rad_result_wysiwyg").parent().find(".wysihtml5-sandbox").contents().find("body").html();
             $.ajax({
-                  url:$("#baseurl").data("url")+"index.php?modal/savelabreception/"+<?php echo $row["id"]?>,
+                  url:$("#baseurl").data("url")+"index.php?modal/saveradresult/"+<?php echo $row["id"]?>,
                   data:data,
                   type:"POST",
                   success:function(res){
                       res = eval(res);
                       if (res && res[0].msg=="success"){
                          var date = res[0]["date"];
-                         $.alert("<?php echo get_phrase('save_reception_info_success');?>",'Success' );   
-                         $("#updated-date").html("<p>This reception is updated at "+date+" </p>");
+                         $.alert("The radiology information was saved successfully",'Success' );   
+                         $("#updated-date").html("<p>This Radiology was updated at "+date+" </p>");
                      }else{
-                         $.alert("Lab Reception failure!",'Failure' );   
+                         $.alert("Rad Reception failure!",'Failure' );   
                      }
                   }
             });
