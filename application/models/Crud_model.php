@@ -372,10 +372,17 @@ class Crud_model extends CI_Model {
         $data['cardno'] 	= $this->input->post('insur_card_no');
         $data['odetails'] 	= $this->input->post('other_note');
         $data["inout_status"] = $this->input->post('inout_status');
-        $data["registered_date"] = strtotime(date("m/d/y H:i:s"));
-        $this->db->insert('patient',$data);
+        $registe_date = $data["registered_date"] = strtotime(date("m/d/y H:i:s"));
         
+        $this->db->insert('patient',$data);
         $patient_id  =   $this->db->insert_id();
+
+        $this->db->insert("visitor_log",array(
+            "patient_id"=>$patient_id,
+            "type"=>0,
+            "visit_date"=>$registe_date
+        ));
+       
         move_uploaded_file($_FILES["image"]["tmp_name"], "uploads/patient_image/" . $patient_id . '.jpg');
 
         return $patient_id;
@@ -1410,8 +1417,28 @@ class Crud_model extends CI_Model {
         };
         return $result;
     }
+    function save_visitor_log($patient_id, $date){
+        $today = strtotime(date("m/d/Y"));
+        $this->db->where("patient_id",$pateint_id);
+        $this->db->where("visit_date >",$today);
+        $this->db->where("visit_date <=",time());
+        $log = $this->db->get("visitor_log");
+        if($log->num_rows()>0) return;
+
+        $type=1;//review
+        $reg_date = $this->select_patient_info_by_patient_id($patient_id)[0]["registered_date"];
+        $limit = 60*60*24*10;
+        $diff = $today - $reg_date;
+        if ($diff>$limit) $type=2;//revisit;
+
+        $this->db->insert("visitor_log",array(
+            "patient_id"=>$patient_id,
+            "type"=>$type,
+            "visit_date"=>$date
+        ));
+    }
     function save_reception_info($reception_id, $patient_id){
-        $data["recept_date"] =  strtotime(date("Y-m-d H:i:s"));
+        $recep_date=$data["recept_date"] =  strtotime(date("Y-m-d H:i:s"));
         $data["account_type"] = $this->session->userdata('login_type');
         $data["patient_id"] = $patient_id;
         $data["receptionist_id"] = $this->session->userdata('login_user_id');
@@ -1420,6 +1447,7 @@ class Crud_model extends CI_Model {
             $data['status'] = 0;
             $this->db->insert('receptions',$data);
             $refno = $this->db->insert_id();
+            $this->save_visitor_log($patient_id,$recep_date);
         }else
             $this->db->update('receptions',$data,array("refno"=>$reception_id));
         // update last visit date on patient.
@@ -1427,6 +1455,8 @@ class Crud_model extends CI_Model {
         $data1["status"] = 1;
         $this->db->where('patient_id', $patient_id);
         $this->db->update('patient', $data1);
+
+        
         return array(array('reception_id'=>$refno,'date'=>date("d/m/Y H:i:s",$data["recept_date"])));
     }   
     function select_receptions_info(){
@@ -4023,7 +4053,54 @@ class Crud_model extends CI_Model {
         return $res;
     }
     function get_data_for_income_expense_chart(){
-        $now = date();
+        $time = time();
+        $now_year = date("Y",$time);
+        $now_month = date("m",$time);
+        $m1 =$y1=0;
+        $m1=$now_month+1; $y1=$now_year-1;
+        $res=array();
+        for ($i=0;$i<=12;$i++){
+            $m1++;
+            If ($m1>12) {$m1=1; $y1++;};
+            $from =strtotime($y1."-".$m1."-1");
+            $to =strtotime($y1."-".$m1."-31");
+            $val = $this->gen_trial_balance($from, $to);
+            $tmp["month"] = $y1.".".$m1; 
+            $tmp["expenses"] = $val[1];
+            $tmp["income"] = $val[2];
+            array_push($res,$tmp);
+        }
+        return json_encode($res);
+    }
+
+    function get_data_for_patient_chart(){
+        $time = time();
+        $now_year = date("Y",$time);
+        $now_month = date("m",$time);
+        $m1 =$y1=0;
+        $m1=$now_month+1; $y1=$now_year-1;
+        $res=array();
+        for ($i=0;$i<=12;$i++){
+            $m1++;
+            If ($m1>12) {$m1=1; $y1++;};
+            $from =strtotime($y1."-".$m1."-1");
+            $to =strtotime($y1."-".$m1."-31");
+            $this->db->where("visit_date >=",$from);
+            $this->db->where("visit_date <=",$to);
+            $val = $this->db->get("visitor_log")->result_array();
+            $tmp["newpatients"] = 0;
+            $tmp["revisits"] = 0;
+            $tmp["reviews"] = 0;
+            foreach($val as $item){
+                if ($item["type"]==0) $tmp["newpatients"]++;
+                if ($item["type"]==1) $tmp["revisits"]++;
+                if ($item["type"]==2) $tmp["reviews"]++;
+            }
+            $tmp["month"] = $y1.".".$m1; 
+            
+            array_push($res,$tmp);
+        }
+        return json_encode($res);
     }
 }
 

@@ -1,4 +1,7 @@
-
+<script>
+    var IncomeExpenseChartData ='<?php echo $this->crud_model->get_data_for_income_expense_chart(); ?>';
+    var patientChartData = '<?php  echo $this->crud_model->get_data_for_patient_chart(); ?>';
+</script>
 <div class="row">
     <!-- amchart library-->
     <script src="assets/js/amcharts/amcharts.js"></script>
@@ -8,6 +11,8 @@
     <script src="assets/js/amcharts/themes/light.js"></script>
     <!-- custom chart -->
     <script src="assets/js/custom/dashboard-chat.js"></script>
+    
+    
     <!-- Patients Views CHART -->
 	<div class="col-sm-6">
 
@@ -15,7 +20,7 @@
 			<div class="panel-heading">
 				<div class="panel-title">
 					<i class="entypo-chart-bar"></i>
-					<?php echo get_phrase('patient'); ?> Graph (last 30 days)
+					<?php echo get_phrase('patient'); ?> Graph (monthly)
 				</div>
 			</div>
             <div class="panel-body">
@@ -30,7 +35,7 @@
 			<div class="panel-heading">
 				<div class="panel-title">
 					<i class="entypo-chart-bar"></i>
-					Income Expense Comparison (this month)
+					Income Expense Comparison (monthly)
 				</div>
 			</div>
 			<div class="panel-body">
