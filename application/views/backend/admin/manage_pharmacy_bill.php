@@ -1,4 +1,8 @@
 
+<a href="<?php echo base_url();?>index.php?admin/pharmreq/register/" 
+    class="btn btn-primary pull-right">
+        <?php echo get_phrase('new_request'); ?>
+</a>
 <div style="clear:both;"></div>
 <br>
 <table class="table table-bordered table-striped datatable" id="table-2">
@@ -25,7 +29,7 @@
                 <td><?php echo $row['req_date']?></td>
                 <td><?php echo $row['status']?></td>
                 <td>
-                    <a  href="<?php echo base_url();?>index.php?admin/pharmreq/register/<?php echo $row['req_id']?>" 
+                    <a  href="<?php echo base_url();?>index.php?admin/pharmreq/edit/<?php echo $row['req_id']?>" 
                         class="btn btn-default btn-sm btn-icon icon-left">
                             <i class="entypo-pencil"></i>
                             start

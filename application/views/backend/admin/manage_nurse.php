@@ -9,6 +9,7 @@
         <tr>
             <th><?php echo get_phrase('image');?></th>
             <th><?php echo get_phrase('name');?></th>
+            <th><?php echo get_phrase('user_name');?></th>
             <th><?php echo get_phrase('email');?></th>
             <th><?php echo get_phrase('address');?></th>
             <th><?php echo get_phrase('phone');?></th>
@@ -21,14 +22,20 @@
             <tr>
                 <td><img src="<?php echo $this->crud_model->get_image_url('nurse' , $row['nurse_id']);?>" class="img-circle" width="40px" height="40px"></td>
                 <td><?php echo $row['name']?></td>
+                <td><?php echo $row['user_name']?></td>
                 <td><?php echo $row['email']?></td>
                 <td><?php echo $row['address']?></td>
                 <td><?php echo $row['phone']?></td>
                 <td>
-                    <a  onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/edit_nurse/<?php echo $row['nurse_id']?>');" 
+                    <a  href="<?php echo base_url();?>index.php?admin/nurse/edit/<?php echo $row['nurse_id']?>" 
                         class="btn btn-default btn-sm btn-icon icon-left">
                             <i class="entypo-pencil"></i>
                             Edit
+                    </a>
+                    <a  href="<?php echo base_url();?>index.php?admin/nurse/edit_employee/<?php echo $row['nurse_id']?>" 
+                        class="btn btn-default btn-sm btn-icon icon-left">
+                            <i class="entypo-pencil"></i>
+                            Edit Employee Info
                     </a>
                     <a href="<?php echo base_url();?>index.php?admin/nurse/delete/<?php echo $row['nurse_id']?>" 
                         class="btn btn-danger btn-sm btn-icon icon-left" onclick="return checkDelete();">

@@ -104,7 +104,7 @@ if ($isset_param) {
                                     <label for="field-1" class="col-md-3 control-label"><?php echo get_phrase('age'); ?></label>
 
                                     <div class="col-md-9">
-                                        <input disabled type="number" name="age" class="form-control" id="field-page" >
+                                        <input disabled type="text" name="age" class="form-control" id="field-page" >
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -234,38 +234,40 @@ if ($isset_param) {
                                         </div>
                                         <h4 class="add-patient-sub-title"><?php echo get_phrase('items'); ?></h4> 
                                         <div class="form-group">
-                                            <table class="table table-bordered table-striped datatable" id="item-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th><?php echo get_phrase('item_name');?></th>
-                                                        <th><?php echo get_phrase('quantity');?></th>
-                                                        <th><?php echo get_phrase('unit_price');?></th>
-                                                        <th><?php echo get_phrase('total_price');?></th>
-                                                        <th><?php echo get_phrase('discount');?></th>
-                                                        <th><?php echo get_phrase('subnet');?></th>
-                                                        <th><?php echo get_phrase('income');?></th>
-                                                        <th><?php echo get_phrase('remove');?></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php 
-                                                        if ($isset_param){
-                                                            $cartsbill = $this->crud_model->select_carts_info($param2);
-                                                            foreach ($cartsbill as $item){?>
-                                                                <tr>
-                                                                    <td><?php echo $item['itemname'];?></td>
-                                                                    <td><?php echo $item['quantity'];?></td>
-                                                                    <td><?php echo $item['unit_price'];?></td>
-                                                                    <td><?php echo (float)$item['quantity']*(float)$item['unit_price'];?></td>
-                                                                    <td><?php echo $item['discount'];?></td>
-                                                                    <td><?php echo $item['quantity']*$item['unit_price'] - $item['discount'];?></td>
-                                                                    <td><?php echo $item['income'];?></td>
-                                                                    <td></td>
-                                                                </tr>
-                                                            <?php }}
-                                                    ?>
-                                                </tbody>
-                                            </table>
+                                            <div class="col-sm-12">
+                                                <table class="table table-bordered table-striped datatable" id="item-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th><?php echo get_phrase('item_name');?></th>
+                                                            <th><?php echo get_phrase('quantity');?></th>
+                                                            <th><?php echo get_phrase('unit_price');?></th>
+                                                            <th><?php echo get_phrase('total_price');?></th>
+                                                            <th><?php echo get_phrase('discount');?></th>
+                                                            <th><?php echo get_phrase('subnet');?></th>
+                                                            <th><?php echo get_phrase('income');?></th>
+                                                            <th><?php echo get_phrase('remove');?></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php 
+                                                            if ($isset_param){
+                                                                $cartsbill = $this->crud_model->select_carts_info($param2,"CONSULTATION");
+                                                                foreach ($cartsbill as $item){?>
+                                                                    <tr>
+                                                                        <td><?php echo $item['itemname'];?></td>
+                                                                        <td><?php echo $item['quantity'];?></td>
+                                                                        <td><?php echo $item['unit_price'];?></td>
+                                                                        <td><?php echo (float)$item['quantity']*(float)$item['unit_price'];?></td>
+                                                                        <td><?php echo $item['discount'];?></td>
+                                                                        <td><?php echo $item['quantity']*$item['unit_price'] - $item['discount'];?></td>
+                                                                        <td><?php echo $item['income'];?></td>
+                                                                        <td></td>
+                                                                    </tr>
+                                                                <?php }}
+                                                        ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>    
                                     </form>
                                 </div>
@@ -275,6 +277,7 @@ if ($isset_param) {
                                             <label for="field-ta" class="col-md-3 control-label"><?php echo get_phrase('select_payment'); ?></label>
                                             <div class="col-md-5">
                                                 <select name="select_payment" id="select_payment" class="form-control">
+                                                    <option value="">Select Payment</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -313,14 +316,15 @@ if ($isset_param) {
                                             <label for="field-ta" class="col-md-3 control-label"><?php echo get_phrase('send_to'); ?></label>
                                             <div class="col-md-5">
                                                 <select name="send_to" id="send_to" class="form-control">
-                                                    <?php $all_items_info= $this->db->get_where('nurse')->result_array();
+                                                <!--  <?php $all_items_info= $this->db->get_where('nurse')->result_array();
                                                         foreach ($all_items_info as $item){?>
                                                         <option value=<?php echo $item['nurse_id']; ?>><?php echo $item['name']." - ".$item['email']; ?></option>        
-                                                    <?php } ?>
-                                                <!--    <option value="TRIAGE" >General Consultations</option>
-                                                    <option value="PHYSIOTHERAPY">Physiotherapy</option>
-                                                    <option value="EYE CLINIC">Eye Clinic</option>
-                                                    <option value="MCH">MCH</option>
+                                                    <?php } ?>-->
+                                                    <option value="TRIAGE" >General Consultations</option>
+                                                    <option value="LAB">Laboratory</option>
+                                                    <option value="RAD">Radiology</option>
+                                                    <option value="PHARMACY">Pharmacy</option>
+                                              <!--  <option value="MCH">MCH</option>
                                                     <option value="NUTRITION">Nutrition</option>
                                                     <option value="DENTAL CLINIC">Dental Clinic</option>
                                                     <option value="PAEDIATRICS">Paediatrics</option>
@@ -718,7 +722,6 @@ if ($isset_param) {
             $.get($("#baseurl").data("url")+"index.php?modal/getpaymentforcons/"+globalReceptionID,
             function(data){
                 data = eval(data);
-                console.log(data);
                 $.each(data,function(){
                    var $op = $("<option></option>").attr("value",this.transid).text(this.itemname).appendTo($selEl);
                 });
@@ -734,25 +737,25 @@ if ($isset_param) {
             var tid = $("#select_payment").val().toString();
             var nid = $("#send_to").val().toString();
             if (globalReceptionID.length==0) return;
-            if (tid.length==0) {
+            if (tid.length==0 && nid=="TRIAGE") {
                 $.alert("please select payments for patient!","Error"); return;
             }
-            if (nid.length==0) {
+   /*         if (nid.length==0) {
                 $.alert("please select nurse for patient!","Error"); return;
-            }
+            }*/
             if (!checkPatientId()) return;
             data['paymentId'] =tid;
             data['patientId'] = $("#patientselect").find("option:selected").val();
-            data['sentto_account_type'] = 'nurse';
-            data['sentto_account_id'] =  $("#send_to").val();
-            data["type"]="triage";
+  //          data['sentto_account_type'] = 'nurse';
+  //          data['sentto_account_id'] =  $("#send_to").val();
+            data["type"]=nid;
             data["recept_id"] = globalReceptionID;
             data["patient_type"] = $("#patient_type").val();
             function aftercallback(){
         //        window.location.href = "<?php echo base_url(); ?>index.php?admin/reception";
             }
             sendToBranch(data,aftercallback);
-        })
+        });
     });
 </script>
 

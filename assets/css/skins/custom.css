@@ -575,13 +575,24 @@ body .open .dropdown-toggle.btn-primary {
  .notifications.dropdown .dropdown-menu a {
      color: #03bdb0;
  }
-  .notifications.dropdown .dropdown-menu li:hover,
-   .notifications.dropdown .dropdown-menu li:focus,
- .notifications.dropdown .dropdown-menu a:hover,
- .notifications.dropdown .dropdown-menu a:focus{
-     color:#fff;
- }
  
+.notifications.dropdown .dropdown-menu > li > ul > li > a, 
+.notifications.dropdown .dropdown-menu > li > ul > li > p{
+  padding:5px;
+}
+.notifications.dropdown .dropdown-menu > li > ul > li > a:hover,
+.notifications.dropdown .dropdown-menu > li > ul > li > a:focus{
+     color: #f1b300;
+     background-color: #03bdb0;
+}
+.notifications.dropdown .dropdown-menu a:hover,
+.notifications.dropdown .dropdown-menu a:focus {
+    color: #fff;
+}
+
+.notifications.dropdown .dropdown-menu > li > ul > li strong{
+  color: #03bdb0;
+}
 #bar_Patientschartdiv,
 #bar_IncomeExpensechartdiv{
     height: 350px;
@@ -676,4 +687,21 @@ p.form-control{
   -webkit-box-shadow:0px 0px;
   -o-box-shadow:0px 0px;
   -moz-box-shadow:0px 0px;
+}
+.patient-new-badge{
+    background-color: #cc2424;
+    color: white;
+    border-radius: 7px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -o-border-radius: 7px;
+    text-align: center;
+}
+.notifications.dropdown > a .badge {
+  background-color: #03bdb0;
+}
+a.upload-remove-icon{
+  position:absolute;
+  right:0px;
+  top:0px;
 }

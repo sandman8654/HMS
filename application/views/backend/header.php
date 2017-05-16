@@ -8,7 +8,7 @@
         <div class="col-md-2 col-sm-2  pull-left">
             <ul class="list-inline links-list pull-left">
                 <!-- Message Notifications -->
-                <?php if($this->session->userdata('login_type') == 'doctor' || $this->session->userdata('login_type') == 'patient') { ?>
+                <?php if ($this->session->userdata('doctor_login') == 1||$this->session->userdata('patient_login') == 1){?>
                 <li class="notifications dropdown">
                     <?php
                     $total_unread_message_number = 0;
@@ -32,8 +32,6 @@
                     <ul class="dropdown-menu">
                         <li>
                             <ul class="dropdown-menu-list scroller">
-
-
                                 <?php
                                 $current_user = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
                                 $this->db->where('sender', $current_user);
@@ -68,7 +66,7 @@
                                                 <strong>
                                                     <?php echo $this->db->get_where($user_to_show_type, array($user_to_show_type . '_id' => $user_to_show_id))->row()->name; ?>
                                                 </strong>
-                                                - <?php echo date("d M, Y", $last_message_timestamp); ?>
+                                                - <?php echo date("M d, Y", $last_message_timestamp); ?>
                                             </span>
 
                                             <span class="line desc small">
@@ -91,14 +89,61 @@
                     </ul>
                 </li>
                 <?php } ?>
+                <!-- Alarm Notifications-->
+                <li class="notifications dropdown">
+                    <?php $alarm_list = $this->crud_model->get_alarm_list(); ?>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                        <i class="fa fa-bell"></i>
+                             <?php if (count($alarm_list)>0) {?>
+                                <span class="badge badge-info"><?php echo $alarm_list["total_alarms"];?></span>
+                             <?php } ?>
+                    </a>
+                    
+                    <ul class="dropdown-menu">
+                        <li>
+                            <ul class="dropdown-menu-list scroller">
+                                <?php foreach ($alarm_list["alarm_list"] as $row): ?>
+                                <li class="">
+                                    <a href="<?php echo $row['url']?>">
+                                         <strong><?php echo $row["message"]." - ". $row["count"]; ?></strong>
+                                    </a>
+                                    
+                                    <?php foreach($row["desc_list"] as $descitem) { ?>
+                                    <a href="<?php echo $row['url']."/".((isset($descitem["suburl"])&&$descitem["suburl"]!="")?$descitem["suburl"]:'edit')."/".$descitem["id"]?>">
+                                                <?php
+                                                echo substr($descitem["desc"],0,50);
+                                                ?>
+                                     
+                                    </a>
+                                    <?php } ?>
+                                    
+                                </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
             </ul>     
         </div>
         <div class="col-md-8 col-sm-8 ">
             <nav class="navbar navbar-default top-menu">
                 <div class="container-fluid">
                     <ul class="nav navbar-nav">
-                        <li class="dropdown <?php if ($page_name == 'manage_patient'||$page_name == 'add_patient'||$page_name == 'edit_patient') echo 'active'; ?>"><a href="<?php echo base_url(); ?>index.php?admin/patient">
+                        <li class="dropdown <?php if ($page_name == 'manage_patient'||$page_name == 'add_patient'||$page_name == 'edit_patient') echo 'active'; ?>">
+                            <a href="<?php echo base_url(); ?>index.php?admin/patient" data-hover="dropdown-hover" aria-haspopup="true" data-close-others="true">
                             <div class="round"><i class="fa fa-user custom"></i></div><?php echo get_phrase('patient'); ?></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="<?php echo base_url(); ?>index.php?admin/patient/register"><?php echo get_phrase('register_new_patient'); ?></a></li>
+                                <li><a href="<?php echo base_url(); ?>index.php?admin/patient"><?php echo get_phrase('patient_list'); ?></a></li>
+                                <li class="dropdown  dropdown-submenu"><a href="#"><?php echo get_phrase('bed/Ward'); ?></a>
+                                    <ul class="dropdown-menu">
+                                        <li ><a href="<?php echo base_url();?>index.php?admin/bed"><?php echo get_phrase('Manage_bed'); ?></a></li>    
+                                        <li><a href="<?php echo base_url();?>index.php?admin/bed_allotment"><?php echo get_phrase('bed_allotment'); ?></a></li>    
+                                    </ul>
+                                </li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/inpatients"><?php echo get_phrase('Inpatient'); ?></a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/maternity"><?php echo get_phrase('maternity'); ?></a></li>
+                            </ul>
                         </li>
                         <li class="dropdown <?php if (strpos($page_name,'reception')>-1||
                                                       strpos($page_name,'triage')>-1||
@@ -121,7 +166,8 @@
                                 <li><a href="<?php echo base_url();?>index.php?admin/labreq"><?php echo get_phrase('laboratory'); ?></a></li>
                                 <li><a href="<?php echo base_url();?>index.php?admin/radreq"><?php echo get_phrase('radiology'); ?></a></li>
                                 <li><a href="<?php echo base_url();?>index.php?admin/pharmreq"><?php echo get_phrase('pharmacy'); ?></a></li>
-                                <li><a href="#">Theatre</a></li>
+                       <!--         <li><a href="#">Theatre</a></li>
+
                                 <li><a href="#">Consolidate Invoice</a></li>
                                 <li><a href="#">Patient History</a></li>
                                 <li><a href="<?php echo base_url();?>index.php?admin/mngbillserv">Manage Billing Service</a></li>
@@ -139,29 +185,26 @@
                                 <li><a href="#">Surgicals Billing</a></li>
                                 <li><a href="#">Socials works</a></li>
                                 <li><a href="#">Physiotherapy</a></li>
-                                <li><a href="#">Counselling</a></li>
+                                <li><a href="#">Counselling</a></li>-->
                                 
                             </ul>
                         </li>
                         <li class=""><a href="#" data-hover="dropdown-hover" aria-haspopup="true" data-close-others="true"><div class="round"><i class="fa fa-medkit custom"></i></div>Inventory</a>
                             <ul class="dropdown-menu">
-                                <li class="dropdown  dropdown-submenu"><a href="#">Stock Management</a>
-                                    <ul class="dropdown-menu">
-                                        <li><a href="#">Add/Edit Stock Items</a></li>    
-                                        <li><a href="#">Find Stock Items</a></li>
-                                        <li><a href="#">Good Received Inwards</a></li>
-                                        <li><a href="#">Stock Request </a></li>    
-                                        <li><a href="#">Stock Transfer</a></li>    
-                                        <li><a href="#">Stock Taking</a></li>    
-                                        <li><a href="#">Random Stock Take</a></li>    
-                                        <li><a href="#">Stock Adjustment</a></li>    
-                                        <li><a href="#">Stock Validation</a></li>    
-                                        <li><a href="#">Stock Usage Register</a></li>
-                                        <li><a href="#">Good Returned Outwards</a></li>
-                                        <li><a href="#">Local Purchase Order</a></li>
-                                    </ul>
-                                </li>
-                                <li class="dropdown  dropdown-submenu"><a href="#">Asset Management</a>
+                           <!--     <li class="dropdown  dropdown-submenu"><a href="#">Stock Management</a>
+                                    <ul class="dropdown-menu">-->
+                                        <li><a href="<?php echo base_url();?>index.php?admin/mngstocks">Stocks</a></li>    
+                                        <li><a href="<?php echo base_url();?>index.php?admin/mnggoods">Goods</a></li>    
+                                        <li><a href="<?php echo base_url();?>index.php?admin/mnglpo">Local Purchase Order</a></li>
+                                        <li class="dropdown  dropdown-submenu"><a href="#">Blood</a>
+                                            <ul class="dropdown-menu">
+                                                <li><a href="<?php echo base_url();?>index.php?admin/blood_bank">Blood Bank</a></li>
+                                                <li><a href="<?php echo base_url();?>index.php?admin/blood_donor">Blood Donor</a></li>
+                                            </ul>
+                                        </li>
+                             <!--       </ul>
+                                </li>-->
+                         <!--       <li class="dropdown  dropdown-submenu"><a href="#">Asset Management</a>
                                     <ul class="dropdown-menu">
                                         <li><a href="#">Add New Asset</a></li>
                                         <li><a href="#">Edit Asset Details</a></li>
@@ -173,13 +216,28 @@
                                         <li><a href="#">Manage Asset</a></li>
                                         <li><a href="#">Asset Count</a></li>    
                                     </ul>
-                                </li>
+                                </li>-->
                             </ul>    
                         </li>
                         <li class=""><a href="#"  data-hover="dropdown-hover" aria-haspopup="true" data-close-others="true"><div class="round"><i class="fa fa-users  custom"></i></div>employees</a>
                             <ul class="dropdown-menu">
-                                <li><a href="#">Add New Employee</a></li>    
-                                <li><a href="#">Edit Employee Info</a></li>
+                                <li class="dropdown  dropdown-submenu"><a href="#">Employee Information</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="<?php echo base_url(); ?>index.php?admin/accountant">Accountants</a></li>
+                                        <li><a href="<?php echo base_url(); ?>index.php?admin/doctor">Doctors</a></li>
+                                        <li><a href="<?php echo base_url(); ?>index.php?admin/laboratorist">Laboratorists</a></li>
+                                        <li><a href="<?php echo base_url(); ?>index.php?admin/nurse">Nurses</a></li>
+                                        <li><a href="<?php echo base_url(); ?>index.php?admin/pharmacist">Pharmacists</a></li>    
+                                        <li><a href="<?php echo base_url(); ?>index.php?admin/receptionist">Receptionists</a></li>    
+                                    </ul>
+                                </li>
+                                <li class="dropdown  dropdown-submenu"><a href="#">Employee Payroll</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="<?php echo base_url(); ?>index.php?admin/payroll">Create Payroll</a></li>
+                                        <li><a href="<?php echo base_url(); ?>index.php?admin/payroll_list">Payroll List</a></li>
+                                    </ul>
+                                </li>    
+                          <!--      <li><a href="#">Edit Employee Info</a></li>
                                 <li><a href="#">Find Employee</a></li>
                                 <li><a href="#">Delete Employee Record</a></li>
                                 <li><a href="#">Emplyee Chart</a></li>
@@ -201,7 +259,7 @@
                                         <li><a href="#">Locums Check-in</a></li>
                                         <li><a href="#">Locums Check-out</a></li>    
                                     </ul>
-                                </li>
+                                </li>-->
                             </ul>
                         </li>
                         <li class=""><a href="#"  data-hover="dropdown-hover" aria-haspopup="true" data-close-others="true"><div class="round"><i class="fa fa-file-text-o custom"></i></div>reports</a>
@@ -212,9 +270,9 @@
                                 <li><a href="#">Managerial Daily Summary</a></li>  
                                 <li class="dropdown  dropdown-submenu"><a href="#">Financial Statements</a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#">Trial Balance</a></li>    
-                                        <li><a href="#">Income Statement</a></li>
-                                        <li><a href="#">Balance Sheet</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?admin/trial_bal_report">Trial Balance</a></li>    
+                                        <li><a href="<?php echo base_url();?>index.php?admin/income_statement_report">Income Statement</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?admin/balance_sheet_report">Balance Sheet</a></li>
                                     </ul>
                                 </li>
                                 <li class="dropdown  dropdown-submenu"><a href="#">Income Report</a>
@@ -268,7 +326,10 @@
                                         <li><a href="#">All</a></li>
                                         <li><a href="#">By Section</a></li>
                                     </ul>
-                                </li> 
+                                </li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/operation_report"><?php echo get_phrase('operation_report'); ?></a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/birth_report"><?php echo get_phrase('birth_report'); ?></a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/death_report"><?php echo get_phrase('death_report'); ?></a></li>
                                 <li class="dropdown  dropdown-submenu"><a href="#">HR Reports</a>
                                     <ul class="dropdown-menu">
                                         <li><a href="#">Detailed Monthly Report</a></li>
@@ -371,29 +432,24 @@
                         <li class=""><a href="#" data-hover="dropdown-hover" aria-haspopup="true" data-close-others="true"><div class="round"><i class="fa fa-dollar custom"></i></div>accounts</a>
                             <ul class="dropdown-menu">
                                 <li><a href="<?php echo base_url();?>index.php?admin/journalentry">Journal Entries</a></li>    
-                                <li><a href="#">Ledgers Panel</a></li>
-                                <li><a href="#">Debtors Management</a></li>
-                                <li><a href="#">Creditors Mangement</a></li>
-                                <li><a href="#">Find Invoices</a></li>
-                                <li><a href="#">Cash Collection</a></li>
-                                <li><a href="#">Expenses Mangement</a></li>
-                                <li><a href="#">Bank Deposit</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/ledgerspanel">Ledgers Panel</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/mngdebtor">Debtors Management</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/mngcreditor">Creditors Mangement</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/findinvoices">Find Invoices</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/cashcollection">Cash Collection</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/mngexpenses">Expenses Mangement</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/bnkdeposit">Bank Deposit</a></li>
                             </ul>
                         </li>
                         <li class=""><a href="#" data-hover="dropdown-hover" aria-haspopup="true" data-close-others="true"><div class="round"><i class="fa fa-gear  custom"></i></div>tools</a>
                             <ul class="dropdown-menu">
-                                <li><a href="#">Company Details</a></li>    
-                                <li><a href="#">System User Manager</a></li>
-                                <li><a href="#">Useer Access Rights</a></li>
-                                <li><a href="#">Item Access Rights</a></li>
-                                <li><a href="#">Change Password</a></li>
-                                <li><a href="#">Edit System Variables</a></li>
-                                <li><a href="#">Set Ward Beds</a></li>
-                                <li><a href="#">Set up Banks</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/system_settings">System Settings</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/manage_language">Language Settings</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/sms_settings">SMS Settings</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/bank_settings">Set Up Banks</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/department">Set Up Department</a></li>
+                                <li><a href="<?php echo base_url();?>index.php?admin/manage_profile">Profile Setting</a></li>
                                 <li><a href="#">Medical Notes</a></li>
-                                <li><a href="#">Add/Edit Medical Data</a></li>
-                                <li><a href="#">Import Database</a></li>
-                                <li><a href="#">Export Database</a></li>
                             </ul>
                         </li>
                     </ul>

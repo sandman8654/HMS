@@ -20,7 +20,13 @@
                             <input type="number" name="bed_number" class="form-control" id="field-1" >
                         </div>
                     </div>
-                    
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('room_number'); ?></label>
+
+                        <div class="col-sm-5">
+                            <input type="text" name="room_number" class="form-control" id="field-1" >
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="field-ta" class="col-sm-3 control-label"><?php echo get_phrase('type'); ?></label>
 

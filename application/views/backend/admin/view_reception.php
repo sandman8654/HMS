@@ -110,7 +110,7 @@ if ($isset_param) {
                                     <label for="field-1" class="col-md-3 control-label"><?php echo get_phrase('age'); ?></label>
 
                                     <div class="col-md-9">
-                                        <input disabled type="number" name="age" class="form-control" id="field-1" value="<?php echo ($isset_param)?$row['age']:''; ?>">
+                                        <input disabled type="text" name="age" class="form-control" id="field-1" value="<?php echo ($isset_param)?$row['age']:''; ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">

@@ -1,3 +1,13 @@
+   <style>
+    body.modal-open .modal[style]:not([style='display: none;']) {
+        display: flex !important;
+        height: 100%;
+    } 
+
+    body.modal-open .modal[style]:not([style='display: none;']) .modal-dialog {
+        margin: auto;
+    }
+   </style>
     <script type="text/javascript">
 	function showAjaxModal(url)
 	{

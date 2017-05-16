@@ -34,6 +34,13 @@ foreach ($single_patient_info as $row) {
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('usesr_name'); ?></label>
+                                    <div class="col-sm-9">
+                                        <input type="text" name="username" class="form-control" id="field-1" value="<?php echo $row['user_name']; ?>">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
                                     <label for="field-ta" class="col-sm-3 control-label"><?php echo get_phrase('address'); ?></label>
 
                                     <div class="col-sm-9">
@@ -69,7 +76,7 @@ foreach ($single_patient_info as $row) {
                                     <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('birth_date'); ?></label>
 
                                     <div class="col-sm-9">
-                                        <input type="text" name="birth_date" class="form-control datepicker" id="field-1" value="<?php echo date('d/m/Y', $row['birth_date']); ?>" >
+                                        <input type="text" name="birth_date" class="form-control datepicker" id="field-1" value="<?php echo date('m/d/Y', $row['birth_date']); ?>" >
                                     </div>
                                 </div>
                                 
@@ -77,7 +84,7 @@ foreach ($single_patient_info as $row) {
                                     <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('age'); ?></label>
 
                                     <div class="col-sm-9">
-                                        <input type="number" name="age" class="form-control" id="field-1" value="<?php echo $row['age']; ?>">
+                                        <input  type="text" name="age" class="form-control"  value="<?php echo $row['age']; ?>" >
                                     </div>
                                 </div>
                                 
@@ -99,9 +106,11 @@ foreach ($single_patient_info as $row) {
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="field-ta" class="control-label col-sm-3" ><?php echo get_phrase('is_inpaitent?').": "; ?></label>
+                                    <label for="field-ta" class="control-label col-sm-3" ><?php echo get_phrase('patient_type').": "; ?></label>
                                     <div class="col-sm-9">
-                                        <input type="checkbox" name="inout_status" id="inout_status" <?php if ($row["inout_status"]==1) echo "checked" ?>></input>
+                                        <input type="radio" name="inout_status" <?php if ($row["inout_status"]==1) echo "checked" ?> value='1'>Inpatient</input>
+                                        <input type="radio" name="inout_status" <?php if ($row["inout_status"]==0) echo "checked" ?> value='0' style="margin-left:10px">Outpatient</input>
+                                        <input type="radio" name="inout_status" <?php if ($row["inout_status"]==2) echo "checked" ?> value='2' style="margin-left:10px">Maternity</input>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -249,6 +258,16 @@ foreach ($single_patient_info as $row) {
          $("#inout_status").on("click",function(){
             var st = $(this).prop("checked");
             $(this).val((st)?1:0);
+        });
+        
+        var $item = $("#insur_group").find("option:selected");
+        $("#insur_comp_name").val($item.data("cmpname"));
+
+        var birthDate = $("input[name='birth_date']").val()||"";
+        if (birthDate != "") $("input[name='age']").val(age(birthDate));
+        $("input[name='birth_date']").on("change",function(){
+            var birthDate = $(this).val();
+            $("input[name='age']").val(age(birthDate));
         });
     });
 </script>

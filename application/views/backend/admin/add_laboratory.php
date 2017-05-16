@@ -116,7 +116,7 @@ if ($isset_param) {
                                     <label for="field-1" class="col-md-3 control-label"><?php echo get_phrase('age'); ?></label>
 
                                     <div class="col-md-9">
-                                        <input disabled type="number" name="age" class="form-control" id="field-page" >
+                                        <input disabled type="text" name="age" class="form-control" id="field-page" >
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -241,8 +241,8 @@ if ($isset_param) {
                                             $pay_status = $this->db->get_where("sales",array("item_id"=>$row["itemcode"],"recep_id"=>$row["recept_id"]))->row()->status;
                                        ?> 
                                        <h4 class="add-patient-sub-title "><?php echo get_phrase('Requested_test_detail'); ?></h4> 
-                                       <?php if ($pay_status!=1) echo"<p> you have to pay for this lab</p> ";
-                                             if ($status == 2) echo"<p> The lab reception has been submittied already.</p> ";
+                                       <?php if ($pay_status<2) echo"<p> you have to pay for this laboratory</p> ";
+                                             if ($status >= 2) echo"<p> The lab reception has been submittied already.</p> ";
                                        ?>
                                        <div class="form-group">
                                             <label for="field-ta" class="col-md-2 control-label"><?php echo get_phrase('Test_name').":"; ?></label>
@@ -268,7 +268,7 @@ if ($isset_param) {
                                                 <p class="form-control"  ><?php echo $sendername;?></p>
                                             </div>
                                          </div>
-                                         <?php if ($status==2){
+                                         <?php if ($status==3){
                                             echo "<div class='form-group'> 
                                                 <label for='field-ta' class='col-md-2 control-label'>".get_phrase('done_by').':'."</label>
                                                 <div class='col-md-10'>";
@@ -283,8 +283,10 @@ if ($isset_param) {
                                                 <p class="form-control" ><?php if ($row["status"]==0) 
                                                                                     echo get_phrase('pending');
                                                                                elseif($row["status"]==1) 
-                                                                                    echo get_phrase('in_process');
+                                                                                    echo get_phrase('billd');
                                                                                elseif($row["status"]==2)
+                                                                                    echo get_phrase('in_processing');  
+                                                                               elseif($row["status"]==3)
                                                                                     echo get_phrase('completed');  
                                                 ?></p>
                                             </div>
@@ -293,7 +295,7 @@ if ($isset_param) {
                                          <div class="form-group">
                                             <label for="field-ta" class="col-md-2 control-label"><?php echo get_phrase('sample')."*:"; ?></label>
                                             <div class="col-md-7">
-                                                <select <?php if ($status!=1) echo 'disabled'?>  id="sampleselect" name="items_group" class="form-control" >
+                                                <select <?php if ($status<2) echo 'disabled'?>  id="sampleselect" name="items_group" class="form-control" >
                                                     <option value=0><?php echo get_phrase('selecet_sample_name');?></option> 
                                                     <?php 
                                                         $all_sample_info= $this->db->get('labsamples')->result_array();
@@ -306,13 +308,13 @@ if ($isset_param) {
                                         <div class="form-group">
                                             <label for="field-ta" class="col-md-2 control-label"><?php echo get_phrase('condition')."*:"; ?></label>
                                             <div class="col-md-7">
-                                                <input <?php if ($status!=1) echo 'disabled'?> type="text" name="test_condition" class="form-control" id="test_condition" value="<?php echo $recept_list["sample_cond"]; ?>" required/>
+                                                <input <?php if ($status<2) echo 'disabled'?> type="text" name="test_condition" class="form-control" id="test_condition" value="<?php echo $recept_list["sample_cond"]; ?>" required/>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-ta" class="col-md-3 control-label"><?php echo get_phrase('rejected/Accepted')."*:"; ?></label>
                                             <div class="col-md-7">
-                                                <select <?php if ($status!=1) echo 'disabled'?> id="raselect" name="raselect" class="form-control" >
+                                                <select <?php if ($status<2) echo 'disabled'?> id="raselect" name="raselect" class="form-control" >
                                                     <option value="0" <?php if ($recept_list["reject_accept_status"]==0) echo "selected"?> ><?php echo get_phrase('accepted');?></option> 
                                                     <option value="1" <?php if ($recept_list["reject_accept_status"]==1) echo "selected"?> ><?php echo get_phrase('rejected');?></option> 
                                                 </select>
@@ -321,7 +323,7 @@ if ($isset_param) {
                                         <div class="form-group">
                                             <label for="field-ta" class="col-md-3 control-label"><?php echo get_phrase('source')."*:"; ?></label>
                                             <div class="col-md-7">
-                                                <select <?php if ($status!=1) echo 'disabled'?>  id="sourceselect" name="raselect" class="form-control" >
+                                                <select <?php if ($status<2) echo 'disabled'?>  id="sourceselect" name="raselect" class="form-control" >
                                                     <option value="OUTPATIENT" <?php if ($recept_list["source"]=="OUTPATIENT") echo "selected"?> ><?php echo get_phrase('outpatient');?></option> 
                                                     <option value="MALEWARD" <?php if ($recept_list["source"]=="MALEWARD") echo "selected"?>><?php echo get_phrase('male_ward');?></option> 
                                                     <option value="FEMALEWARD" <?php if ($recept_list["source"]=="FEMALEWARD") echo "selected"?>><?php echo get_phrase('female_ward');?></option> 
@@ -333,7 +335,7 @@ if ($isset_param) {
                                         <div class="form-group">
                                             <label for="field-ta" class="col-md-2 control-label"><?php echo get_phrase('other_details').":"; ?></label>
                                             <div class="col-md-7">
-                                                <textarea <?php if ($status!=1) echo 'disabled'?> row="25" class="form-control" name="other_details" id="other_details" style="height:150px"><?php
+                                                <textarea <?php if ($status<2) echo 'disabled'?> row="25" class="form-control" name="other_details" id="other_details" style="height:150px"><?php
                                                   echo $recept_list["other_details"]; 
                                                 ?></textarea>
                                             </div>
@@ -345,7 +347,7 @@ if ($isset_param) {
                                 </div>
                                 <div id="tabs-3"  class="tab-pane">
                                     <div class="col-md-12 compose-message-editor">
-                                        <textarea <?php if ($status==0) echo 'disabled'?> row="25" class="form-control" data-stylesheet-url="assets/css/wysihtml5-color.css"  name="lab_result_wysiwyg" 
+                                        <textarea <?php if ($status<2) echo 'disabled'?> row="25" class="form-control" data-stylesheet-url="assets/css/wysihtml5-color.css"  name="lab_result_wysiwyg" 
                                             id="lab_result_wysiwyg" style="height:380px"><?php
                                              echo $recept_list["result"]; 
                                             ?></textarea>
@@ -355,7 +357,7 @@ if ($isset_param) {
                                     <div class="col-md-12 compose-message-editor" id="lab-result-container" style="overflow:visible">
                                         <?php 
                                             $arr_lab_req = $this->db->get_where("lab_request",array("cons_id"=>$row["cons_id"]))->result_array();
-                                            $arr_status = array("Pending","Process","Complete");
+                                            $arr_status = array("Pending","billed","Processing","Completed");
                                             foreach($arr_lab_req as $req){
                                                 $icode = $req["itemcode"];
                                                 $iname = $this->db->get_where("items",array("ItemCode"=>$icode))->result_array()[0]["ItemName"];
@@ -594,6 +596,7 @@ if ($isset_param) {
                     recepId:globalReceptionID,
                     url:"<?php echo base_url();?>"+"index.php?modal/submitbill/",
                     type:"lab",// it means bill from laboratory
+                    reqid:<?php  echo ($isset_param)?$param2:0;?>,
                     carts:function(items){
                         var res=[];
                         $.each(items, function(id){

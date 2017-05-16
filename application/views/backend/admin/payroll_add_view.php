@@ -18,11 +18,9 @@
                             $user_info = $this->db->get($account_type)->result_array();
                             
                             foreach ($user_info as $row) { ?>
-
                                 <option value="<?php echo $account_type . '-' . $row[$account_type . '_id']; ?>"
                                     <?php if($account_type == $user_type && $row[$account_type . '_id'] == $employee_id) echo 'selected'; ?>>
                                     - <?php echo $row['name']; ?></option>
-
                             <?php } ?>
                         </optgroup>
                     <?php } ?>
@@ -76,7 +74,7 @@
                 <select name="year" class="form-control selectboxit" required>
                     <option value=""><?php echo get_phrase('select_a_year'); ?></option>
                     <?php
-                    for($i = 2017; $i <= 2026; $i++): ?>
+                    for($i = 2017; $i <= 2056; $i++): ?>
                         <option value="<?php echo $i; ?>"
                             <?php if($i == $year) echo 'selected'; ?>>
                                 <?php echo $i; ?>
@@ -248,7 +246,7 @@
                         <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('basic'); ?></label>
 
                         <div class="col-sm-7">
-                            <input type="text" class="form-control" name="joining_salary" id="basic" value="0" required />
+                            <input type="text" class="form-control" name="joining_salary" id="basic" value="<?php echo $basic_salary; ?>" required />
                         </div>
                     </div>
 

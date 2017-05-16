@@ -59,7 +59,7 @@ class Nurse extends CI_Controller {
     }
 
     function bed($task = "", $bed_id = "") {
-        if ($this->session->userdata('nurse_login') != 1) {
+        if ( $this->session->userdata('nurse_login') != 1) {
             $this->session->set_userdata('last_page', current_url());
             redirect(base_url(), 'refresh');
         }
@@ -92,7 +92,7 @@ class Nurse extends CI_Controller {
             $this->session->set_userdata('last_page', current_url());
             redirect(base_url(), 'refresh');
         }
-
+        
         if ($task == "create") {
             $this->crud_model->save_bed_allotment_info();
             $this->session->set_flashdata('message', get_phrase('bed_allotment_info_saved_successfuly'));

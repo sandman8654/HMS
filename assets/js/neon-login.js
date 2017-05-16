@@ -18,11 +18,10 @@ var neonLogin = neonLogin || {};
 		// Login Form & Validation
 		neonLogin.$container.validate({
 			rules: {
-				email: {
-					required: true	,
-					email : true
-				},
 				
+				username: {
+					required: true	
+				},
 				password: {
 					required: true
 				},
@@ -66,7 +65,7 @@ var neonLogin = neonLogin || {};
 						method: 'POST',
 						dataType: 'json',
 						data: {
-							email: $("input#email").val(),
+							username: $("input#username").val(),
 							password: $("input#password").val(),
 						},
 						error: function()

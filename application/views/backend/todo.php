@@ -5,8 +5,11 @@
 
             <div class="chat-inner" tabindex="5000" style="overflow: hidden; outline: none;">
                 <h2 style="color: #EFF3F4;font-weight: 100;text-align: center; margin-top:42px;">
-                    Monday            <br>
-                    10th April, 2017        </h2>
+                    <?php 
+                        $now = date("D <br> S F, Y"); 
+                        echo date("l")."<br/>";
+                        echo date("jS F, Y");
+                    ?> </h2>
                 <h3 style="color: #fff;background-color:rgba(35, 154, 146, 0.69);font-size: 12px;padding: 5px; font-weight:200;">
 
                     <i class="entypo-list"></i>

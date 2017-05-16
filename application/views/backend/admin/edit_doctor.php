@@ -1,5 +1,6 @@
 <?php 
 $department_info = $this->db->get('department')->result_array();
+echo $param2;
 $single_doctor_info = $this->db->get_where('doctor', array('doctor_id' => $param2))->result_array();
 foreach ($single_doctor_info as $row) {
 ?>
@@ -25,6 +26,13 @@ foreach ($single_doctor_info as $row) {
                                 <input type="text" name="name" class="form-control" id="field-1" value="<?php echo $row['name']; ?>">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('user_name'); ?></label>
+
+                            <div class="col-sm-5">
+                                <input disabled type="text" name="username" class="form-control" id="field-1" value="<?php echo $row['user_name']; ?>">
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('email'); ?></label>
@@ -38,9 +46,7 @@ foreach ($single_doctor_info as $row) {
                             <label for="field-ta" class="col-sm-3 control-label"><?php echo get_phrase('address'); ?></label>
 
                             <div class="col-sm-9">
-                                <textarea name="address" class="form-control" id="field-ta">
-                                    <?php echo $row['address']; ?>
-                                </textarea>
+                                <textarea name="address" class="form-control" id="field-ta"><?php echo $row['address']; ?></textarea>
                             </div>
                         </div>
 
@@ -51,7 +57,7 @@ foreach ($single_doctor_info as $row) {
                                 <input type="text" name="phone" class="form-control" id="field-1" value="<?php echo $row['phone']; ?>">
                             </div>
                         </div>
-
+<!--
                         <div class="form-group">
                             <label for="field-ta" class="col-sm-3 control-label"><?php echo get_phrase('department'); ?></label>
 
@@ -71,12 +77,10 @@ foreach ($single_doctor_info as $row) {
                             <label for="field-ta" class="col-sm-3 control-label"><?php echo get_phrase('profile'); ?></label>
 
                             <div class="col-sm-9">
-                                 <textarea name="profile" class="form-control html5editor" id="field-ta" data-stylesheet-url="assets/css/wysihtml5-color.css">
-                                    <?php echo $row['profile']; ?>
-                                </textarea>
+                                 <textarea name="profile" class="form-control html5editor" id="field-ta" data-stylesheet-url="assets/css/wysihtml5-color.css"><?php echo $row['profile']; ?></textarea>
                             </div>
                         </div>
-
+-->
                         <div class="form-group">
                             <label class="col-sm-3 control-label"><?php echo get_phrase('image'); ?></label>
 
@@ -102,6 +106,7 @@ foreach ($single_doctor_info as $row) {
 
                         <div class="col-sm-3 control-label col-sm-offset-2">
                             <input type="submit" class="btn btn-success" value="Update">
+                            <a href="<?php echo base_url().'index.php?admin/doctor';?>" class="btn btn-danger btn-md">Exit</a>
                         </div>
                     </form>
 

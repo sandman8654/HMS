@@ -50,5 +50,80 @@
 <?php if ($this->session->flashdata('message') != ""){ ?>
     <script>
         toastr.info('<?php echo $this->session->flashdata('message');?>');
+        <?php $this->session->set_flashdata('message', "");?>
     </script>>
 <?php } ?> 
+<script>
+
+    // Numeric only control handler
+jQuery.fn.ForceNumericOnly =
+    function()
+    {
+        return this.each(function()
+        {
+            $(this).keydown(function(e)
+            {
+                var key = e.charCode || e.keyCode || 0;
+                // allow backspace, tab, delete, enter, arrows, numbers and keypad numbers ONLY
+                // home, end, period, and numpad decimal
+                return (
+                    key == 8 || 
+                    key == 9 ||
+                    key == 13 ||
+                    key == 46 ||
+                    key == 110 ||
+                    key == 190 ||
+                    (key >= 35 && key <= 40) ||
+                    (key >= 48 && key <= 57) ||
+                    (key >= 96 && key <= 105));
+            });
+        });
+    };
+
+/*
+* age calculator
+*/
+function age(d1){
+    var birthdate = d1, // in   "mm/dd/yyyy" format
+        now = new Date(),
+        nowDateString = [now.getMonth()+1,now.getDate(),now.getYear()+1900].join("/");
+    var nowdate = nowDateString; // in   "mm/dd/yyyy" format
+    var x = birthdate.split("/");    
+    var y = nowdate.split("/");
+    var bdays = x[1];
+    var bmonths = x[0];
+    var byear = x[2];
+    //alert(bdays);
+    var sdays = y[1];
+    var smonths = y[0];
+    var syear = y[2];
+    //alert(sdays);
+
+    if(sdays < bdays)
+    {
+        sdays = parseInt(sdays) + 30;
+        smonths = parseInt(smonths) - 1;
+        //alert(sdays);
+        var fdays = sdays - bdays;
+        //alert(fdays);
+    }
+    else{
+        var fdays = sdays - bdays;
+    }
+
+    if(smonths < bmonths)
+    {
+        smonths = parseInt(smonths) + 12;
+        syear = syear - 1;
+        var fmonths = smonths - bmonths;
+    }
+    else
+    {
+        var fmonths = smonths - bmonths;
+    }
+
+    var fyear = syear - byear;
+    return fyear+' years '+fmonths+' months '+fdays+' days';
+}
+</script>
+

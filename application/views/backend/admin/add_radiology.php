@@ -110,7 +110,7 @@ if ($isset_param) {
                                     <label for="field-1" class="col-md-3 control-label"><?php echo get_phrase('age'); ?></label>
 
                                     <div class="col-md-9">
-                                        <input disabled type="number" name="age" class="form-control" id="field-page" >
+                                        <input disabled type="text" name="age" class="form-control" id="field-page" >
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -262,7 +262,7 @@ if ($isset_param) {
                                                 <p class="form-control"  ><?php echo $sendername;?></p>
                                             </div>
                                          </div>
-                                         <?php if ($status==2){
+                                         <?php if ($status==3){
                                             echo "<div class='form-group'> 
                                                 <label for='field-ta' class='col-md-2 control-label'>".get_phrase('done_by').':'."</label>
                                                 <div class='col-md-10'>";
@@ -277,13 +277,15 @@ if ($isset_param) {
                                                 <p class="form-control" ><?php if ($status==0) 
                                                                                     echo get_phrase('pending');
                                                                                elseif($status==1) 
-                                                                                    echo get_phrase('in_process');
-                                                                               elseif($status==2)
+                                                                                    echo get_phrase('billed');
+                                                                               elseif($status==2) 
+                                                                                    echo get_phrase('processing');
+                                                                               elseif($status==3)
                                                                                     echo get_phrase('completed');  
                                                 ?></p>
                                             </div>
                                          </div>
-                                         <?php if ($status==2){
+                                         <?php if ($status==3){
                                             echo '<div class="form-group">';
                                             echo '<label for="field-ta" class="col-md-2 control-label">'.get_phrase('time_of_completion').":".'</label>';
                                             echo '<div class="col-md-10">';
@@ -294,22 +296,55 @@ if ($isset_param) {
                                 </div>
                                 <div id="tabs-3"  class="tab-pane">
                                     <div class="col-md-12 compose-message-editor">
-                                        <textarea <?php if ($status==0) echo 'disabled'?> row="25" class="form-control" data-stylesheet-url="assets/css/wysihtml5-color.css"  name="lab_result_wysiwyg" 
+                                        <textarea <?php if ($status<2) echo 'disabled'?> row="25" class="form-control" data-stylesheet-url="assets/css/wysihtml5-color.css"  name="lab_result_wysiwyg" 
                                             id="rad_result_wysiwyg" style="height:380px"><?php
                                              echo $row["rad_result"]; 
                                             ?></textarea>
                                     </div>
                                 </div>
-                                <div id="tabs-3"  class="tab-pane">
-                                    <div class="col-md-12 compose-message-editor">
-                                        
+                                <div id="tabs-4"  class="tab-pane">
+                                    <div class="col-md-12 ">
+                                         <h4 class="add-patient-sub-title" ><?php echo get_phrase('scan_images'); ?></h4>
+                                         
+                                         <form id="upload-scan" role="form" class="form-horizontal form-groups-bordered"  method="post" enctype="multipart/form-data">
+                                            <div class="col-sm-12" <?php if ($status<2) echo 'disabled'?>>
+                                                <div class="fileinput fileinput-new" data-provides="fileinput">
+                                                    <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;" data-trigger="fileinput">
+                                                        <img src="http://placehold.it/200x150" alt="...">
+                                                    </div>
+                                                    <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px"></div>
+                                                    <p id="file-name"></p>
+                                                    <div>
+                                                        <span class="btn btn-white btn-file">
+                                                            <span class="fileinput-new">Select image</span>
+                                                            <span class="fileinput-exists">Change</span>
+                                                            <input type="file" name="scan-image" accept="image/*">
+                                                        </span>
+                                                        <a href="#" class="btn btn-orange fileinput-exists" data-dismiss="fileinput">Remove</a>
+                                                        <a href="#" class="btn btn-success" id="upload" >Upload</a>
+                                                     </div>
+                                                </div>
+                                            </div>
+                                         </form>
+                                    </div>
+                                    <div id="image-gallery" class="col-sm-12">
+                                        <script src="assets/js/zoomify/dist/zoomify.min.js"></script>
+                                        <link href="assets/js/zoomify/dist/zoomify.min.css" rel="stylesheet">
+                                        <?php $list = $this->crud_model->get_upload_rad_images($row["patient_id"],$param2);
+                                            foreach ($list as $item){ ?>
+                                                <div class="col-sm-3">
+                                                    <a href="#" class="upload-remove-icon" title="Remove" data-filename="<?php echo $item;?>"><i class="fa fa-close" aria-hidden="true"></i> </a>
+                                                    <img class="image-zoomable" width="100%" height:"100%" style="margin-top:10px" src="<?php echo base_url().'uploads/radiology_image/'.$row["patient_id"]."/$param2/".$item; ?>" data-filename="<?php echo $item;?>" />
+                                                </div>
+                                        <?php }
+                                        ?>
                                     </div>
                                 </div>
                                 <div id="tabs-5"  class="tab-pane">
                                     <div class="col-md-12 compose-message-editor" id="lab-result-container" style="overflow:visible">
                                         <?php 
                                             $arr_lab_req = $this->db->get_where("rad_request",array("cons_id"=>$row["cons_id"]))->result_array();
-                                            $arr_status = array("Pending","Process","Complete");
+                                            $arr_status = array("Pending","Billed","Processing","Completed");
                                             foreach($arr_lab_req as $req){
                                                 $icode = $req["itemcode"];
                                                 $iname = $this->db->get_where("items",array("ItemCode"=>$icode))->result_array()[0]["ItemName"];
@@ -547,7 +582,8 @@ if ($isset_param) {
             var data = {
                     recepId:globalReceptionID,
                     url:"<?php echo base_url();?>"+"index.php?modal/submitbill/",
-                    type:"lab",// it means bill from laboratory
+                    type:"rad",// it means bill from radiology
+                    reqid:<?php  echo ($isset_param)?$param2:0;?>,
                     carts:function(items){
                         var res=[];
                         $.each(items, function(id){
@@ -617,7 +653,63 @@ if ($isset_param) {
             saveReceptionProc();
         });
       
-
+        var file ={};
+        $("input[type='file']").on("change",function(e){
+            file = e.target.files[0]||{};
+            $("#file-name").text(file["name"]||"");
+        });
+        function deleteProcess(el){
+            var $that = $(el);
+                $fn = $(el).data("filename");
+                $.ajax({
+                    url:"<?php echo base_url().'index.php?admin/upload_scan_image/delete/'.$row['patient_id']."/$param2"; ?>",
+                    data:{filename:$fn},
+                    type:"POST",
+                    success:function(res){
+                        $that.parent().remove();
+                    }
+                })
+        };
+        $("#upload").on("click",function(e){
+            e.preventDefault();
+            fname = file.name ||"";
+            if (fname=="") {
+                $.alert("please select scan image.","warning");
+                return;
+            }
+            var data = new FormData();
+            data.append('file',file,fname);
+            var url = "<?php echo base_url().'index.php?admin/upload_scan_image/upload/'.$row['patient_id']."/$param2"; ?>";
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST",url,true);
+            xhr.send(data);
+           
+            xhr.onload = function(){
+                var res = xhr.responseText;
+                var image_url = res;
+                $rootEl = $("#image-gallery");
+                $div = $("<div></div>").addClass("col-sm-3").appendTo($rootEl);
+                $a = $("<a href='#'></a>").data("filename",fname).addClass("upload-remove-icon").attr("title","Remove").appendTo($div);
+                $a.on("click",function(e){
+                    e.preventDefault();
+                    deleteProcess(this);
+                    
+                })
+                $("<i></i>").addClass("fa").addClass("fa-close").attr("aria-hidden",true).appendTo($a);
+                $("<img/>")
+                    .addClass("image-zoomable")
+                    .css({"width":"100%",height:"100%","margin-top":"10px"})
+                    .attr("src","<?php echo base_url();?>"+image_url)
+                    .appendTo($div)
+                    .zoomify();
+            }
+            
+        });
+        $("img.image-zoomable").zoomify();
+        $("a.upload-remove-icon").on("click",function(e){
+            e.preventDefault();
+            deleteProcess(this);
+        })
     });
 </script>
 

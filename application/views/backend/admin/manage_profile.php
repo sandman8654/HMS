@@ -18,6 +18,12 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-3 control-label"><?php echo get_phrase('user_name');?></label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" name="username" value="<?php echo $row['user_name'];?>"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-3 control-label"><?php echo get_phrase('email');?></label>
                             <div class="col-sm-5">
                                 <input type="text" class="form-control" name="email" value="<?php echo $row['email'];?>"/>

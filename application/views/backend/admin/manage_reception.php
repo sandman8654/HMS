@@ -10,6 +10,7 @@
             <th><?php echo get_phrase('reception_id');?></th>
             <th><?php echo get_phrase('receptionist_name');?></th>
             <th><?php echo get_phrase('patient_name');?></th>
+            <th><?php echo get_phrase('status');?></th>
             <th><?php echo get_phrase('reception_date');?></th>
             <th><?php echo get_phrase('options');?></th>
         </tr>
@@ -21,9 +22,14 @@
                 <td><?php echo $row['reception_id']?></td>
                 <td><?php echo $row['receptionist_name']?></td>
                 <td><?php echo $row['patient_name']?></td>
-                <td><?php echo date('d/m/Y H:i:s',$row['reception_date'])?></td>
+                <td><span class="hidden"><?php echo $row['status']?></span><?php
+                    if ($row['status']==0) echo "Pending";
+                    else if ($row['status']==1) echo "Paid";
+                    else if ($row['status']==2) echo "Sent";
+                ?></td>
+                <td><?php echo date('m/d/Y H:i:s',$row['reception_date'])?></td>
                 <td>
-                    <a  href="<?php echo base_url();?>index.php?admin/reception/view/<?php echo $row['reception_id']?>" 
+                    <a  href="<?php echo base_url();?>index.php?admin/reception/edit/<?php echo $row['reception_id']?>" 
                         class="btn btn-default btn-sm btn-icon icon-left">
                             <i class="entypo-pencil"></i>
                             view
@@ -46,6 +52,7 @@
 
         $("#table-2").dataTable({
             "sPaginationType": "bootstrap",
+            "aaSorting":[["3","asc"],["4","desc"]],
             "sDom": "<'row'<'col-xs-3 col-left'l><'col-xs-9 col-right'<'export-data'T>f>r>t<'row'<'col-xs-3 col-left'i><'col-xs-9 col-right'p>>"
         });
 

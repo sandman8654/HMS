@@ -41,34 +41,36 @@ if (strlen($param2)>0){
                             </div>
                             <h4 class="add-patient-sub-title"><?php echo get_phrase('posted_bill_information'); ?></h4>
                             <div class="form-group" style="height:500px">
-                                <table class="table table-bordered table-striped datatable" id="table-pending-list">
-                                    <thead>
-                                        <tr>
-                                            <th><?php echo get_phrase('item_code');?></th>
-                                            <th><?php echo get_phrase('item_name');?></th>
-                                            <th><?php echo get_phrase('quantity');?></th>
-                                            <th><?php echo get_phrase('unit_price');?></th>
-                                            <th><?php echo get_phrase('discount');?></th>
-                                            <th><?php echo get_phrase('total_price');?></th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-                                        <?php 
-                                        foreach ($bill_list as $row) { 
-                                            $item_inf = $this->db->get_where("items",array("ItemCode"=>$row['item_id']))->row();
-                                            ?>   
+                                <div class="col-sm-12">
+                                    <table class="table table-bordered table-striped datatable" id="table-pending-list">
+                                        <thead>
                                             <tr>
-                                                <td><?php echo $row['item_id']?></td>
-                                                <td><?php echo $item_inf->ItemName ?></td>
-                                                <td><?php echo $row['qty']?></td>
-                                                <td><?php echo $row['unit_price']?></td>
-                                                <td><?php echo $row['discount']?></td>
-                                                <td><?php echo $row["qty"]*$row["unit_price"]-$row["discount"]?></td>
+                                                <th><?php echo get_phrase('item_code');?></th>
+                                                <th><?php echo get_phrase('item_name');?></th>
+                                                <th><?php echo get_phrase('quantity');?></th>
+                                                <th><?php echo get_phrase('unit_price');?></th>
+                                                <th><?php echo get_phrase('discount');?></th>
+                                                <th><?php echo get_phrase('total_price');?></th>
                                             </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
+                                        </thead>
+
+                                        <tbody>
+                                            <?php 
+                                            foreach ($bill_list as $row) { 
+                                                $item_inf = $this->db->get_where("items",array("ItemCode"=>$row['item_id']))->row();
+                                                ?>   
+                                                <tr>
+                                                    <td><?php echo $row['item_id']?></td>
+                                                    <td><?php echo $item_inf->ItemName ?></td>
+                                                    <td><?php echo $row['qty']?></td>
+                                                    <td><?php echo $row['unit_price']?></td>
+                                                    <td><?php echo $row['discount']?></td>
+                                                    <td><?php echo $row["qty"]*$row["unit_price"]-$row["discount"]?></td>
+                                                </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                             
                         </form>
@@ -141,24 +143,29 @@ if (strlen($param2)>0){
                             </div>
                             <div style="margin:10px;height:10px">
                                 <a href="#" id="addcarts" class="btn btn-success btn-md pull-left">Add</a>
-                                <input type="checkbox" name="creditnote" id="creditnote" style="float:right;margin:8px 3px 0 3px" ></input>
-                                <label for="field-ta" class="control-label" style="float:right"><?php echo get_phrase('credit_note').": "; ?></label>
+                      <!--          <input type="checkbox" name="creditnote" id="creditnote" style="float:right;margin:8px 3px 0 3px" ></input>
+                                <label for="field-ta" class="control-label" style="float:right"><?php echo get_phrase('credit_note').": "; ?></label>-->
                             </div>
                             <div class="form-group">
-                                <table class="table table-bordered table-striped datatable" id="table-payment-list">
-                                    <thead>
-                                        <tr>
-                                            <th><?php echo get_phrase('mode');?></th>
-                                            <th><?php echo get_phrase('A/C_id');?></th>
-                                            <th><?php echo get_phrase('A/C_name');?></th>
-                                            <th><?php echo get_phrase('Ref_no');?></th>
-                                            <th><?php echo get_phrase('amount');?></th>
-                                            <th><?php echo get_phrase('option');?></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
+                                <div class="col-sm-12">
+                                    <table class="table table-bordered table-striped datatable" id="table-payment-list">
+                                        <thead>
+                                            <tr>
+                                                <th><?php echo get_phrase('mode');?></th>
+                                                <th><?php echo get_phrase('A/C_id');?></th>
+                                                <th><?php echo get_phrase('A/C_name');?></th>
+                                                <th><?php echo get_phrase('Ref_no');?></th>
+                                                <th><?php echo get_phrase('amount');?></th>
+                                                <th><?php echo get_phrase('option');?></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+
+                                            ?>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -315,13 +322,18 @@ if (strlen($param2)>0){
         // submit payment information
         $("#submitbill").on("click",function(e){
             e.preventDefault();
+            var bal = eval($("#field-bal").val())||0;
+            if (bal<0){
+                $.alert("more paid, balance can not be less than 0.","Error");
+                return;
+            };
             // ready data
             var data = {
                     patient_id:globalPatientID,
                     recept_id:globalReceptionID,
                     url:"<?php echo base_url();?>"+"index.php?modal/submitpayment/",
                     creditstatus:$("#creditnote").prop("checked")?1:0,
-                    bal:eval($("#field-bill").val())||0,
+                    bal:bal,//eval($("#field-bal").val())||0,
                     carts:function(items){
                         var res=[];
                         $.each(items, function(id){

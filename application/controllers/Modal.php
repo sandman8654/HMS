@@ -12,7 +12,7 @@ class Modal extends CI_Controller {
 		$this->output->set_header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT');
         $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         $this->output->set_header('Pragma: no-cache');
-        $this->output->set_header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); 
+        $this->output->set_header("Expires: Mon, 26 Jul 2017 05:00:00 GMT"); 
     }
 	
 	/***default functin, redirects to login page if no admin logged in yet***/
@@ -32,8 +32,8 @@ class Modal extends CI_Controller {
 		$page_data['param3']		=	$param3;
 		$this->load->view( 'backend/'.$account_type.'/'.$page_name.'.php' ,$page_data);
 		
-		echo '<script src="assets/js/neon-custom-ajax.js"></script>';
-                echo '<script>$(".html5editor").wysihtml5();</script>';
+	//	echo '<script src="assets/js/neon-custom-ajax.js"></script>';
+    //            echo '<script>$(".html5editor").wysihtml5();</script>';
 	}
 	/*
 	* get patient info by json encode
@@ -82,13 +82,14 @@ class Modal extends CI_Controller {
 		$billtype = $_POST["type"];
 		$reception_id = $_POST["recepId"];
 		$billdata = $_POST["carts"];
-		echo ($this->crud_model->insert_bill_info_for_sales($reception_id,$billdata))?"success":"failure";
+		$reqid=$this->input->post("reqid");
+		echo ($this->crud_model->insert_bill_info_for_sales($reception_id,$billdata,$billtype,$reqid))?"success":"failure";
 	}
 	/*
 	* get payment reception
 	*/
 	function getpaymentforcons($reception_id){
-		echo json_encode($this->crud_model->select_payment_info($reception_id));
+		echo json_encode($this->crud_model->select_payment_info($reception_id,"CONSULTATION"));
 	}
 	/*
 	* send patient to branch (triage, consultation,...)
@@ -96,8 +97,8 @@ class Modal extends CI_Controller {
 	function sendtobranch(){
 		$data['trans_id'] =  $_POST['paymentId'];
         $data['sendto'] = $_POST['type'];
-        $data["sentto_account_type"] =$_POST["sentto_account_type"];
-        $data["sentto_account_id"] = $_POST["sentto_account_id"];
+  //      $data["sentto_account_type"] =$_POST["sentto_account_type"];
+  //      $data["sentto_account_id"] = $_POST["sentto_account_id"];
 		$data["patient_id"] = $_POST["patientId"];
 		$data["patient_type"] = $_POST["patient_type"];
 		$data["recept_id"] =$_POST["recept_id"];
@@ -223,5 +224,43 @@ class Modal extends CI_Controller {
         };
 		echo $this->crud_model->reverse_journal_entry($trans_id);
 	}
+	//get customer debtor information
+	function getdebtorinvoice($cusid){
+		//echo $cusid;
+		echo json_encode($this->crud_model->get_customer_debtor_info($cusid));
+	}
+	function getcreditorinvoice($cusid){
+		echo json_encode($this->crud_model->get_customer_creditor_info($cusid));
+	}
+	// make payment for creditor suppliers
+	function makepaymentforcr($cusid,$lid){
+		if ($this->session->userdata('admin_login') != 1 &&
+			$this->session->userdata('accountant_login') != 1) {
+            $this->session->set_userdata('last_page', current_url());
+            redirect(base_url(), 'refresh'); return;
+        };
+		echo $this->crud_model->make_payment_for_creditor($cusid,$lid);
+	}
+	// receive payment for debtor suppliers
+	function recievepaymentfordr($cusid,$lid){
+		if ($this->session->userdata('admin_login') != 1 &&
+			$this->session->userdata('accountant_login') != 1) {
+            $this->session->set_userdata('last_page', current_url());
+            redirect(base_url(), 'refresh'); return;
+        };
+		echo $this->crud_model->receive_payment_for_debtor($cusid,$lid);
+	}
+	// receive payment for debtor suppliers
+	function getreceiptsinvoice($invno){
+		echo json_encode($this->crud_model->get_invoices_for_receipts_by_pid($invno));
+	}
+	/*
+	* get subcategory for items
+	*/
+	function getsubcategory($cat){
+		echo json_encode($this->crud_model->select_sub_category_by_category($cat));
+	}
+
+	
 }
 

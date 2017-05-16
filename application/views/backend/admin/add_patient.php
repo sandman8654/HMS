@@ -16,7 +16,7 @@
                         <div class="form-group">
                             <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('name'); ?></label>
                             <div class="col-sm-9">
-                                <input type="text" name="name" class="form-control" id="field-1"  >
+                                <input required type="text" name="name" class="form-control" id="field-1"  >
                             </div>
                         </div>
 
@@ -34,14 +34,7 @@
                                 <input type="text" name="username" class="form-control" id="field-1" >
                             </div>
                         </div>    
-                        <div class="form-group">
-                            <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('password'); ?></label>
-
-                            <div class="col-sm-9">
-                                <input type="password" name="password" class="form-control" id="field-1" >
-                            </div>
-                        </div>
-                        
+                                                
                         <div class="form-group">
                             <label for="field-ta" class="col-sm-3 control-label"><?php echo get_phrase('address'); ?></label>
 
@@ -63,7 +56,6 @@
 
                             <div class="col-sm-9">
                                 <select name="sex" class="form-control">
-                                    <option value=""><?php echo get_phrase('select_sex'); ?></option>
                                     <option value="male"><?php echo get_phrase('male'); ?></option>
                                     <option value="female"><?php echo get_phrase('female'); ?></option>
                                 </select>
@@ -74,15 +66,15 @@
                             <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('birth_date'); ?></label>
 
                             <div class="col-sm-9">
-                                <input type="text" name="birth_date" class="form-control datepicker" id="field-1" >
+                                <input required type="text" name="birth_date" class="form-control datepicker" >
                             </div>
                         </div>
                         
                         <div class="form-group">
-                            <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('age'); ?></label>
+                            <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('age');  ?></label>
 
                             <div class="col-sm-9">
-                                <input type="number" name="age" class="form-control" id="field-1" >
+                                <input type="text" name="age" class="form-control"  onkeypress="return false;"/>
                             </div>
                         </div>
                         
@@ -104,9 +96,11 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="field-ta" class="control-label col-sm-3" ><?php echo get_phrase('is_inpaitent?').": "; ?></label>
+                            <label for="field-ta" class="control-label col-sm-3" ><?php echo get_phrase('paitent_type').": "; ?></label>
                             <div class="col-sm-9">
-                                <input type="checkbox" name="inout_status" id="inout_status" value=0 ></input>
+                                <input type="radio" name="inout_status"  value='1'>Inpatient</input>
+                                <input type="radio" name="inout_status" checked value='0' style="margin-left:10px">Outpatient</input>
+                                <input type="radio" name="inout_status"  value='2' style="margin-left:10px">Maternity</input>
                             </div>
                         </div>
                         <div class="form-group">
@@ -245,10 +239,17 @@
            var $item = $this.find("option:selected");
            $("#insur_comp_name").val($item.data("cmpname"));
         });
-        $("#inout_status").on("click",function(){
-            var st = $(this).prop("checked");
-            $(this).val((st)?1:0);
-            alert($(this).val());
+ 
+      
+        var $item = $("#insur_group").find("option:selected");
+        $("#insur_comp_name").val($item.data("cmpname"));
+
+        var birthDate = $("input[name='birth_date']").val()||"";
+        if (birthDate != "") $("input[name='age']").val(age(birthDate));
+        $("input[name='birth_date']").on("change",function(){
+            var birthDate = $(this).val();
+            $("input[name='age']").val(age(birthDate));
         });
+
     });
 </script>

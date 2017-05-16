@@ -58,13 +58,13 @@ class Login extends CI_Controller {
     function ajax_login() {
         $response = array();
 
-        //Recieving post input of email, password from ajax request
-        $email = $_POST["email"];
+        //Recieving post input of username, password from ajax request
+        $uname = $_POST["username"];
         $password = $_POST["password"];
         $response['submitted_data'] = $_POST;
 
         //Validating login
-        $login_status = $this->validate_login($email, $password);
+        $login_status = $this->validate_login($uname, $password);
         $response['login_status'] = $login_status;
         if ($login_status == 'success') {
             $response['redirect_url'] = $this->session->userdata('last_page');
@@ -75,13 +75,9 @@ class Login extends CI_Controller {
     }
 
     //Validating login from ajax request
-    function validate_login($email = '', $password = '') {
-        $credential = array('email' => $email, 'password' => sha1($password));
-
-
-        
-        
-        // Checking login credential for admin
+    function validate_login($uname = '', $password = '') {
+        $credential = array('user_name' => $uname, 'password' => sha1($password));
+    // Checking login credential for admin
         $query = $this->db->get_where('admin', $credential);
         if ($query->num_rows() > 0) {
             $row = $query->row();

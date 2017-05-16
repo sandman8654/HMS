@@ -30,7 +30,7 @@ if ($isset_param) {
                     <a href="#" id="update-consultation" class="btn btn-success btn-md">Save</a>
                     <a href="<?php echo base_url(); ?>index.php?admin/consultation" class="btn btn-danger btn-md">Exit</a>
                 </div>
-                <h4 class="pull-left" id="update-date"><?php if ($isset_param && strlen($cons_arr[0]["last_date"])>0) echo 'This Consultation was updated at '.date("d/m/Y H:i:s", $cons_arr[0]["last_date"]); ?></h4>
+                <h4 class="pull-left" id="update-date"><?php if ($isset_param && strlen($cons_arr[0]["last_date"])>0) echo 'This Consultation was updated at '.date("m/d/Y H:i:s", $cons_arr[0]["last_date"]); ?></h4>
                 <div class="col-md-12 col-sm-12">
                     <ul class="nav nav-tabs bordered">
                         <li class="active"><a href="#tabs-1" data-toggle="tab"><span class="hidden-xs"><?php echo get_phrase('patient_profile'); ?></span></a></li>
@@ -101,7 +101,7 @@ if ($isset_param) {
                                             <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('birth_date'); ?></label>
 
                                             <div class="col-sm-9">
-                                                <input disabled type="text" name="birth_date" class="form-control datepicker" id="field-1" value="<?php echo date('d/m/Y', $row['birth_date']); ?>" >
+                                                <input disabled type="text" name="birth_date" class="form-control datepicker" id="field-1" value="<?php echo date('m/d/Y', $row['birth_date']); ?>" >
                                             </div>
                                         </div>
                                         
@@ -109,7 +109,7 @@ if ($isset_param) {
                                             <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('age'); ?></label>
 
                                             <div class="col-sm-9">
-                                                <input disabled type="number" name="age" class="form-control" id="field-1" value="<?php echo $row['age']; ?>">
+                                                <input disabled type="text" name="age" class="form-control" id="field-1" value="<?php echo $row['age']; ?>">
                                             </div>
                                         </div>
                                         
@@ -680,7 +680,7 @@ if ($isset_param) {
                                                 echo "Rad Request - [".$arr_status[$status]."]<br/>";
                                                 echo $iname."<hr/>";
                                                 echo "Rad Result"."<br/>";
-                                                echo "<br/>";
+                                                echo $row["rad_result"]."<br/>";
                                             }
                                         }
                                     ?>
@@ -836,6 +836,10 @@ if ($isset_param) {
             e.preventDefault();
             var cart={},presc="";
             cart["drug_id"]=$("#drug-select").val();
+            if ($("#drug-select").val()==""){
+                $.alert("please select drug","Error");
+                return;
+            };
             presc += $("#drug-select").find("option:selected").text();
             cart["dosage_qty"]=eval($("#dosage_qty").val())||0;
             if (cart["dosage_qty"]==0) return;
@@ -935,6 +939,7 @@ if ($isset_param) {
                 data["cons_id"]=consID;
                 data["recept_id"]= receptID;
                 data["patient_id"] = patientId;
+                data["type"] = "lab";
                 data["req_list"] = "";
                 $("#lab_req_list").find(".superbox").each(function(){
                     var $this = $(this);

@@ -24,7 +24,13 @@ foreach ($single_accountant_info as $row) {
                                 <input type="text" name="name" class="form-control" id="field-1" value="<?php echo $row['name']; ?>">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('user_name'); ?></label>
 
+                            <div class="col-sm-5">
+                                <input disabled type="text" name="name" class="form-control" id="field-1" value="<?php echo $row['user_name']; ?>">
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('email'); ?></label>
 
@@ -37,9 +43,7 @@ foreach ($single_accountant_info as $row) {
                             <label for="field-ta" class="col-sm-3 control-label"><?php echo get_phrase('address'); ?></label>
 
                             <div class="col-sm-9">
-                                <textarea name="address" class="form-control" id="field-ta">
-                                    <?php echo $row['address']; ?>
-                                </textarea>
+                                <textarea name="address" class="form-control" id="field-ta"><?php echo $row['address']; ?></textarea>
                             </div>
                         </div>
 
@@ -76,6 +80,7 @@ foreach ($single_accountant_info as $row) {
 
                         <div class="col-sm-3 control-label col-sm-offset-2">
                             <input type="submit" class="btn btn-success" value="Update">
+                            <a href="<?php echo base_url().'index.php?admin/accountant';?>" class="btn btn-danger btn-md">Exit</a>
                         </div>
                     </form>
 

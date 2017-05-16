@@ -28,7 +28,13 @@
                                value="<?php echo $this->db->get_where('settings', array('type' => 'system_title'))->row()->description; ?>">
                     </div>
                 </div>
-
+                <div class="form-group">
+                    <label  class="col-sm-3 control-label"><?php echo get_phrase('company_name'); ?></label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" name="system_title" 
+                               value="<?php echo $this->db->get_where('settings', array('type' => 'company_name'))->row()->description; ?>">
+                    </div>
+                </div>
                 <div class="form-group">
                     <label  class="col-sm-3 control-label"><?php echo get_phrase('address'); ?></label>
                     <div class="col-sm-5">
@@ -36,12 +42,18 @@
                                value="<?php echo $this->db->get_where('settings', array('type' => 'address'))->row()->description; ?>">
                     </div>
                 </div>
-
                 <div class="form-group">
-                    <label  class="col-sm-3 control-label"><?php echo get_phrase('phone'); ?></label>
+                    <label  class="col-sm-3 control-label"><?php echo get_phrase('location_description'); ?></label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" name="address" 
+                               value="<?php echo $this->db->get_where('settings', array('type' => 'location_description'))->row()->description; ?>">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-3 control-label"><?php echo get_phrase('website'); ?></label>
                     <div class="col-sm-5">
                         <input type="text" class="form-control" name="phone" 
-                               value="<?php echo $this->db->get_where('settings', array('type' => 'phone'))->row()->description; ?>">
+                               value="<?php echo $this->db->get_where('settings', array('type' => 'website'))->row()->description; ?>">
                     </div>
                 </div>
 

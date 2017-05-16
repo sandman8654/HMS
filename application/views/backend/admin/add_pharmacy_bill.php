@@ -35,6 +35,9 @@ if ($isset_param) {
                             echo"<p>This request was posted at $date </p>";
                         } ?>
                     </div>
+                    <div class="pull-right">
+                        <a href="<?php echo base_url(); ?>index.php?admin/pharmreq" class="btn btn-danger btn-md">Exit</a>
+                    </div> 
                     <div class="col-md-12 col-md-12">
                         
                         <div class="col-md-5 col-md-5 has-right-border" id="patient-container">
@@ -102,7 +105,7 @@ if ($isset_param) {
                                     <label for="field-1" class="col-md-3 control-label"><?php echo get_phrase('age'); ?></label>
 
                                     <div class="col-md-9">
-                                        <input disabled type="number" name="age" class="form-control" id="field-page" value ="<?php echo ($isset_param)?$patient_info['age']:''; ?>" >
+                                        <input disabled type="text" name="age" class="form-control" id="field-page" value ="<?php echo ($isset_param)?$patient_info['age']:''; ?>" >
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -135,10 +138,15 @@ if ($isset_param) {
                                                     <?php 
                                                         foreach($presc_info as $item){
                                                             $this->db->or_where("ItemCode",$item["drug_id"]);
+                                                          //  $drug_name = $this->crud_model->select_item_name($item['drug_id']);
+                                                            $drug_id = $item['drug_id'];
+                                                            if(!isset($req_qty_list[$drug_id])) $req_qty_list[$drug_id]=0;
+                                                            $req_qty_list[$drug_id] += $item["drug_qty"];
                                                         }
                                                         $all_items_info= $this->db->get('items')->result_array();
                                                         foreach ($all_items_info as $item){ ?>
-                                                        <option value=<?php echo $item['ItemCode']; ?>  data-price="<?php echo $item['SalePrice']; ?>" data-type="<?php echo $item['Type']; ?>"><?php echo $item['ItemName']." - ".$item['Type']; ?></option>        
+                                                        <option value=<?php echo $item['ItemCode']; ?>  data-price="<?php echo $item['SalePrice']; ?>" data-type="<?php echo $item['Type']; ?>" 
+                                                            data-qty="<?php echo $req_qty_list[$item['ItemCode']]; ?>"><?php echo $item['ItemName']." - ".$req_qty_list[$item['ItemCode']]; ?></option>        
                                                     <?php } ?>
                                                 </select>
                                             </div>
@@ -187,38 +195,40 @@ if ($isset_param) {
                                         </div>
                                         <h4 class="add-patient-sub-title"><?php echo get_phrase('items'); ?></h4> 
                                         <div class="form-group">
-                                            <table class="table table-bordered table-striped datatable" id="item-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th><?php echo get_phrase('item_name');?></th>
-                                                        <th><?php echo get_phrase('quantity');?></th>
-                                                        <th><?php echo get_phrase('unit_price');?></th>
-                                                        <th><?php echo get_phrase('total_price');?></th>
-                                                        <th><?php echo get_phrase('discount');?></th>
-                                                        <th><?php echo get_phrase('subnet');?></th>
-                                                        <th><?php echo get_phrase('income');?></th>
-                                                        <th><?php echo get_phrase('remove');?></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php 
-                                                        if ($isset_param){
-                                                            $cartsbill = $this->crud_model->select_carts_info($param2);
-                                                            foreach ($cartsbill as $item){?>
-                                                                <tr>
-                                                                    <td><?php echo $item['itemname'];?></td>
-                                                                    <td><?php echo $item['quantity'];?></td>
-                                                                    <td><?php echo $item['unit_price'];?></td>
-                                                                    <td><?php echo (float)$item['quantity']*(float)$item['unit_price'];?></td>
-                                                                    <td><?php echo $item['discount'];?></td>
-                                                                    <td><?php echo $item['quantity']*$item['unit_price'] - $item['discount'];?></td>
-                                                                    <td><?php echo $item['income'];?></td>
-                                                                    <td></td>
-                                                                </tr>
-                                                            <?php }}
-                                                    ?>
-                                                </tbody>
-                                            </table>
+                                            <div class="col-md-12" >
+                                                <table class="table table-bordered table-striped datatable" id="item-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th><?php echo get_phrase('item_name');?></th>
+                                                            <th><?php echo get_phrase('quantity');?></th>
+                                                            <th><?php echo get_phrase('unit_price');?></th>
+                                                            <th><?php echo get_phrase('total_price');?></th>
+                                                            <th><?php echo get_phrase('discount');?></th>
+                                                            <th><?php echo get_phrase('subnet');?></th>
+                                                            <th><?php echo get_phrase('income');?></th>
+                                                            <th><?php echo get_phrase('remove');?></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php 
+                                                            if ($isset_param){
+                                                                $cartsbill = $this->crud_model->select_carts_info($param2);
+                                                                foreach ($cartsbill as $item){?>
+                                                                    <tr>
+                                                                        <td><?php echo $item['itemname'];?></td>
+                                                                        <td><?php echo $item['quantity'];?></td>
+                                                                        <td><?php echo $item['unit_price'];?></td>
+                                                                        <td><?php echo (float)$item['quantity']*(float)$item['unit_price'];?></td>
+                                                                        <td><?php echo $item['discount'];?></td>
+                                                                        <td><?php echo $item['quantity']*$item['unit_price'] - $item['discount'];?></td>
+                                                                        <td><?php echo $item['income'];?></td>
+                                                                        <td></td>
+                                                                    </tr>
+                                                                <?php }}
+                                                        ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>    
                                     </form>
                                     
@@ -227,29 +237,31 @@ if ($isset_param) {
                                     <form role="form" class="form-horizontal form-groups-bordered">
                                         <h4 class="add-patient-sub-title pull-left"><?php echo get_phrase('prescription_list'); ?></h4>
                                         <div class="form-group" style="height:500px">
-                                            <table class="table table-bordered table-striped datatable" id="table-presc-list">
-                                                <thead>
-                                                    <tr>
-                                                        <th style="width:50px"><?php echo get_phrase('no');?></th>
-                                                        <th><?php echo get_phrase('drug_name');?></th>
-                                                        <th><?php echo get_phrase('drug_quantity');?></th>
-                                                        <th><?php echo get_phrase('prescription');?></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php $n=0;?>
-                                                    <?php foreach ($presc_info as $item) { 
-                                                        $n++;
-                                                    ?>   
+                                            <div class="col-md-12">
+                                                <table class="table table-bordered table-striped datatable" id="table-presc-list">
+                                                    <thead>
                                                         <tr>
-                                                            <td><?php echo $n?></td>
-                                                            <td><?php echo $this->crud_model->select_item_name($item['drug_id'])?></td>
-                                                            <td><?php echo $item['drug_qty']?></td>
-                                                            <td><?php echo $item['medication']."<br/>".$item['note']?></td>
+                                                            <th style="width:50px"><?php echo get_phrase('no');?></th>
+                                                            <th><?php echo get_phrase('drug_name');?></th>
+                                                            <th><?php echo get_phrase('drug_quantity');?></th>
+                                                            <th><?php echo get_phrase('prescription');?></th>
                                                         </tr>
-                                                    <?php } ?>
-                                                </tbody>
-                                            </table>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php $n=0;?>
+                                                        <?php foreach ($presc_info as $item) { 
+                                                            $n++;
+                                                        ?>   
+                                                            <tr>
+                                                                <td><?php echo $n?></td>
+                                                                <td><?php echo $this->crud_model->select_item_name($item['drug_id'])?></td>
+                                                                <td><?php echo $item['drug_qty']?></td>
+                                                                <td><?php echo $item['medication']."<br/>".$item['note']?></td>
+                                                            </tr>
+                                                        <?php } ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     </form>
                                 </div>
@@ -300,6 +312,35 @@ if ($isset_param) {
             replaceCheckboxes();
         });
 
+        $("#table-presc-list").dataTable({
+            "sPaginationType": "bootstrap",
+            "sDom": "<'row'<'col-xs-3 col-left'l><'col-xs-9 col-right'<'export-data'T>f>r>t<'row'<'col-xs-3 col-left'i><'col-xs-9 col-right'p>>"
+        });
+       
+
+        $(".dataTables_wrapper select").select2({
+            minimumResultsForSearch: -1
+        });
+
+        // Highlighted rows
+        $("#table-presc-list tbody input[type=checkbox]").each(function (i, el)
+        {
+            var $this = $(el),
+                    $p = $this.closest('tr');
+
+            $(el).on('change', function ()
+            {
+                var is_checked = $this.is(':checked');
+
+                $p[is_checked ? 'addClass' : 'removeClass']('highlight');
+            });
+        });
+
+        // Replace Checboxes
+        $(".pagination a").click(function (ev)
+        {
+            replaceCheckboxes();
+        });
 
     });
 </script>
@@ -318,12 +359,13 @@ if ($isset_param) {
         $("#itemselect").on('change',function(){
             var $this = $(this);
             var $el = $this.find("option:selected");
-            var price = $el.data("price")||0;
+            var price = $el.data("price")||0,
+                req_qty = $el.data("qty")||0;
             $("#field-price").val(price);
-            $("#field-qty").val(!price?0:1);
-            $("#field-total-price").val(price);
+            $("#field-qty").val(!price?0:req_qty);
+            $("#field-total-price").val(price*req_qty);
             $("#field-discount").val(0);
-            $("#field-subnet-price").val(price);
+            $("#field-subnet-price").val(price*req_qty);
         });
         
         $("#field-qty").on("keyup",function(){

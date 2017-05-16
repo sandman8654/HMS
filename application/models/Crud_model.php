@@ -135,6 +135,18 @@ class Crud_model extends CI_Model {
         $this->db->where('type', 'address');
         $this->db->update('settings', $data);
 
+        $data['description'] = $this->input->post('company_name');
+        $this->db->where('type', 'company_name');
+        $this->db->update('settings', $data);
+
+        $data['description'] = $this->input->post('location_description');
+        $this->db->where('type', 'location_description');
+        $this->db->update('settings', $data);
+
+        $data['description'] = $this->input->post('website');
+        $this->db->where('type', 'website');
+        $this->db->update('settings', $data);
+
         $data['description'] = $this->input->post('phone');
         $this->db->where('type', 'phone');
         $this->db->update('settings', $data);
@@ -296,6 +308,7 @@ class Crud_model extends CI_Model {
     function save_doctor_info()
     {
         $data['name'] 		= $this->input->post('name');
+        $data['user_name'] 		= $this->input->post('username');
         $data['email'] 		= $this->input->post('email');
         $data['password']       = sha1($this->input->post('password'));
         $data['address'] 	= $this->input->post('address');
@@ -317,6 +330,8 @@ class Crud_model extends CI_Model {
     function update_doctor_info($doctor_id)
     {
         $data['name'] 		= $this->input->post('name');
+        $username = $this->input->post('username');
+        
         $data['email'] 		= $this->input->post('email');
         $data['address'] 	= $this->input->post('address');
         $data['phone']          = $this->input->post('phone');
@@ -346,7 +361,7 @@ class Crud_model extends CI_Model {
         $data['birth_date']     = strtotime($this->input->post('birth_date'));
         $data['age']            = $this->input->post('age');
         $data['blood_group'] 	= $this->input->post('blood_group');
-        $data['username'] 		= $this->input->post('username');
+        $data['user_name'] 		= $this->input->post('username');
         $data['gname'] 	= $this->input->post('rel_name');
         $data['grship'] 	= $this->input->post('rel_group');
         $data['gcont'] 	= $this->input->post('rel_phone');
@@ -362,14 +377,23 @@ class Crud_model extends CI_Model {
         
         $patient_id  =   $this->db->insert_id();
         move_uploaded_file($_FILES["image"]["tmp_name"], "uploads/patient_image/" . $patient_id . '.jpg');
+
         return $patient_id;
     }
     
     function select_patient_info()
     {
+        $this->db->order_by("registered_date","desc");
+        $this->db->order_by("status","desc");
         return $this->db->get('patient')->result_array();
     }
-    
+    function select_inpatient_info($isMaternity=false)
+    {
+        $this->db->order_by("registered_date","desc");
+        $this->db->order_by("status","desc");
+        $this->db->where("inout_status",(($isMaternity)?2:1));
+        return $this->db->get('patient')->result_array();
+    }
     function select_patient_info_by_patient_id( $patient_id = '' )
     {
         return $this->db->get_where('patient', array('patient_id' => $patient_id))->result_array();
@@ -385,7 +409,7 @@ class Crud_model extends CI_Model {
         $data['birth_date']     = strtotime($this->input->post('birth_date'));
         $data['age']            = $this->input->post('age');
         $data['blood_group'] 	= $this->input->post('blood_group');
-        $data['username'] 		= $this->input->post('username');
+        $data['user_name'] 		= $this->input->post('username');
         $data['gname'] 	= $this->input->post('rel_name');
         $data['grship'] 	= $this->input->post('rel_group');
         $data['gcont'] 	= $this->input->post('rel_phone');
@@ -413,6 +437,7 @@ class Crud_model extends CI_Model {
     function save_nurse_info()
     {
         $data['name'] 		= $this->input->post('name');
+        $data['user_name'] 		= $this->input->post('username');
         $data['email'] 		= $this->input->post('email');
         $data['password']       = sha1($this->input->post('password'));
         $data['address'] 	= $this->input->post('address');
@@ -451,6 +476,7 @@ class Crud_model extends CI_Model {
     function save_pharmacist_info()
     {
         $data['name'] 		= $this->input->post('name');
+        $data['user_name'] 		= $this->input->post('username');
         $data['email'] 		= $this->input->post('email');
         $data['password']       = sha1($this->input->post('password'));
         $data['address'] 	= $this->input->post('address');
@@ -489,6 +515,7 @@ class Crud_model extends CI_Model {
     function save_laboratorist_info()
     {
         $data['name'] 		= $this->input->post('name');
+        $data['user_name'] 		= $this->input->post('username');
         $data['email'] 		= $this->input->post('email');
         $data['password']       = sha1($this->input->post('password'));
         $data['address'] 	= $this->input->post('address');
@@ -527,6 +554,7 @@ class Crud_model extends CI_Model {
     function save_accountant_info()
     {
         $data['name'] 		= $this->input->post('name');
+        $data['user_name'] 		= $this->input->post('username');
         $data['email'] 		= $this->input->post('email');
         $data['password']       = sha1($this->input->post('password'));
         $data['address'] 	= $this->input->post('address');
@@ -543,17 +571,99 @@ class Crud_model extends CI_Model {
         return $this->db->get('accountant')->result_array();
     }
     
-    function update_accountant_info($accountant_id)
+    function update_account_info($account_type,$account_id, $full_name="")
     {
-        $data['name'] 		= $this->input->post('name');
+        if ($full_name !="") 
+            $data['name'] = $full_name;
+        else    
+            $data['name'] 		= $this->input->post('name');
         $data['email'] 		= $this->input->post('email');
         $data['address'] 	= $this->input->post('address');
         $data['phone']          = $this->input->post('phone');
         
-        $this->db->where('accountant_id',$accountant_id);
-        $this->db->update('accountant',$data);
+        $this->db->where($account_type.'_id',$account_id);
+        $this->db->update($account_type,$data);
         
-        move_uploaded_file($_FILES["image"]["tmp_name"], "uploads/accountant_image/" . $accountant_id . '.jpg');
+        move_uploaded_file($_FILES["image"]["tmp_name"], "uploads/$account_type"."_image/" . $account_id . '.jpg');
+    }
+    function update_account_emp_info($account_type, $account_id, $type="")
+    {
+        if ($type=="" || $type=="personal_details"){
+            $fn =$data['fname'] 		= $this->input->post('fname');
+            $mn =$data['mname'] 		= $this->input->post('mname');
+            $ln =$data['lname'] 		= $this->input->post('lname');
+            $data['dob'] 		= $this->input->post('birth_date');
+            $data['marital'] 		= $this->input->post('marital');
+            $data['languages'] 		=  implode(";",$this->input->post('languages'));
+            $data['gender'] 		=  $this->input->post('gender');
+            $data['idno'] 		=  $this->input->post('idno');
+            $data['pinno'] 		=  $this->input->post('pinno');
+            $data['phone'] 		=  $this->input->post('phone');
+            $data['email'] 		= $this->input->post('email');
+            $data['phyadd'] 	= $this->input->post('address');
+            $data['phone2']          = $this->input->post('phone2');
+            $full_name = implode(" ",array($fn,$mn,$ln));
+            $this->update_account_info($account_type,$account_id,$full_name);
+        }else if ($type=="salary_details"){
+             $data['salary'] 		= $this->input->post('salary');
+             $data['employdate'] 		= $this->input->post('doe');
+             $emp_type=$data['emptype'] 		= $this->input->post('emptype');
+      //       if (strtolower($emp_type) == 'contract'){
+             $data['contractfrom'] 		= $this->input->post('contractfrom');
+             $data['contractto'] 		= $this->input->post('contractto');
+    //         };
+             $data['dept'] 		= $this->input->post('dept');
+             $data['position'] 		= $this->input->post('position');
+             $data['jobdesc'] 		= $this->input->post('jobdesc');
+        }else if ($type=="medical_details"){
+             $data['bgroup'] 		= $this->input->post('bgroup');
+             $data['alergy'] 		= $this->input->post('alergy');
+        }else if ($type=="emergancy_contact"){
+             $data['ename'] 		= $this->input->post('ename');
+             $data['ephone'] 		= $this->input->post('ephone');
+             $data['epostal'] 		= $this->input->post('epostal');
+        }else if ($type=="education_experience"){
+             $data['education'] 		= implode(";",$this->input->post('courses'));
+             $data['experience'] 		= implode(";",$this->input->post('exps'));
+        }else if ($type=="payslip_details"){
+             $data['bid'] 		= $this->input->post('bank');
+             $data['acno'] 		= $this->input->post('acno');
+             $data['nhif'] 		= $this->input->post('nhif');
+             $data['nssf'] 		= $this->input->post('nssf');
+        }else if ($type=="skills_hobbies"){
+             $data['skills'] 		= implode(";",$this->input->post('skills'));
+             $data['hobbies'] 		= implode(";",$this->input->post('hobbies'));
+        }else{
+            return;
+        }
+
+        $acc_info = $this->db->get_where($account_type,array($account_type.'_id'=>$account_id))->row();
+        $empno = $acc_info->emp_no;
+        
+        $b= false;
+        if ($empno==""){
+            $b=true;
+        }else{
+            $this->db->where('emp',$empno);
+            $emp_inf = $this->db->get("employee",array("emp"=>$empno))->result_array();
+            if(count($emp_inf)>0){
+                $this->db->where('emp',$empno);
+                $this->db->update('employee',$data);
+            }else{
+                $b=true;
+            }
+        }
+        if ($b){
+            $this->db->insert('employee',$data);
+            $id = $this->db->insert_id();
+            $empno = $account_type."-".$account_id."-".$id;
+            $this->db->where('serial',$id);
+            $this->db->update('employee',array("emp"=>$empno));
+            $this->db->where($account_type.'_id',$account_id);
+            $this->db->update($account_type,array("emp_no"=>$empno));
+        }
+        
+     //   move_uploaded_file($_FILES["image"]["tmp_name"], "uploads/accountant_image/" . $accountant_id . '.jpg');
     }
     
     function delete_accountant_info($accountant_id)
@@ -565,6 +675,7 @@ class Crud_model extends CI_Model {
     function save_receptionist_info()
     {
         $data['name'] 		= $this->input->post('name');
+        $data['user_name'] 		= $this->input->post('name');
         $data['email'] 		= $this->input->post('email');
         $data['password']       = sha1($this->input->post('password'));
         $data['address'] 	= $this->input->post('address');
@@ -636,13 +747,36 @@ class Crud_model extends CI_Model {
     {
         return $this->db->get('blood_bank')->result_array();
     }
-    
     function update_blood_bank_info($blood_group_id)
     {
         $data['status']    = $this->input->post('status');
         
         $this->db->where('blood_group_id',$blood_group_id);
         $this->db->update('blood_bank',$data);
+    }
+
+    function save_bank_info()
+    {
+        $data['name']                 = $this->input->post('name');
+        $this->db->insert('banktbl',$data);
+    }
+
+    function select_bank_info()
+    {
+        return $this->db->get('banktbl')->result_array();
+    }
+
+    function update_bank_info($bank_id)
+    {
+        $data['name']    = $this->input->post('name');
+        
+        $this->db->where('id',$bank_id);
+        $this->db->update('banktbl',$data);
+    }
+    function delete_bank_info($bank_id)
+    {
+        $this->db->where('id',$bank_id);
+        $this->db->delete('banktbl');
     }
     
     function save_report_info()
@@ -731,6 +865,7 @@ class Crud_model extends CI_Model {
     function save_bed_info()
     {
         $data['bed_number']     = $this->input->post('bed_number');
+        $data['room_no']     = $this->input->post('room_number');
         $data['type'] 		= $this->input->post('type');
         $data['description']    = $this->input->post('description');
         
@@ -745,6 +880,7 @@ class Crud_model extends CI_Model {
     function update_bed_info($bed_id)
     {
         $data['bed_number']     = $this->input->post('bed_number');
+        $data['room_no']     = $this->input->post('room_number');
         $data['type'] 		= $this->input->post('type');
         $data['description']    = $this->input->post('description');
         
@@ -1281,12 +1417,14 @@ class Crud_model extends CI_Model {
         $data["receptionist_id"] = $this->session->userdata('login_user_id');
         $refno = "";
         if (strlen($reception_id)==0){
+            $data['status'] = 0;
             $this->db->insert('receptions',$data);
             $refno = $this->db->insert_id();
         }else
             $this->db->update('receptions',$data,array("refno"=>$reception_id));
         // update last visit date on patient.
         $data1['last_visited_date'] = strtotime(date("Y-m-d"));
+        $data1["status"] = 1;
         $this->db->where('patient_id', $patient_id);
         $this->db->update('patient', $data1);
         return array(array('reception_id'=>$refno,'date'=>date("d/m/Y H:i:s",$data["recept_date"])));
@@ -1298,6 +1436,7 @@ class Crud_model extends CI_Model {
             $temp=array();
             $temp["reception_id"] = $item["refno"];
             $temp["reception_date"] = $item["recept_date"];
+            $temp["status"] = $item["status"];
             $receptionist_info = $this->db->get_where($item["account_type"], array($item["account_type"]."_id"=>$item["receptionist_id"]))->result_array();
             $patient_info = $this->db->get_where("patient", array("patient_id"=>$item["patient_id"]))->result_array();
             if (count($receptionist_info)>0) $temp["receptionist_name"] =$receptionist_info[0]["name"];
@@ -1311,7 +1450,7 @@ class Crud_model extends CI_Model {
         $this->db->delete('receptions');
     }
     // insert bill cart data to sales
-    function insert_bill_info_for_sales($reception_id, $carts){
+    function insert_bill_info_for_sales($reception_id, $carts, $billtype="", $req_id=0){
         $b=true;
         foreach($carts as $cart){
             $data["item_id"]=$cart["itemcode"];
@@ -1323,11 +1462,14 @@ class Crud_model extends CI_Model {
             $data["posted_date"] =  strtotime(date("Y-m-d H:i:s"));
             $data["iid"]=$cart["iid"];
             $data["recep_id"]=$reception_id;
+            $data["status"]=0;
             $b&=$this->db->insert('sales',$data);
         }
-       
-        
-        return $b;
+        $table = "lab_request";
+        if ($billtype=="rad") $table = "rad_request";
+        $this->db->where("id",$req_id);
+        $this->db->update($table,array("status"=>1));
+       return $b;
     }
     // get itemname from itemcode
     function select_item_name($itemcode){
@@ -1344,30 +1486,36 @@ class Crud_model extends CI_Model {
         return $res;
     }
     // get cart bill informatino
-    function select_carts_info($reception_id){
+    function select_carts_info($reception_id,$category=""){
         $carts = $this->db->get_where('sales', array("recep_id"=>$reception_id))->result_array();
         $res = array();
         foreach ($carts as $item){
             $temp=array();
-            $temp["itemname"] = $this->select_item_name($item["item_id"]);
-            $temp["quantity"] = $item["qty"];
-            $temp["unit_price"] = $item["unit_price"];
-            $temp["discount"] = $item["discount"];
-            $temp["income"] = $this->select_incomename_from_extmedics($item["iid"]);
-            array_push($res,$temp);
+            $item_list = $this->db->get_where("items",array("ItemCode"=>$item["item_id"]))->row();
+            if($item_list->SubCategory==$category||$item_list->Category==$category){
+                $temp["itemname"] = $item_list->ItemName;
+                $temp["quantity"] = $item["qty"];
+                $temp["unit_price"] = $item["unit_price"];
+                $temp["discount"] = $item["discount"];
+                $temp["income"] = $this->select_incomename_from_extmedics($item["iid"]);
+                array_push($res,$temp);
+            }
         }
         return $res;
     }
    // get payment information from sales
     
-    function select_payment_info($reception_id){
+    function select_payment_info($reception_id,$category=""){
         $carts = $this->db->get_where('sales', array("recep_id"=>$reception_id,"status"=>"1"))->result_array();
         $res = array();
         foreach ($carts as $item){
             $temp=array();
-            $temp["itemname"] = $this->select_item_name($item["item_id"]);
-            $temp["transid"] = $item["trans_id"];
-            array_push($res,$temp);
+            $item_list = $this->db->get_where("items",array("ItemCode"=>$item["item_id"]))->row();
+            if($item_list->SubCategory==$category||$item_list->Category==$category){
+                $temp["itemname"] = $item_list->ItemName;
+                $temp["transid"] = $item["trans_id"];
+                array_push($res,$temp);
+            }
         }
         return $res;
     }
@@ -1379,15 +1527,29 @@ class Crud_model extends CI_Model {
         $data["post_account_type"] = $this->session->userdata('login_type');
         $data["post_account_id"] = $this->session->userdata('login_user_id');
         $data["posted_date"] =  strtotime(date("Y-m-d H:i:s"));
-        $data["sentto_account_type"] =$params["sentto_account_type"];
-        $data["sentto_account_id"] = $params["sentto_account_id"];
+
+ //       $data["sentto_account_type"] =$params["sentto_account_type"];
+ //       $data["sentto_account_id"] = $params["sentto_account_id"];
         $data["patient_id"] = $params["patient_id"];
         $data["patient_type"] = $params["patient_type"];
         $data["recept_id"] = $params["recept_id"];
-        $b = $this->db->insert('sendpatients',$data);
-        $data1["status"] = 2;
-        $this->db->where('trans_id', $params["trans_id"]);
-        $b &= $this->db->update('sales', $data1);
+        //duplicated check
+        $dup_list = $this->db->get_where("sendpatients",array(
+            "patient_id"=>$data["patient_id"],
+            "sendto"=>$data["sendto"],
+            "recept_id"=>$data["recept_id"],
+            "trans_id"=>$data["trans_id"]
+        ));
+        $b=true;
+        if ($dup_list->num_rows()==0){
+            $b = $this->db->insert('sendpatients',$data);
+            $data1["status"] = 2;
+            $this->db->where('trans_id', $params["trans_id"]);
+            $b &= $this->db->update('sales', $data1);
+            // sent to branch and update status on recption table
+            $this->db->where('refno', $params["recept_id"]);
+            $b &= $this->db->update('receptions', array("status"=>2));
+        }
         return b;
         
     }
@@ -1489,6 +1651,11 @@ class Crud_model extends CI_Model {
         $pid = $list[0]["patient_id"];
         $res = $this->get_triage_list($pid,$qid);
         return $res;
+    }
+    // delete tirage information
+    function delete_triage_info($id){
+        $this->db->where('id', $id);
+        $this->db->delete('triage');
     }
     // get pending list for consultation
     function get_pending_list_for_consultation(){
@@ -1617,14 +1784,14 @@ class Crud_model extends CI_Model {
          $data['sender_account_id'] = $this->session->userdata('login_user_id');
          $req_id = 0;
          $b=true;
-         $arr = $this->db->get_where($table,array("cons_id"=>$data["cons_id"]))->result_array();
-         if (count($arr)==0){
+         $arr = $this->db->get_where($table,array("cons_id"=>$data["cons_id"]));
+         if ($arr->num_rows()==0){
             $b&=$this->db->insert($table,$data);
-            $req_id = $this->insert_id();
+            $req_id = $this->db->insert_id();
          }else{
-            $this->db->where("id",$arr[0]["id"]);
+            $this->db->where("id",$arr->row()->id);
             $b&=$this->db->update($table,$data);
-            $req_id = $arr[0]["id"];
+            $req_id = $arr->row()->id;
          };
          if ($req_id==0)
             $b=false;
@@ -1663,6 +1830,7 @@ class Crud_model extends CI_Model {
          $data["start_time"] =$data["end_time"] = strtotime($now);
          $data['sender_account_type'] = $this->session->userdata('login_type');
          $data['sender_account_id'] = $this->session->userdata('login_user_id');
+         $msg="";
          for ($i=0;$i<count($params["req_list"]);$i++){
              $val = $params["req_list"][$i];
             if (count($val)>0){
@@ -1671,16 +1839,26 @@ class Crud_model extends CI_Model {
                 $data["itemcode"]=$val;
                 if (count($arr)==0){
                     $this->db->insert($table,$data);
-                }/*else{
-                    $this->db->where("id",$arr[0]["id"]);
-                    $this->db->update($table,$data);
-                };*/
+                }else{
+                  //  $this->db->where("id",$arr[0]["id"]);
+                  //  $this->db->update($table,$data);
+                  $msg = "The request have been already added today";
+                };
             }
             
          }
-         
+         return $msg;
     }
-    
+    function delete_labreq_info($id){
+        $table = "lab_request";
+        $this->db->where("id",$id);
+        $this->db->delete($table);
+    }
+    function delete_radreq_info($id){
+        $table = "rad_request";
+        $this->db->where("id",$id);
+        $this->db->delete($table);
+    }
     //save radiology request
     function save_rad_request_for_patient($params){
          $data["recept_id"] = $params["recept_id"];
@@ -1699,13 +1877,17 @@ class Crud_model extends CI_Model {
                 $data["itemcode"]=$val;
                 if (count($arr)==0){
                     $this->db->insert($table,$data);
-                }/*else{
+                }else{
+                     $msg = "The request have been already added today";
+                }
+                    /*else{
                     $this->db->where("id",$arr[0]["id"]);
                     $this->db->update($table,$data);
                 };*/
             }
             
          }
+         return $msg;
          
     }
     // get pending list for payment process
@@ -1724,7 +1906,7 @@ class Crud_model extends CI_Model {
 
         }*/
     }
-    // paymetn process
+    // payment process
     function submit_payment_for_patient($params){
         //tabel collection for payment process
         $tables = array(
@@ -1737,6 +1919,7 @@ class Crud_model extends CI_Model {
             "lab_req" => "lab_request",
             "rad_req" => "rad_request",
             "phar_req" => "pharmacy_request",
+            "items" => "items",
             "stock_track"=>"stocktrack"
         );
         // account information on ledgers table
@@ -1749,12 +1932,15 @@ class Crud_model extends CI_Model {
             "cashier_ac"=>array("705","Cashier A/C")
         );
         $b = true;
+   //     $total_amount = 0;
+        $pid = $params["patient_id"];
+        $recepid = $params["recept_id"];
         foreach($params["carts"] as $cart){
             //insert into receipts table
             $tmp = array();
             $tmp["timestamp"]=date("d/m/y H:i:s");
-            $pid = $tmp["patient_id"] = $params["patient_id"];
-            $recepid = $tmp["recept_id"]=$params["recept_id"];
+            $tmp["patient_id"] = $pid ;
+            $tmp["recept_id"]= $recepid ;
             $mode = $tmp["paymode"] =$cart["mode"];
             $amount = $tmp["amount"] = $cart["amount"];
             $acid = $tmp["company_id"] = $cart["acid"];
@@ -1763,6 +1949,7 @@ class Crud_model extends CI_Model {
             $login_id = $tmp['receiver_account_id'] = $this->session->userdata('login_user_id');
             $now = strtotime(date("Y/m/d H:i:s"));
             $b &= $this->db->insert($tables["receipt"],$tmp);
+   //         $total_amount += $amount;
             if (!$b) return $b;
             // register according to payment mode
             if ($mode=="Cash"){
@@ -1806,8 +1993,8 @@ class Crud_model extends CI_Model {
                 $tmp["amount"] = $amount;
                 $tmp["DrCr"] = "dr";
                 $tmp["stamp"] = $now;
-                $tmp["Description"] = "Hospital charges on ".date("Y/m/d");
-                $tmp["date"] =date("Y/m/d");
+                $tmp["Description"] = "Hospital charges on ".date("m/d/Y");
+                $tmp["date"] =date("m/d/Y");
                 $tmp["status"] = 1;
                 $this->db->insert($tables["debt_customer"],$tmp);
                 //update creditcustomers table
@@ -1823,7 +2010,7 @@ class Crud_model extends CI_Model {
                 $tmp["drid"] = $acc_info["income_revenue"][0];
                 $tmp["amount"] = $amount;
                 $tmp["description"] = 'Income from Credit sales-Inv No:'.$recepid;
-                $tmp["stamp"] = strtotime(date("Y/m/d H:i:s"));
+                $tmp["stamp"] = strtotime(date("m/d/Y H:i:s"));
                 $tmp["crbal"] = $rec_bal;
                 $tmp["drbal"] = $income_bal;
                 $tmp["status"] =0;
@@ -1890,15 +2077,48 @@ class Crud_model extends CI_Model {
                 $b &=$this->db->update($tables["ledger"],array("bal"=>$waiver_bal));
             }
         }
+        // if sumitted bal >0 , debt process
+        if ($params["bal"]>0){
+            $tmp=array();
+            $tmp["PatId"] = $pid;
+            $debt_bal = $params["bal"];
+            //check whether patient is registered in creditcustomer table
+            $arr = $this->db->get_where($tables["credit_customer"],array("PatientId"=>$pid))->result_array();
+            if (count($arr)>0){
+                $tmp["CustomerId"] = $arr[0]["CustomerId"];
+                $bal = $arr[0]["Bal"];
+                $bal = $bal+$debt_bal;
+                $tmp["InvBal"]=$tmp["Bal"] = $bal;
+            }else{
+                $this->db->insert($tables["credit_customer"],array("PatientId"=>$pid,
+                "CustomerName"=>$this->select_patient_info_by_patient_id($pid)[0]["name"]));
+                $tmp["CustomerId"] = $this->db->insert_id();
+                $tmp["InvBal"]=$tmp["Bal"] = $debt_bal;
+            }
+            // register into customerdebt table
+            $tmp["InvoiceNo"] = $recepid;
+            $tmp["amount"] = $debt_bal;
+            $tmp["DrCr"] = "dr";
+            $tmp["stamp"] = $now;
+            $tmp["Description"] = "Hospital charges on ".date("m/d/Y");
+            $tmp["date"] =date("m/d/Y");
+            $tmp["status"] = 1;
+            $this->db->insert($tables["debt_customer"],$tmp);
+            //update creditcustomers table
+            $this->db->where("CustomerId", $tmp["CustomerId"]);
+            $this->db->update($tables["credit_customer"],array("bal"=>$tmp["Bal"]));
+        }
         // final process, we have to change status of sales table.
         $tmp = array();
-        $tmp["status"] = 1;// will go complete paid status , value is 1
+        $tmp["status"] = 1;// will go complete paid status , value is 2
         $tmp["approved_date"] = $now;
         $tmp["account_type"] = $login_type;
         $tmp["cashier_id"] = $login_id;
         $this->db->where("recep_id",$recepid);
         $this->db->update("sales",$tmp);
-        
+        // update status on reception table
+        $this->db->where("refno",$recepid);
+        $this->db->update("receptions",array("status"=>1));
         
         //UPDATE DATABASE -REDUCTION OF STOCK ITEMS
         //reduce stock
@@ -1909,12 +2129,19 @@ class Crud_model extends CI_Model {
             $item_info = $this->db->get_where("items",array("ItemCode"=>$item_id))->result_array();
             $total_price = $qty*$row["unit_price"]-$row["discount"];
             //update lab table,radiology table,pharmacy table,theatre table.
+            //laboratory
             $this->db->where("recept_id",$recepid);
             $this->db->where("itemcode",$item_id);
-            $b &=$this->db->update($tables["lab_req"],array("status"=>1));// it means paid status
+            $b &=$this->db->update($tables["lab_req"],array("status"=>2));// it means paid status
+            // radiology table update
             $this->db->where("recept_id",$recepid);
             $this->db->where("itemcode",$item_id);
-            $b &=$this->db->update($tables["rad_req"],array("status"=>1));
+            $b &=$this->db->update($tables["rad_req"],array("status"=>2));
+            // pharmacy table update
+            $this->db->where("recept_id",$recepid);
+    //        $this->db->where("itemcode",$item_id);
+            $b &=$this->db->update($tables["phar_req"],array("status"=>2));//paid status
+
             if (count($item_info)>0){
                 $item = $item_info[0];
                 $type = $item["Type"];
@@ -1988,8 +2215,9 @@ class Crud_model extends CI_Model {
             $tmp["item_name"] = $this->select_item_name($row["itemcode"]);
             $tmp["req_date"] = date("Y/m/d H:i:s",$row["start_time"]);
             if ($row["status"]==0) $tmp["status"] = "Pending";
-            if ($row["status"]==1) $tmp["status"] = "Process";
-            if ($row["status"]==2) $tmp["status"] = "Completed";
+            if ($row["status"]==1) $tmp["status"] = "billed";
+            if ($row["status"]==2) $tmp["status"] = "Processing";
+            if ($row["status"]==3) $tmp["status"] = "Completed";
             array_push($res,$tmp);
         }
         return $res;
@@ -2013,7 +2241,7 @@ class Crud_model extends CI_Model {
         }
         if ($b){
             $this->db->where("id",$data["req_id"]);
-            $b&=$this->db->update("lab_request",array("status"=>2,"end_time"=>strtotime($date)));
+            $b&=$this->db->update("lab_request",array("status"=>3,"end_time"=>strtotime($date)));
         }
         $tmp["msg"]=($b)?"success":"failure";
         $tmp["date"]=$date;
@@ -2035,8 +2263,9 @@ class Crud_model extends CI_Model {
             $tmp["item_name"] = $this->select_item_name($row["itemcode"]);
             $tmp["req_date"] = date("Y/m/d H:i:s",$row["start_time"]);
             if ($row["status"]==0) $tmp["status"] = "Pending";
-            if ($row["status"]==1) $tmp["status"] = "Process";
-            if ($row["status"]==2) $tmp["status"] = "Completed";
+            if ($row["status"]==1) $tmp["status"] = "billed";
+            if ($row["status"]==2) $tmp["status"] = "Processing";
+            if ($row["status"]==3) $tmp["status"] = "Completed";
             array_push($res,$tmp);
         }
         return $res;
@@ -2047,7 +2276,7 @@ class Crud_model extends CI_Model {
         $data=$param;
         $data['doneby_account_type'] = $this->session->userdata('login_type');
         $data['doneby_account_id'] = $this->session->userdata('login_user_id');
-        $data["status"] =2;
+        $data["status"] =3;
         $table = "rad_request";
         $date = date("Y/m/d H:i:s");
         $data["end_time"] =strtotime($date);
@@ -2147,8 +2376,8 @@ class Crud_model extends CI_Model {
         }
         //this was a credit
         $rowcr = $this->db->get_where($ledger_table,array("ledgerid"=>$cr))->row();
-        $crtype = $rowdr->type;
-        $crbal = $rowdr->bal;
+        $crtype = $rowcr->type;
+        $crbal = $rowcr->bal;
         if($crtype=='Asset'||$crtype=='Expense'){
             $crbal=$crbal-$amount;												
         }
@@ -2172,6 +2401,1626 @@ class Crud_model extends CI_Model {
         $b &= $this->db->update($ledger_table,array("bal"=>$drbal));
 
         return ($b)?"success":"failure";
+    }
+    //insert new ledger entry
+    function insert_ledger_entries($param){
+        $data=$param;
+        $entry_table = "ledgerentries";
+        $gen_ledger_tabel = "generalledger";
+        $ledger_table = "ledgers";
+        $date = date("Y/m/d H:i:s");
+        $data["stamp"] = strtotime($date);
+        $data["status"] = 0;
+        $amount = $data["amount"];
+        //this was a debit
+        $rowdr = $this->db->get_where($ledger_table,array("ledgerid"=>$data["crid"]))->row();
+        $drtype = $rowdr->type;
+        $drbal = $rowdr->bal;
+        if($drtype=='Liability'||$drtype=='Revenue'||$drtype=='Equity'||$drtype=='Drawings'){
+            $drbal=$drbal-$amount;
+        }
+        else{
+            $drbal=$drbal+$amount;
+        }
+        //this was a credit
+        $rowcr = $this->db->get_where($ledger_table,array("ledgerid"=>$data["drid"]))->row();
+        $crtype = $rowcr->type;
+        $crbal = $rowcr->bal;
+        if($crtype=='Asset'||$crtype=='Expense'){
+            $crbal=$crbal-$amount;												
+        }
+        else{
+            $crbal=$crbal+$amount;
+        }
+        $data["crbal"]=$drbal;
+        $data["drbal"]=$crbal;
+        $b=true;
+        $b &= $this->db->insert($entry_table,$data);
+        $this->db->where("ledgerid",$data["crid"]);
+        $b &= $this->db->update($ledger_table,array("bal"=>$drbal));
+        $this->db->where("ledgerid",$data["drid"]);
+        $b &= $this->db->update($ledger_table,array("bal"=>$crbal));
+    }
+    // insert ledger item
+    function save_ledger_item($id=""){
+        $data["name"]=$this->input->post("name");
+        $data["type"]=$this->input->post("type");
+        $data["category"]=$this->input->post("category");
+        $data["date"]=date("Y/m/d");
+        $data["bal"] = 0;
+        $data["status"] = 1;
+        $b=true;
+        if ($id==""){
+           $b &= $this->db->insert("ledgers",$data);
+        }else{
+            $this->db->where("ledgerid",$id);
+            $data["bal"] = $this->input->post("balance");
+            $b &= $this->db->update("ledgers",$data);
+        }
+        return $b;
+    }
+    //delete ledger info
+    function delete_ledger_info($id){
+        $this->db->where("ledgerid",$id);
+        $this->db->delete("ledgers");
+    }
+    // select information from customerdebtor
+    function get_customer_debtor_info($id){
+        $table = "customerdebts";
+        $this->db->where("CustomerId",$id);
+        $this->db->where("DrCr","dr");
+        $this->db->where("Status",1);
+        $info = $this->db->get($table)->result_array();
+        $res = array();
+        foreach($info as $row){
+            $tmp["id"] = $row["TransNo"];
+            $tmp["date"] =$row["Date"];
+            $pid = $row["PatId"];
+            $tmp["patinfo"] = $this->select_patient_info_by_patient_id($pid)[0]["name"]."-".$pid;
+            $tmp["invno"] = $row["InvoiceNo"];
+            $tmp["amount"] = $row["Amount"];
+            $tmp["invbal"] = $row["InvBal"];
+            $tmp["paid"] = $row["Paid"];
+            $tmp["bal"] = $row["Bal"];
+            array_push($res,$tmp);
+        }
+        return $res;
+    }
+    function get_scheme_info($id=""){
+        $this->db->order_by("SchemeName");
+        if ($id!="") $this->db->where("SchemeId",$id);
+        $list = $this->db->get("schemes")->result_array();
+        $res=array();
+        foreach ($list as $row) { 
+            $company_info = $this->db->get_where("creditcustomers",array("CustomerId"=>$row["CompanyId"]))->row();
+            $tmp["cpname"] = $company_info->CustomerName;
+            $tmp["schname"] = $row["SchemeName"];
+            $tmp["tel"] = $row["Tel"];
+            $tmp["smartstatus"] = $company_info->SmartComp;
+            $tmp["cpstatus"] = $row["CoPay"];
+            $tmp["cptype"] = $row["CoPayType"];
+            $tmp["cpam"] = $row["CoPayAm"];
+            $tmp["id"] = $row["SchemeId"];
+            $tmp["cpid"] =  $company_info->CustomerId;
+            array_push($res,$tmp);
+        }        
+        return $res;
+    }
+    //save scheme info
+    function save_scheme_item($id){
+        $data["SchemeName"]=$this->input->post("schname");
+        $data["Tel"]=$this->input->post("tel");
+        $data["CoPay"] = $this->input->post("cpstatus");
+        $data["CoPayType"] = $this->input->post("cptype");
+        $data["CoPayAm"] = $this->input->post("cpam");
+        $data["CompanyId"] = $this->input->post("cpid");
+        $b=true;
+        if ($id==""){
+           $b &= $this->db->insert("schemes",$data);
+        }else{
+            $this->db->where("SchemeId",$id);
+            $b &= $this->db->update("schemes",$data);
+        }
+        return $b;
+    }
+    //delete debtor info
+    function delete_scheme_info($id){
+        $this->db->where("SchemeId",$id);
+        $this->db->delete("schemes");
+    }
+    // save debtor information
+    function save_debtor_item($id){
+        $data["CustomerName"]=$this->input->post("name");
+        $data["Tel"]=$this->input->post("phone");
+        $data["SmartComp"] = $this->input->post("smartcomp");
+        $b=true;
+        if ($id==""){
+           $b &= $this->db->insert("creditcustomers",$data);
+        }else{
+            $this->db->where("CustomerId",$id);
+            $b &= $this->db->update("creditcustomers",$data);
+        }
+        return $b;
+    }
+    //delete debtor info
+    function delete_debtor_info($id){
+        $this->db->where("CustomerId",$id);
+        $this->db->delete("creditcustomers");
+    }
+    //get creditor customer invoice
+    function get_customer_creditor_info($id){
+        $table = "supplierdebts";
+        $this->db->where("SupplierId",$id);
+        $this->db->where("DrCr","dr");
+        $this->db->where("Status",1);
+        $info = $this->db->get($table)->result_array();
+        $res = array();
+        foreach($info as $row){
+            $tmp["id"] = $row["TransNo"];
+            $tmp["date"] = $row["Date"];
+            $tmp["invno"] = $row["InvoiceNo"];
+            $tmp["amount"] = $row["Amount"];
+            $tmp["invbal"] = $row["InvBal"];
+            $tmp["paid"] = $row["Paid"];
+            $tmp["bal"] = $row["Bal"];
+            array_push($res,$tmp);
+        }
+        return $res;
+    }
+     // save creditor information
+    function save_creditor_item($id){
+        $data["CustomerName"]=$this->input->post("name");
+        $data["Tel"]=$this->input->post("phone");
+        $b=true;
+        if ($id==""){
+           $b &= $this->db->insert("creditsuppliers",$data);
+        }else{
+            $this->db->where("CustomerId",$id);
+            $b &= $this->db->update("creditsuppliers",$data);
+        }
+        return $b;
+    }
+    //delete creditor info
+    function delete_creditor_info($id){
+        $this->db->where("CustomerId",$id);
+        $this->db->delete("creditsuppliers");
+    }
+    //make payment for creditors
+    function make_payment_for_creditor($cusid,$ledger_id){
+        $table_crditor="creditsuppliers";
+        $table_supplier_debt="supplierdebts";
+        $table_ledgerentries = "ledgerentries";
+        $table_ledgers = "ledgers";
+        $creditor_info = $this->db->get_where($table_crditor,array("CustomerId"=>$cusid))->row();
+        
+        $bal = $creditor_info->Bal;
+        $data = $this->input->post("data");
+        $refno = $this->input->post("refno");
+        $date = date("d/m/Y");
+        $b=true;
+        $total_paying=0;
+        foreach($data as $row){
+            $trans_id = $row["id"];
+            $paying_val = $row["paying"];
+            $inv_info = $this->db->get_where($table_supplier_debt, array("TransNo"=>$trans_id))->row();
+            $paid = $inv_info->Paid;
+            $inv_val = $inv_info->InvBal;
+            $inv_no = $inv_info->InvoiceNo;
+            $amount = $inv_info->Amount;
+            $nPaid = $tmp["Paid"] = $paid+$paying_val;
+            $total_paying += $paying_val;
+            $tmp["Bal"] = $row["Bal"];//$amount-$paying_val;
+            $tmp["InvoiceNo"] = $inv_no;
+            $tmp["DrCr"] = "cr";
+            $tmp["SupplierId"] = $cusid;
+            $tmp["SupplierName"] = $creditor_info->CustomerName;
+            $tmp["GrnNo"] = "";
+            $tmp["Amount"]=$paying_val;
+            $nInvbal = $tmp["InvBal"]=$inv_val- $paying_val;
+            $tmp["Description"] = "Payment of GRN Invoice-".$inv_no."-Ref No:".$refno;
+            $tmp["Date"]= $date;
+            $tmp["Stamp"] = strtotime($date);
+            $tmp["status"] = 1;
+            $b&=$this->db->insert($table_supplier_debt,$tmp);
+            $this->db->where("TransNo",$trans_id);
+            $b&=$this->db->update($table_supplier_debt,array("InvBal"=>$nInvbal,"Paid"=>$nPaid));
+            if ($nInvbal ==0){
+                $this->db->where("TransNo",$trans_id);
+                $b&=$this->db->update($table_supplier_debt,array("Status"=>2));
+            };
+        };
+        $this->db->where("CustomerId",$cusid);
+        $b&=$this->db->update($table_crditor,array("Bal"=>$bal-$total_paying));
+        //update ledger
+        $bal1=$this->db->get_where($table_ledgers,array("ledgerid"=>629))->row()->bal;
+        $bal2=$this->db->get_where($table_ledgers,array("ledgerid"=>$ledger_id))->row()->bal;
+        $bal1 -= $total_paying;
+        $bal2 -= $total_paying;
+        $this->db->where("ledgerid",629);
+        $b&=$this->db->update($table_ledgers,array("bal"=>$bal1));
+        $this->db->where("ledgerid",$ledger_id);
+        $b&=$this->db->update($table_ledgers,array("bal"=>$bal2));
+        $b&=$this->db->insert($table_ledgerentries,array(
+            "crid"=>629,
+            "drid"=>$ledger_id,
+            "amount"=>$total_paying,
+            "description"=>"Payment of Creditors",
+            "date"=>$date,
+            "stamp"=>strtotime($date),
+            "crbal"=>$bal1,
+            "drbal"=>$bal2,
+            "status"=>0
+        ));
+        return (b)?"success":"failure";
+    }
+      //receive payment for debtors
+    function receive_payment_for_debtor($cusid,$ledger_id){
+        $table_crditor="creditcustomers";
+        $table_customer_debt="customerdebts";
+        $table_ledgerentries = "ledgerentries";
+        $table_ledgers = "ledgers";
+        $table_receipt ="debtreceipts";
+        $creditor_info = $this->db->get_where($table_crditor,array("CustomerId"=>$cusid))->row();
+        
+        $bal = $creditor_info->Bal;
+        $data = $this->input->post("data");
+        $refno = $this->input->post("refno");
+        $date = date("d/m/Y");
+        $b=true;
+        $total_paying=0;
+        $totinv="";
+        foreach($data as $row){
+            $trans_id = $row["id"];
+            $paying_val = $row["paying"];
+            $inv_info = $this->db->get_where($table_customer_debt, array("TransNo"=>$trans_id))->row();
+            $paid = $inv_info->Paid;
+            $inv_val = $inv_info->InvBal;
+            $inv_no = $inv_info->InvoiceNo;
+            $amount = $inv_info->Amount;
+            $nPaid = $tmp["Paid"] = $paid+$paying_val;
+            $total_paying += $paying_val;
+            $tmp["Bal"] = $inv_info->Bal;//$amount-$paying_val;
+            $tmp["InvoiceNo"]=$inv_no;
+            $totinv.=$inv_no.';';
+            $tmp["DrCr"] = "cr";
+            $cid=$tmp["CustomerId"] = $cusid;
+            $cname=$tmp["CustomerName"] = $creditor_info->CustomerName;
+            $tmp["Amount"]=$paying_val;
+            $nInvbal = $tmp["InvBal"]=$inv_val- $paying_val;
+            $tmp["Description"] = "Payment of Invoice-Inv No-".$inv_no."-Ref No:".$refno;
+            $tmp["Date"]= $date;
+            $tmp["Stamp"] = strtotime($date);
+            $tmp["status"] = 1;
+            $b&=$this->db->insert($table_customer_debt,$tmp);
+            $this->db->where("TransNo",$trans_id);
+            $b&=$this->db->update($table_customer_debt,array("InvBal"=>$nInvbal,"Paid"=>$nPaid));
+            if ($nInvbal ==0){
+                $this->db->where("TransNo",$trans_id);
+                $b&=$this->db->update($table_customer_debt,array("Status"=>2));
+            };
+             
+        };
+        $this->db->where("CustomerId",$cusid);
+        $b&=$this->db->update($table_crditor,array("Bal"=>$bal-$total_paying));
+        //update ledger
+        $bal1=$this->db->get_where($table_ledgers,array("ledgerid"=>628))->row()->bal;
+        $bal2=$this->db->get_where($table_ledgers,array("ledgerid"=>$ledger_id))->row()->bal;
+        $bal1 -= $total_paying;
+        $bal2 -= $total_paying;
+        $this->db->where("ledgerid",628);
+        $b&=$this->db->update($table_ledgers,array("bal"=>$bal1));
+        $this->db->where("ledgerid",$ledger_id);
+        $b&=$this->db->update($table_ledgers,array("bal"=>$bal2));
+        $b&=$this->db->insert($table_ledgerentries,array(
+            "crid"=>629,
+            "drid"=>$ledger_id,
+            "amount"=>$total_paying,
+            "description"=>"Income from Credit sales",
+            "date"=>$date,
+            "stamp"=>strtotime($date),
+            "crbal"=>$bal1,
+            "drbal"=>$bal2,
+            "status"=>0
+        ));
+        $data['doneby_account_type'] = $this->session->userdata('login_type');
+        $data['doneby_account_id'] = $this->session->userdata('login_user_id');
+       //insert new receipt
+        $b&=$this->db->insert($table_receipt,array(
+            "cid"=>$cusid,
+            "cname"=>$creditor_info->CustomerName,
+            "amount"=>$total_paying,
+            "description"=>$totinv,
+            "date"=>$date,
+            "stamp"=>strtotime($date),
+            "account_id"=>$this->session->userdata('login_user_id'),
+            "account_type"=>$this->session->userdata('login_type'),
+            "bal"=>$bal -$total_paying,
+            "status"=>1
+        ));
+        return (b)?"success":"failure";
+    }
+    //get inovices for receipts by pid
+    function get_invoices_for_receipts_by_pid($invno=""){
+        $table = "receipts";
+        if($invno!="") 
+            $this->db->where("invno",$invno);
+        $this->db->where("Paymode","Companies");
+        $info = $this->db->get($table)->result_array();
+        $res = array();
+        foreach($info as $row){
+            $tmp["id"] = $row["id"];
+            $tmp["date"] = $row["timestamp"];
+            $tmp["invno"] = $row["invno"];
+            $tmp["pname"] = $this->crud_model->select_patient_info_by_patient_id($row['patient_id'])[0]["name"];
+            $tmp["pid"] = $row["patient_id"];
+            array_push($res,$tmp);
+        }
+        return $res;
+    }
+    //create expense transaction
+    function save_expense_item(){
+        $table="ledgers";
+        $drid = $this->input->post("acid");
+        $amount = $this->input->post("amount");
+        $note = $this->input->post("note");
+        $date = $this->input->post("date");
+        $crinfo = $this->db->get_where($table,array("ledgerid"=>"670"))->row();
+        $msg = "Transaction success!";
+        $b=true;
+        $crid=$crinfo->ledgerid;
+        if ($crid==""){
+            $msg = "You have to be registered as a chief cashier to carry out this transaction.";
+        }else{
+            $crbal = $crinfo->bal;
+            $drinfo = $this->db->get_where($table,array("ledgerid"=>$drid))->row();
+            $drbal = $drinfo->bal;
+            $crbal = $crbal - $amount;
+            $drbal = $drbal + $amount;
+            $stamp = strtotime(date("Y/m/d H:i:s"));
+            if ($crbal <0 ){
+                $msg="Chief Cashier Account balance cannot be less than zero.";
+            }else{
+                $b &= $this->db->insert("ledgerentries", array(
+                    "crid"=>$crid,
+                    "drid"=>$drid,
+                    "date"=>$date,
+                    "amount"=>$amount,
+                    "description"=>$note,
+                    "crbal"=>$crbal,
+                    "drbal"=>$drbal,
+                    "stamp"=>$stamp,
+                    "status"=>0
+                ));
+                $this->db->where("ledgerid","670");
+                $b &= $this->db->update($table, array("bal"=>$crbal));
+                $this->db->where("ledgerid",$drid);
+                $b &= $this->db->update($table, array("bal"=>$drbal));
+                if($b==false) $msg = "Got some errors.";
+            }
+        }
+        return $msg;
+    }
+    //create bank deposit transaction
+    function save_bnkdeposit_item(){
+        $table="ledgers";
+        $drid = $this->input->post("acid");
+        $amount = $this->input->post("amount");
+        $note = $this->input->post("note");
+        $crid = "705";
+        $crinfo = $this->db->get_where($table,array("ledgerid"=>$crid))->row();
+        $msg = "Transaction success!";
+        $b=true;
+     //   $crid=$crinfo->ledgerid;
+        if ($crid==""){
+            $msg = "You have to be registered as a chief cashier to carry out this transaction.";
+        }else{
+            $crbal = $crinfo->bal;
+            $drinfo = $this->db->get_where($table,array("ledgerid"=>$drid))->row();
+            $drbal = $drinfo->bal;
+            $crbal = $crbal - $amount;
+            $drbal = $drbal + $amount;
+            $date = date("Y/m/d H:i:s");
+            $stamp = strtotime($date);
+            if ($crbal <0 ){
+                $msg="Chief Cashier Account balance cannot be less than zero.";
+            }else{
+                $b &= $this->db->insert("ledgerentries", array(
+                    "crid"=>$crid,
+                    "drid"=>$drid,
+                    "date"=>$date,
+                    "amount"=>$amount,
+                    "description"=>$note,
+                    "crbal"=>$crbal,
+                    "drbal"=>$drbal,
+                    "stamp"=>$stamp,
+                    "date"=>$date,
+                    "status"=>0
+                ));
+                $this->db->where("ledgerid",$crid);
+                $b &= $this->db->update($table, array("bal"=>$crbal));
+                $this->db->where("ledgerid",$drid);
+                $b &= $this->db->update($table, array("bal"=>$drbal));
+                // make bank deposit entry
+                $b &= $this->db->insert("bankdeposits", array(
+                    "bank_id"=>$drid,
+                    "date"=>$date,
+                    "amount"=>$amount,
+                    "stamp"=>$stamp,
+                    "status"=>1
+                ));
+                if($b==false) $msg = "Got some errors.";
+            }
+        }
+        return $msg;
+    }
+     //create cash collection transaction
+    function save_cash_collection_item(){
+        $table="ledgers";
+        $crid = $this->input->post("acid");
+        $amount = $this->input->post("amount");
+        $note = $this->input->post("note");
+        $drid = "705";
+        $drinfo = $this->db->get_where($table,array("ledgerid"=>$drid))->row();
+        $msg = "Transaction success!";
+        $b=true;
+     //   $crid=$crinfo->ledgerid;
+        if ($crid==""){
+            $msg = "You have to be registered as a chief cashier to carry out this transaction.";
+        }else{
+            $drbal = $drinfo->bal;
+            $crinfo = $this->db->get_where($table,array("ledgerid"=>$crid))->row();
+            $crbal = $crinfo->bal;
+            $crbal = $crbal - $amount;
+            $drbal = $drbal + $amount;
+            $date = date("Y/m/d H:i:s");
+            $stamp = strtotime($date);
+            if ($crbal <0 ){
+                $msg="Chief Cashier Account balance cannot be less than zero.";
+            }else{
+                $b &= $this->db->insert("ledgerentries", array(
+                    "crid"=>$crid,
+                    "drid"=>$drid,
+                    "date"=>$date,
+                    "amount"=>$amount,
+                    "description"=>$note,
+                    "crbal"=>$crbal,
+                    "drbal"=>$drbal,
+                    "stamp"=>$stamp,
+                    "date"=>$date,
+                    "status"=>0
+                ));
+                $this->db->where("ledgerid",$crid);
+                $b &= $this->db->update($table, array("bal"=>$crbal));
+                $this->db->where("ledgerid",$drid);
+                $b &= $this->db->update($table, array("bal"=>$drbal));
+                if($b==false) $msg = "Got some errors.";
+            }
+        }
+        return $msg;
+    }
+    // save stock item
+    function save_stock_item($id=""){
+        $data["ItemName"]=$this->input->post("itemname");
+  //      $data["Type"]=$this->input->post("type");
+        $data["Category"]=$this->input->post("category");
+        $data["SubCategory"]=$this->input->post("subcategory");
+        $data["SalePrice"]=$this->input->post("saleprice");
+        $data["MinBal"]=$this->input->post("minbal");
+        $data["Molecule"]=$this->input->post("molecule");
+        $data["LeadTime"]=$this->input->post("leadtime");
+        $data["Supplier"]=$this->input->post("supid");
+        $data["Pack"]=$this->input->post("pack");
+        $data["PurchPrice"]=$this->input->post("purchaseprice");
+        $data["Vat"]=$this->input->post("vat");
+        $data["Taxable"]=$this->input->post("taxable");
+        $data["Sellable"]=$this->input->post("sellable");
+        $b=true;
+        if ($id==""){
+            $data["Type"]=$this->input->post("type");
+            $b &= $this->db->insert("items",$data);
+        }else{
+            $this->db->where("ItemCode",$id);
+            $b &= $this->db->update("items",$data);
+        }
+        return $b;
+    }
+    // save stock request
+    function save_stock_request(){
+        $carts = json_decode($this->input->post("carts"),true);
+        $b=true;
+        $item_table = "items";
+        $issue_table = "issuetable";
+        //get receipt no
+        $q =$this->db->query("SELECT * FROM $issue_table order by TransNo desc limit 0,1")->row();
+        $rcptno=$q->IssueNo +1;
+        foreach($carts as $cart){
+            $code = $cart["code"];
+            $item_info = $this->db->get_where($item_table,array("itemCode"=>$code))->result_array()[0];
+            $purch_price = $item_info["PurchPrice"];
+            $qty = $cart["pack"]*$cart["units"] +$cart["parts"];
+            $total_price = $qty * $purch_price;
+            $b &= $this->db->insert($issue_table,array(
+                "IssueNo"=>$rcptno,
+                "ItemCode"=>$cart["code"],
+                "ItemName"=>$cart["name"],
+                "Dep1"=>$cart["to"],
+                "Dep2"=>$cart["from"],
+                "Pack"=>$cart["pack"],
+                "Stamp"=>strtotime(date("Ymd H:i:s")),
+                "Qty"=>$qty,
+                "Total"=>$total_price,
+                "UnitBox"=>$cart["units"],
+                "PartBox"=>$cart["parts"],
+                "TransDate"=>date("Ymd"),
+                "Status"=>1,
+                "requested_account_id"=>$this->session->userdata('login_user_id'),
+                "requested_account_type"=>$this->session->userdata('login_type')
+            ));
+        };
+        return $b;
+    }
+    //process stock request(stock tranfer)
+    function proc_stock_request($task="", $id=""){
+        if ($task==""||$id=="") return false;
+        $table_item = "items";
+        $table_issue = "issuetable";
+        $tabele_track = "stocktrack";
+        $b=true;
+        if($task=="transfer"){
+            $req_info = $this->db->get_where($table_issue,array("TransNo"=>$id))->row();
+            $qty =  $req_info->Qty;
+            $itemcode = $req_info->ItemCode;
+            $item_info = $this->db->get_where($table_item,array("ItemCode"=>$itemcode))->result_array()[0];
+            $fromDep = $req_info->Dep2;//from
+            $toDep = $req_info->Dep1;//to
+            $d2= ($fromDep=="PROCUREMENT")?"Bal":$fromDep;
+            $d1= ($toDep=="PROCUREMENT")?"Bal":$toDep;
+            $bal1 = $item_info[$d1];
+            $bal2 = $item_info[$d2];
+            $bal1 += $qty;
+            $bal2 -= $qty;
+            $pack= $req_info->Pack;         
+            $now = date("Y/m/d");
+            $b &= $this->db->insert($tabele_track, array(
+                "Date"=>$now,
+                "Dept"=>$toDep,
+                "ItemCode"=>$itemcode,
+                "Pack"=>$pack,
+                "Description"=>'STOCK TRANSFER FROM '.$fromDep,
+                "Qty"=>$qty,
+                "Bal"=>$bal1,
+                "Stamp"=>strtotime($now),
+                "account_id"=>$this->session->userdata('login_user_id'),
+                "account_type"=>$this->session->userdata('login_type')
+            ));
+            $b &= $this->db->insert($tabele_track, array(
+                "Date"=>$now,
+                "Dept"=>$fromDep,
+                "ItemCode"=>$itemcode,
+                "Pack"=>$pack,
+                "Description"=>'STOCK TRANSFER TO '.$toDep,
+                "Qty"=>$qty,
+                "Bal"=>$bal2,
+                "Stamp"=>strtotime($now),
+                "account_id"=>$this->session->userdata('login_user_id'),
+                "account_type"=>$this->session->userdata('login_type')
+            ));
+            if ($b){
+                $this->db->where("TransNo",$id);
+                $b &=$this->db->update($table_issue, array(
+                    "Status"=>2,
+                    "TransDate"=>$now,
+                    "issued_acount_type"=>$this->session->userdata('login_type'),
+                    "issued_acount_id"=>$this->session->userdata('login_user_id'),
+                    "Stamp"=>strtotime($now)
+                ));
+                $this->db->where("ItemCode",$itemcode);
+                $b &=$this->db->update($table_item, array(
+                    $d2=>$bal2,
+                    $d1=>$bal1,
+                ));
+            }
+            
+        }else if($task=="revoke"){
+            $this->db->where("TransNo",$id);
+            $b &= $this->db->update($table_issue,array("status"=>0));
+        };
+        return $b;
+    }
+    //stock adjustment
+    function save_stock_adjustment(){
+        $carts = json_decode($this->input->post("carts"),true);
+        $b=true;
+        $item_table = "items";
+        $var_table = "variance";
+        $table_track = "stocktrack";
+        $table_ledgers = "ledgers";
+        $table_ledgers_entry = "ledgerentries";
+        //get receipt no
+        $q =$this->db->query("SELECT * FROM $var_table order by id desc limit 0,1")->row();
+        $rcptno=$q->vno +1;
+        $j=0;
+        foreach($carts as $cart){
+            $code = $cart["code"];
+            $item_info = $this->db->get_where($item_table,array("itemCode"=>$code))->result_array()[0];
+            $bra = $cart["from"];
+            $bra = ($bra=="PROCUREMENT")?"Bal":$bra;
+            $bal = $item_info[$bra];
+            $purch_price = $item_info["PurchPrice"];
+            $qty = $cart["pack"]*$cart["units"] +$cart["parts"];
+            $diffa=$qty-$bal;
+            $total_price = $diffa * $purch_price;
+            $j+=$total_price;
+            $now = date("Y/m/d");
+            $b &= $this->db->insert($var_table,array(
+                "vno"=>$rcptno,
+                "itemcode"=>$cart["code"],
+                "itemname"=>$cart["name"],
+                "dept"=>$cart["from"],
+                "pack"=>$cart["pack"],
+                "stamp"=>strtotime(date("Ymd H:i:s")),
+                "bala"=>$bal,
+                "balb"=>$qty,
+                "total"=>$total_price,
+                "date"=>$now,
+                "status"=>1,
+                "requested_account_id"=>$this->session->userdata('login_user_id'),
+                "requested_account_type"=>$this->session->userdata('login_type')
+            ));
+            //insert into stock track
+			$b &= $this->db->insert($table_track, array(
+                "Date"=>$now,
+                "Dept"=>$bra,
+                "ItemCode"=>$code,
+                "Pack"=>$cart["pack"],
+                "Description"=>'STOCK ADJUSTMENT',
+                "Qty"=>$diffa,
+                "Bal"=>$qty,
+                "Stamp"=>strtotime($now),
+                "account_id"=>$this->session->userdata('login_user_id'),
+                "account_type"=>$this->session->userdata('login_type')
+            ));
+            $this->db->where("ItemCode",$code);
+            $b &=$this->db->update($item_table, array(
+                $bra=>$qty,
+                "Diff"=>$diffa
+            ));
+        };
+        if ($b){
+                //update ledgers-stock
+
+            $amount=$j;
+            $ledger_info = $this->db->get_where($table_ledgers,array("ledgerid"=>'630'))->row();
+            $invbal= $ledger_info->bal;
+            $invbal=$invbal+$amount;
+
+            $ledger_info = $this->db->get_where($table_ledgers,array("ledgerid"=>'725'))->row();
+            $supbal= $ledger_info->bal;
+            $supbal=$supbal-$amount;
+
+            $b &= $this->db->insert($table_ledgers_entry, array(
+                "crid"=>"630",
+                "drid"=>"725",
+                "description"=>"STOCK ADJUSTMENT",
+                "date"=>$now,
+                "stamp"=>strtotime($now),
+                "crbal"=>$invbal,
+                "drbal"=>$supbal,
+                "status"=>0,
+                "amount"=>$amount
+            ));
+            $this->db->where("ledgerid",'630');
+            $b &= $this->db->update($table_ledgers,array("bal"=>$invbal));
+            $this->db->where("ledgerid",'725');
+            $b &= $this->db->update($table_ledgers,array("bal"=>$supbal));
+        }
+        return $b;
+    }
+    //stock usage register
+    function save_stock_usage_register(){
+        $brancharray = explode("-",$this->input->post("branch"));
+        $branchId = $brancharray[0];
+        $branch = $brancharray[1];
+        $itemcode = $this->input->post("item");
+        $qtyused = $this->input->post("qty");
+        $note = $this->input->post("note");
+        $date=date('Y/m/d');
+		$stamp=strtotime($date);
+        $b=true;
+        $item_table = "items";
+        $table_track = "stocktrack";
+        $table_stockuse = "stockuse";
+        $table_ledgers = "ledgers";
+        $table_ledgers_entry = "ledgerentries";
+        $branch = ($branch=="PROCUREMENT")?"Bal":$branch;
+        $item_info = $this->db->get_where($item_table,array("itemCode"=>$itemcode))->result_array()[0];
+        $bal = $item_info[$branch];
+        $purch_price = $item_info["PurchPrice"];
+        $pack = $item_info["Pack"];
+        $nbal=$bal-$qtyused;
+		$total=$purch_price*$qtyused;
+        //insert into stock track
+        $b &= $this->db->insert($table_track, array(
+            "Date"=>$date,
+            "Dept"=>$branch,
+            "ItemCode"=>$itemcode,
+            "Pack"=>$pack,
+            "Description"=>'STOCK USAGE REGISTER',
+            "Qty"=>$qtyused,
+            "Bal"=>$nbal,
+            "Stamp"=>$stamp,
+            "account_id"=>$this->session->userdata('login_user_id'),
+            "account_type"=>$this->session->userdata('login_type')
+        ));
+        $this->db->where("ItemCode",$itemcode);
+        $b &=$this->db->update($item_table, array(
+            $branch=>$nbal
+        ));
+        //insert into stock usage
+        $b &= $this->db->insert($table_stockuse, array(
+            "date"=>$date,
+            "branchid"=>$branchId,  
+            "branchname"=>$branch,
+            "itemcode"=>$itemcode,
+            "itemname"=>$item_info["ItemName"],
+            "details"=>$note,
+            "status"=>1,
+            "qty"=>$qtyused,
+            "stamp"=>$stamp,
+            "account_id"=>$this->session->userdata('login_user_id'),
+            "account_type"=>$this->session->userdata('login_type')
+        ));
+       
+        if ($b){
+                //update ledgers-stock
+
+            $amount=$total;
+            $ledger_info = $this->db->get_where($table_ledgers,array("ledgerid"=>'630'))->row();
+            $invbal= $ledger_info->bal;
+            $invbal=$invbal-$amount;
+
+            $ledger_info = $this->db->get_where($table_ledgers,array("ledgerid"=>'701'))->row();
+            $supbal= $ledger_info->bal;
+            $supbal=$supbal+$amount;
+
+            $b &= $this->db->insert($table_ledgers_entry, array(
+                "crid"=>"630",
+                "drid"=>"701",
+                "description"=>"STOCK USAGE",
+                "date"=>$date,
+                "stamp"=>$stamp,
+                "crbal"=>$invbal,
+                "drbal"=>$supbal,
+                "status"=>0,
+                "amount"=>$amount
+            ));
+            $this->db->where("ledgerid",'630');
+            $b &= $this->db->update($table_ledgers,array("bal"=>$invbal));
+            $this->db->where("ledgerid",'701');
+            $b &= $this->db->update($table_ledgers,array("bal"=>$supbal));
+        }
+        return $b;
+    }
+    //delete stock item
+    function delete_stockitem_info($id){
+        $this->db->where("ItemCode",$id);
+        $this->db->delete("items");
+    }
+    function select_sub_category_by_category($cat){
+        if ($cat !="PROCUREMENT") 
+            $this->db->where("branch",$cat);
+        $sub_cat_list = $this->db->get("subcategories")->result_array();
+        $res = array();
+        foreach ($sub_cat_list as $item){
+            array_push($res,$item);
+        }
+        return $res;
+    }
+    //good receive inwards
+    function save_goods_receive_inwards(){
+        $carts = json_decode($this->input->post("carts"),true);
+        $b=true;
+        $item_table = "items";
+        $table_track = "stocktrack";
+        $table_ledgers = "ledgers";
+        $table_ledgers_entry = "ledgerentries";
+        $table_purch = "purchases";
+        //get receipt no
+        $q =$this->db->query("SELECT * FROM $table_purch order by TransNo desc limit 0,1")->row();
+        $rcptno=$q->PurchNo +1;
+        $j=0;
+        foreach($carts as $cart){
+            $code = $cart["code"];
+            $item_info = $this->db->get_where($item_table,array("itemCode"=>$code))->result_array()[0];
+            $bra = "PHARMACY";
+            $bal = $item_info[$bra];
+            $purch_price = $item_info["PurchPrice"];
+            $qty = $cart["pack"]*$cart["units"] +$cart["parts"];
+            $diffa=$qty+$bal;
+            $qpurch = $item_info["Qpurch"];
+            $now = date("Y/m/d");
+            $total_price = $qty*$purch_price;
+            $j += $total_price;
+            $sid = $cart["supid"];
+            $sname = $cart["supname"];
+            //insert into stock track
+			$b &= $this->db->insert($table_track, array(
+                "Date"=>$now,
+                "Dept"=>"PHARMACY",
+                "ItemCode"=>$code,
+                "Pack"=>$cart["pack"],
+                "Description"=>'PURCHASES - '.$cart["supname"],
+                "Qty"=>$qty,
+                "Bal"=>$diffa,      
+                "Stamp"=>strtotime($now),
+                "account_id"=>$this->session->userdata('login_user_id'),
+                "account_type"=>$this->session->userdata('login_type')
+            ));
+            $this->db->where("ItemCode",$code);
+            $b &=$this->db->update($item_table, array(
+                "SalePrice"=>$cart["saleprice"],
+                "PurchPrice"=>$cart["purprice"],
+                "PHARMACY"=>$diffa,
+                "Qpurch"=>$qpurch+$qty
+            ));
+            //insert purchase item
+            $b &= $this->db->insert($table_purch, array(
+                "PurchNo"=>$rcptno,
+                "PurchDate"=>$cart["date"],
+                "ItemCode"=>$code,
+                "ItemName"=>$cart["name"],
+                "UnitBox"=>$cart["units"],
+                "PartBox"=>$cart["parts"],
+                "Quantity"=>$qty,
+                "SalePrice"=>$cart["saleprice"],
+                "PurchPrice"=>$cart["purprice"],
+                "TotalPrice"=>$total_price,
+                "SupplierId"=>$sid,
+                "Supplier"=>$sname,
+                "BatchNo"=>$cart["batchno"],
+                "InvoiceNo"=>$cart["invno"],
+                "StockDate"=>$now,
+                "Bal"=>$diffa,
+                "Expiry"=>$cart["expdate"],
+                "expstamp"=>$cart["expdate"],
+                "Stamp"=>strtotime($now),
+                "InvoiceAmt"=>0,
+                "account_id"=>$this->session->userdata('login_user_id'),
+                "account_type"=>$this->session->userdata('login_type')
+            ));
+            // creditor debtors
+            $crinfo = $this->db->get_where("creditsuppliers", array("CustomerId"=>$sid))->row();
+            $crbal = $crinfo->Bal;
+            $crbal += $total_price;
+            $b &= $this->db->insert("supplierdebts",array(
+                "SupplierId"=>$sid,
+                "SupplierName"=>$sname,
+                "InvoiceNo"=>$cart["invno"],
+                "GrnNo"=>$rcptno,
+                "Amount"=>$total_price,
+                "DrCr"=>"dr",
+                "Paid"=>0,
+                "InvBal"=>$total_price,
+                "Bal"=>$crbal,
+                "Description"=>"Purchases",
+                "Date"=>$now,
+                "Stamp"=>strtotime($now),
+                "Status"=>1
+            ));
+            $this->db->where("CustomerId",$sid);
+            $b&= $this->db->update("creditsuppliers", array("Bal"=>$crbal));
+        };
+
+        $this->db->where("PurchNo",$rcptno);
+        $b &= $this->db->update($table_purch,array("InvoiceAmt"=>$j));
+
+        if ($b){
+           $amount=$j;
+                 //update ledgers-stock
+            $ledger_info = $this->db->get_where($table_ledgers,array("ledgerid"=>'629'))->row();
+            $invbal= $ledger_info->bal;
+            $invbal=$invbal+$amount;
+
+            $ledger_info = $this->db->get_where($table_ledgers,array("ledgerid"=>'630'))->row();
+            $supbal= $ledger_info->bal;
+            $supbal=$supbal-$amount;
+
+            $b &= $this->db->insert($table_ledgers_entry, array(
+                "crid"=>"630",
+                "drid"=>"725",
+                "description"=>"Goods Received Inwards",
+                "date"=>$now,
+                "stamp"=>strtotime($now),
+                "crbal"=>$supbal,
+                "drbal"=>$invbal,
+                "status"=>0,
+                "amount"=>$amount
+            ));
+            $this->db->where("ledgerid",'629');
+            $b &= $this->db->update($table_ledgers,array("bal"=>$invbal));
+            $this->db->where("ledgerid",'630');
+            $b &= $this->db->update($table_ledgers,array("bal"=>$supbal));
+        }
+        return $b;
+    }
+    //good returned outwards
+    function save_goods_returned_outwards(){
+        $carts = json_decode($this->input->post("carts"),true);
+        $b=true;
+        $item_table = "items";
+        $table_track = "stocktrack";
+        $table_ledgers = "ledgers";
+        $table_ledgers_entry = "ledgerentries";
+        $table_returned = "goodsreturned";
+        //get receipt no
+        $q =$this->db->query("SELECT * FROM $table_returned order by id desc limit 0,1")->row();
+        $rcptno=$q->gnrno +1;
+        $j=0;
+        foreach($carts as $cart){
+            $code = $cart["code"];
+            $item_info = $this->db->get_where($item_table,array("itemCode"=>$code))->result_array()[0];
+            $bra = "PHARMACY";
+            $bal = $item_info[$bra];
+            $purch_price = $item_info["PurchPrice"];
+            $lpo = $cart["lpono"];
+            $qty = $cart["pack"]*$cart["units"] +$cart["parts"];
+            $diffa=$bal-$qty;
+            $now = date("Y/m/d");
+            $total_price = $qty*$purch_price;
+            $j += $total_price;
+            $sid = $cart["supid"];
+            $sname = $cart["supname"];
+            //insert into stock track
+			$b &= $this->db->insert($table_track, array(
+                "Date"=>$now,
+                "Dept"=>"PHARMACY",
+                "ItemCode"=>$code,
+                "Pack"=>$cart["pack"],
+                "Description"=>'GOODS RETURNED - '.$sname,
+                "Qty"=>$qty,
+                "Bal"=>$diffa,      
+                "Stamp"=>strtotime($now),
+                "account_id"=>$this->session->userdata('login_user_id'),
+                "account_type"=>$this->session->userdata('login_type')
+            ));
+            $this->db->where("ItemCode",$code);
+            $b &=$this->db->update($item_table, array(
+                "PHARMACY"=>$diffa
+            ));
+            //insert goods returned item
+            $b &= $this->db->insert($table_returned, array(
+                "gnrno"=>$rcptno,
+                "code"=>$code,
+                "itemname"=>$cart["name"],
+                "unit"=>$cart["units"],
+                "part"=>$cart["parts"],
+                "date"=>$cart["date"],
+                "pprice"=>$cart["purprice"],
+                "total"=>$total_price,
+                "sname"=>$sname,
+                "batch"=>$cart["batchno"],
+                "invoice"=>$cart["invno"],
+                "lpo"=>$lpo,
+                "reason"=>$cart["reason"],
+                "pack"=>$cart["pack"],
+                "expiry"=>$cart["expdate"],
+                "stamp"=>strtotime($now),
+                "status"=>1,
+                "totalamount"=>0,
+                "account_id"=>$this->session->userdata('login_user_id'),
+                "account_type"=>$this->session->userdata('login_type')
+            ));
+            //post credit note
+            $crinfo = $this->db->get_where("creditsuppliers", array("CustomerId"=>$sid))->row();
+            $crbal = $crinfo->Bal;
+            $crbal -= $total_price;
+            $b &= $this->db->insert("supplierdebts",array(
+                "SupplierId"=>$sid,
+                "SupplierName"=>$sname,
+                "InvoiceNo"=>$cart["invno"],
+                "GrnNo"=>$rcptno,
+                "Amount"=>$total_price,
+                "DrCr"=>"cr",
+                "Paid"=>0,
+                "InvBal"=>$total_price,
+                "Bal"=>$crbal,
+                "Description"=>"Purchases",
+                "Date"=>$now,
+                "Stamp"=>strtotime($now),
+                "Status"=>1
+            ));
+            $this->db->where("CustomerId",$sid);
+            $b&= $this->db->update("creditsuppliers", array("Bal"=>$crbal));
+        };
+
+        $this->db->where("gnrno",$rcptno);
+        $b &= $this->db->update($table_returned,array("totalamount"=>$j));
+
+        if ($b){
+           $amount=$j;
+            //update ledgers-stock
+            $ledger_info = $this->db->get_where($table_ledgers,array("ledgerid"=>'630'))->row();
+            $invbal= $ledger_info->bal;
+            $invbal=$invbal+$amount;
+
+            $ledger_info = $this->db->get_where($table_ledgers,array("ledgerid"=>'651'))->row();
+            $supbal= $ledger_info->bal;
+            $supbal=$supbal-$amount;
+
+            $b &= $this->db->insert($table_ledgers_entry, array(
+                "crid"=>"630",
+                "drid"=>"651",
+                "description"=>"Goods Returned Outwards",
+                "date"=>$now,
+                "stamp"=>strtotime($now),
+                "crbal"=>$invbal,
+                "drbal"=>$supbal,
+                "status"=>0,
+                "amount"=>$amount
+            ));
+            $this->db->where("ledgerid",'630');
+            $b &= $this->db->update($table_ledgers,array("bal"=>$invbal));
+            $this->db->where("ledgerid",'651');
+            $b &= $this->db->update($table_ledgers,array("bal"=>$supbal));
+
+            //update ledgers-acs/payable
+            $ledger_info = $this->db->get_where($table_ledgers,array("ledgerid"=>'629'))->row();
+            $invbal= $ledger_info->bal;
+            $invbal=$invbal-$amount;
+
+            $ledger_info = $this->db->get_where($table_ledgers,array("ledgerid"=>'644'))->row();
+            $supbal= $ledger_info->bal;
+            $supbal=$supbal+$amount;
+
+            $b &= $this->db->insert($table_ledgers_entry, array(
+                "crid"=>"644",
+                "drid"=>"629",
+                "description"=>"Goods Returned Outwards",
+                "date"=>$now,
+                "stamp"=>strtotime($now),
+                "crbal"=>$supbal,
+                "drbal"=>$invbal,
+                "status"=>0,
+                "amount"=>$amount
+            ));
+            $this->db->where("ledgerid",'629');
+            $b &= $this->db->update($table_ledgers,array("bal"=>$invbal));
+            $this->db->where("ledgerid",'630');
+            $b &= $this->db->update($table_ledgers,array("bal"=>$supbal));
+        }
+        return $b;
+    }
+    function save_local_purchase_order(){
+        $carts = json_decode($this->input->post("carts"),true);
+        $b=true;
+        $table_lpo="lpo";
+        $item_table = "items";
+        //get receipt no
+        $q =$this->db->query("SELECT * FROM $table_lpo order by id desc limit 0,1")->row();
+        $rcptno=$q->lpono +1;
+        $now = date("Ymd");
+        foreach($carts as $cart){
+            $code = $cart["code"];
+            $item_info = $this->db->get_where($item_table,array("itemCode"=>$code))->result_array()[0];
+            $b &= $this->db->insert($table_lpo, array(
+                "lpono"=>$rcptno,
+                "supplier"=>$cart["supname"],
+                "date"=>$cart["date"],
+                "itemname"=>$item_info["ItemName"],
+                "pack"=>$cart["pack"],
+                "unit"=>$cart["units"],
+                "part"=>$cart["parts"],
+                "price"=>$cart["purprice"],
+                "total"=>$cart["totprice"],
+                "status"=>1,
+                "account_id"=>$this->session->userdata('login_user_id'),
+                "account_type"=>$this->session->userdata('login_type'),
+                "stamp"=>strtotime($now)
+            ));
+        }
+        return $b;
+    }
+    function check_sys_user_name($username){
+        $acc_list = array("admin","accountant","doctor","nurse","receptionist","laboratorist","pharmacist");
+        $b=true;
+        foreach ($acc_list as $acc){
+            $user = $this->db->get_where($acc,array("user_name"=>$username))->result_array();
+            if (count($user)>0){
+                $b=false; break;
+            }
+        }
+        return $b;
+    }
+    function get_alarm_list(){
+        $res = array();
+        $total=0;
+        //get new patients
+        $new_patient_list = $this->db->get_where("patient",array("status"=>0))->result_array();
+        if (count($new_patient_list)>0){
+            $tmp["message"] = "New Patients";//.count($new_patient_list);
+            $tmp["count"] = count($new_patient_list);
+            $desc_list = array();
+            foreach($new_patient_list as $item){
+                array_push($desc_list, array("desc"=>$item["name"]." - No: ".$item['patient_id'],"id"=>$item["patient_id"]));
+                $total++;
+            }
+            $tmp["desc_list"] = $desc_list;
+            $tmp["url"]= base_url()."index.php?".$this->session->userdata("login_type")."/patient";
+            array_push($res,$tmp);
+        }
+        //get new receptions(pending list)
+        $new_list = $this->db->get_where("receptions",array("status"=>0))->result_array();
+        if (count($new_list)>0){
+            $tmp["message"] = "Pending Receptions";//.count($new_patient_list);
+            $tmp["count"] = count($new_list);
+            $desc_list = array();
+            foreach($new_list as $item){
+                $pid = $item["patient_id"];
+                $pname = $this->select_patient_info_by_patient_id($pid)[0]["name"];
+                array_push($desc_list, array("desc"=>$pname." - No: ".$item['refno'],"id"=>$item["refno"]));
+                $total++;                
+            }
+            $tmp["desc_list"] = $desc_list;
+            $tmp["url"]= base_url()."index.php?".$this->session->userdata("login_type")."/reception";
+            array_push($res,$tmp);
+        }
+        //get new triage
+        $new_list = $this->get_pending_list_for_triage();
+        if (count($new_list)>0){
+            $tmp["message"] = "Pending Triages";
+            $tmp["count"] = count($new_list);
+            $desc_list = array();
+            foreach($new_list as $item){
+                $pname = $item["patient_name"];
+                array_push($desc_list, array(
+                    "desc"=>$pname." - No: ".$item['queue_id'],
+                    "suburl"=>"register/".$item['patient_id'],
+                    "id"=>$item["queue_id"]));
+                $total++;                
+            }
+            $tmp["desc_list"] = $desc_list;
+            $tmp["url"]= base_url()."index.php?".$this->session->userdata("login_type")."/triage";
+            array_push($res,$tmp);
+        }
+        //get new consultation
+        $new_list = $this->get_pending_list_for_consultation();
+        if (count($new_list)>0){
+            $tmp["message"] = "Pending Consultations";
+            $tmp["count"] = count($new_list);
+            $desc_list = array();
+            foreach($new_list as $item){
+                $pname = $item["patient_name"];
+                array_push($desc_list, array(
+                    "desc"=>$pname." - No: ".$item['queue_id'],
+                    "suburl"=>"register/".$item['patient_id'],
+                    "id"=>$item["queue_id"]));
+                $total++;                
+            }
+            $tmp["desc_list"] = $desc_list;
+            $tmp["url"]= base_url()."index.php?".$this->session->userdata("login_type")."/consultation";
+            array_push($res,$tmp);
+        }
+        //get new payments
+        $new_list = $this->get_pending_list_for_payment();//$this->db->get_where("rad_request",array("status"=>0))->result_array();
+        if (count($new_list)>0){
+            $tmp["message"] = "Pending Payments";//.count($new_patient_list);
+            $tmp["count"] = count($new_list);
+            $desc_list = array();
+            foreach($new_list as $item){
+                $pname = $item["patient_name"];
+                array_push($desc_list, array(
+                    "desc"=>$pname." - No: ".$item['recep_id'],
+                    "suburl"=>"register",
+                    "id"=>$item["recep_id"]));
+                $total++;                
+            }
+            $tmp["desc_list"] = $desc_list;
+            $tmp["url"]= base_url()."index.php?".$this->session->userdata("login_type")."/payment";
+            array_push($res,$tmp);
+        }
+        //get new lab req
+        $new_list = $this->db->get_where("lab_request",array("status"=>0))->result_array();
+        if (count($new_list)>0){
+            $tmp["message"] = "Pending Lab Requests";//.count($new_patient_list);
+            $tmp["count"] = count($new_list);
+            $desc_list = array();
+            foreach($new_list as $item){
+                $pid = $item["patient_id"];
+                $pname = $this->select_patient_info_by_patient_id($pid)[0]["name"];
+                array_push($desc_list, array("desc"=>$pname." - No: ".$item['id'],"id"=>$item["id"]));
+                $total++;                
+            }
+            $tmp["desc_list"] = $desc_list;
+            $tmp["url"]= base_url()."index.php?".$this->session->userdata("login_type")."/labreq";
+            array_push($res,$tmp);
+        }
+        //get new rad req
+        $new_list = $this->db->get_where("rad_request",array("status"=>0))->result_array();
+        if (count($new_list)>0){
+            $tmp["message"] = "Pending Rad Requests";//.count($new_patient_list);
+            $tmp["count"] = count($new_list);
+            $desc_list = array();
+            foreach($new_list as $item){
+                $pid = $item["patient_id"];
+                $pname = $this->select_patient_info_by_patient_id($pid)[0]["name"];
+                array_push($desc_list, array("desc"=>$pname." - No: ".$item['id'],"id"=>$item["id"]));
+                $total++;                
+            }
+            $tmp["desc_list"] = $desc_list;
+            $tmp["url"]= base_url()."index.php?".$this->session->userdata("login_type")."/radreq";
+            array_push($res,$tmp);
+        }
+        
+        
+        //get new pharmarcy req
+         $new_list = $this->db->get_where("pharmacy_request",array("status"=>0))->result_array();
+        if (count($new_list)>0){
+            $tmp["message"] = "Pending Pharm Requests";//.count($new_patient_list);
+            $tmp["count"] = count($new_list);
+            $desc_list = array();
+            foreach($new_list as $item){
+                $pid = $item["patient_id"];
+                $pname = $this->select_patient_info_by_patient_id($pid)[0]["name"];
+                array_push($desc_list, array("desc"=>$pname." - No: ".$item['id'],"id"=>$item["id"]));
+                $total++;                
+            }
+            $tmp["desc_list"] = $desc_list;
+            $tmp["url"]= base_url()."index.php?".$this->session->userdata("login_type")."/pharmreq";
+            array_push($res,$tmp);
+        }
+        return array("total_alarms"=>$total,"alarm_list"=>$res);
+    }
+    // save inpatient diagnosis for admission
+    function save_inpatient_admission_diag($id){
+        $list = $this->db->get_where("inpatient_admit_info",array("patient_id"=>$id));
+        $admit_id = "";
+        if ($list->num_rows()>0){
+            $admit_id = $list->row()->admission_id;
+        }else{
+            $this->db->insert("inpatient_admit_info",array("patient_id"=>$id));
+            $admit_id = $this->db->insert_id();
+        }
+        $data["type"] = $this->input->post("type");
+        $data["date"] = $this->input->post("date");
+        $data["diag_note"] = $this->input->post("diag_note");
+        $data["remark_on_discharge"] = $this->input->post("remark_note");
+        $data["admission_id"] = $admit_id;
+        $this->db->insert("inpatient_admission_diag",$data);
+    }
+    function update_inpatient_admission_diag($id){
+
+        $list = $this->db->get_where("inpatient_admission_diag",array("diag_id"=>$id));
+        $admit_id = $list->row()->admission_id;
+        $res = $this->db->get_where("inpatient_admit_info", array("admission_id"=>$admit_id))->row()->patient_id;
+
+        $data["type"] = $this->input->post("type");
+        $data["date"] = $this->input->post("date");
+        $data["diag_note"] = $this->input->post("diag_note");
+        $data["remark_on_discharge"] = $this->input->post("remark_note");
+        $this->db->where("diag_id",$id);
+        $this->db->update("inpatient_admission_diag",$data);
+        return $res;
+    }
+    function delete_inpatient_admission_diag($id){
+
+        $list = $this->db->get_where("inpatient_admission_diag",array("diag_id"=>$id));
+        $admit_id = $list->row()->admission_id;
+        $res = $this->db->get_where("inpatient_admit_info", array("admission_id"=>$admit_id))->row()->patient_id;
+
+        $this->db->where("diag_id",$id);
+        $this->db->delete("inpatient_admission_diag");
+        return $res;
+    }
+    function update_inpatient_admission_info($id){
+        $data["instruct_note"] = $this->input->post("instruction_note");
+        $data["diet_note"] = $this->input->post("diet_note");
+        $this->db->where("patient_id",$id);
+        $this->db->update("inpatient_admit_info",$data);
+        return $res;
+    }
+    function save_inpatient_sup_and_proc($id){
+        $now = date("m/d/Y");
+        $data["sg"] = $this->input->post("sg");
+        $data["cath"] = $this->input->post("cath");
+        $data["ub"] = $this->input->post("ub");
+        $data["bra"] = $this->input->post("bra");
+        $data["fivgs"] = $this->input->post("fivgs");
+        $data["bgs"] = $this->input->post("bgs");
+        $data["bb"] = $this->input->post("bb");
+        $data["ngt"] = $this->input->post("ngt");
+        $data["sulf"] = $this->input->post("sulf");
+        $data["ivf"] = $this->input->post("ivf");
+        $data["dres"] = $this->input->post("dres");
+        $data["ros"] = $this->input->post("ros");
+        $data["cathz"] = $this->input->post("cathz");
+        $data["hb"] = $this->input->post("hb");
+        $data["bs"] = $this->input->post("bs");
+        $data["phys"] = $this->input->post("phys");
+        $data["ot"] = $this->input->post("ot");
+        $data["other"] = $this->input->post("other");
+        $list = $this->db->get_where("inpatient_sup_proc", array("patient_id"=>$id,
+            "date"=>$now));
+        if ($list->num_rows()==0){
+            $data["patient_id"] = $id;
+            $data["date"] =  $now ;
+            $this->db->insert("inpatient_sup_proc",$data);
+        }else{
+            $this->db->where("patient_id",$id);
+            $this->db->where("date",$now);
+            $this->db->update("inpatient_sup_proc",$data);
+        }
+    }
+    function delete_inpatient_sup_and_proc($id){
+        $pid = $this->db->get_where("inpatient_sup_proc",array("id"=>$id))->row()->patient_id;
+        $this->db->where("id",$id);
+        $this->db->delete("inpatient_sup_proc");
+        return $pid;
+    }
+    function save_inpatient_nursing_cardex($id){
+        $time = date("H:m");
+        $data["date"] = $this->input->post("date");
+        $data["time"] = $this->input->post("time");
+        if ($date["time"]=="") $date["time"]=$time;
+        $data["note"] = $this->input->post("note");
+        $data["doneby_account_type"] = $this->session->userdata('login_type');
+        $data["doneby_account_id"] = $this->session->userdata('login_user_id');
+        $data["patient_id"]=$id;
+        $this->db->insert("inpatient_nursing_cardex",$data);
+    }
+    function update_inpatient_nursing_cardex($id){
+        $time = date("H:m");
+        $data["date"] = $this->input->post("date");
+        $data["time"] = $this->input->post("time");
+        if ($date["time"]=="") $date["time"]=$time;
+        $data["note"] = $this->input->post("note");
+        $data["doneby_account_type"] = $this->session->userdata('login_type');
+        $data["doneby_account_id"] = $this->session->userdata('login_user_id');
+        $pid = $this->db->get_where("inpatient_nursing_cardex",array("id"=>$id))->row()->patient_id;
+        $this->db->where("id",$id);
+        $this->db->update("inpatient_nursing_cardex",$data);
+        return $pid;
+    }
+    function delete_inpatient_nursing_cardex($id){
+        $pid = $this->db->get_where("inpatient_nursing_cardex",array("id"=>$id))->row()->patient_id;
+        $this->db->where("id",$id);
+        $this->db->delete("inpatient_nursing_cardex");
+        return $pid;
+    }
+
+    function save_inpatient_nursing_care_plan($id){
+        $data["date"] = $this->input->post("date");
+        $data["assessment"] = $this->input->post("assessment");
+        $data["diagnosis"] = $this->input->post("diagnosis");
+        $data["goal"] = $this->input->post("goal");
+        $data["intervention"] = $this->input->post("intervention");
+        $data["evaluation"] = $this->input->post("evaluation");
+        $data["doneby_account_type"] = $this->session->userdata('login_type');
+        $data["doneby_account_id"] = $this->session->userdata('login_user_id');
+        $data["patient_id"]=$id;
+        $this->db->insert("inpatient_nursing_care_plan",$data);
+    }
+
+    function update_inpatient_nursing_care_plan($id){
+        $data["date"] = $this->input->post("date");
+        $data["assessment"] = $this->input->post("assessment");
+        $data["diagnosis"] = $this->input->post("diagnosis");
+        $data["goal"] = $this->input->post("goal");
+        $data["intervention"] = $this->input->post("intervention");
+        $data["evaluation"] = $this->input->post("evaluation");
+        $data["doneby_account_type"] = $this->session->userdata('login_type');
+        $data["doneby_account_id"] = $this->session->userdata('login_user_id');
+        $this->db->where("id",$id);
+        $this->db->update("inpatient_nursing_care_plan",$data);
+        $pid = $this->db->get_where("inpatient_nursing_care_plan",array("id"=>$id))->row()->patient_id;
+        return $pid;
+    }
+    function delete_inpatient_nursing_care_plan($id){
+        $pid = $this->db->get_where("inpatient_nursing_care_plan",array("id"=>$id))->row()->patient_id;
+        $this->db->where("id",$id);
+        $this->db->delete("inpatient_nursing_care_plan");
+        return $pid;
+    }
+    function save_inpatient_hourly_temper($id){
+        $data["date"] = $this->input->post("date");
+        $data["time"] = $this->input->post("time");
+        $list = $this->db->get_where("inpatient_measure_4hourly_temp", array(
+            "date"=>$data["date"],
+            "time"=>$data["time"],
+            "patient_id"=>$id
+        ));
+        if ($list->num_rows()>0){
+            $this->update_inpatient_hourly_temper($list->row()->id);
+            return;
+        }
+        $data["temper"] = $this->input->post("temp");
+        $data["pulse"] = $this->input->post("pulse");
+        $data["resp"] = $this->input->post("resp");
+        $data["bowels"] = $this->input->post("bowels");
+        $data["urine"] = $this->input->post("urine");
+        $data["doneby_account_type"] = $this->session->userdata('login_type');
+        $data["doneby_account_id"] = $this->session->userdata('login_user_id');
+        $data["patient_id"]=$id;
+        $this->db->insert("inpatient_measure_4hourly_temp",$data);
+    }
+
+    function update_inpatient_hourly_temper($id){
+        $data["date"] = $this->input->post("date");
+        $data["time"] = $this->input->post("time");
+        $data["temper"] = $this->input->post("temp");
+        $data["pulse"] = $this->input->post("pulse");
+        $data["resp"] = $this->input->post("resp");
+        $data["bowels"] = $this->input->post("bowels");
+        $data["urine"] = $this->input->post("urine");
+        $data["doneby_account_type"] = $this->session->userdata('login_type');
+        $data["doneby_account_id"] = $this->session->userdata('login_user_id');
+        $this->db->where("id",$id);
+        $this->db->update("inpatient_measure_4hourly_temp",$data);
+        $pid = $this->db->get_where("inpatient_measure_4hourly_temp",array("id"=>$id))->row()->patient_id;
+        return $pid;
+    }
+    function delete_inpatient_hourly_temper($id){
+        $pid = $this->db->get_where("inpatient_measure_4hourly_temp",array("id"=>$id))->row()->patient_id;
+        $this->db->where("id",$id);
+        $this->db->delete("inpatient_measure_4hourly_temp");
+        return $pid;
+    }
+    function save_inpatient_blood_press($id){
+        $data["date"] = $this->input->post("date");
+        $data["time"] = $this->input->post("time");
+        $list = $this->db->get_where("inpatient_measure_blood_press", array(
+            "date"=>$data["date"],
+            "time"=>$data["time"],
+            "patient_id"=>$id
+        ));
+        if ($list->num_rows()>0){
+            $this->update_inpatient_blood_press($list->row()->id);
+            return;
+        }
+        $data["bp"] = $this->input->post("bp");
+        $data["doneby_account_type"] = $this->session->userdata('login_type');
+        $data["doneby_account_id"] = $this->session->userdata('login_user_id');
+        $data["patient_id"]=$id;
+        $this->db->insert("inpatient_measure_blood_press",$data);
+    }
+
+    function update_inpatient_blood_press($id){
+        $data["date"] = $this->input->post("date");
+        $data["time"] = $this->input->post("time");
+        $data["bp"] = $this->input->post("bp");
+        $data["doneby_account_type"] = $this->session->userdata('login_type');
+        $data["doneby_account_id"] = $this->session->userdata('login_user_id');
+        $this->db->where("id",$id);
+        $this->db->update("inpatient_measure_blood_press",$data);
+        $pid = $this->db->get_where("inpatient_measure_blood_press",array("id"=>$id))->row()->patient_id;
+        return $pid;
+    }
+    function delete_inpatient_blood_press($id){
+        $pid = $this->db->get_where("inpatient_measure_blood_press",array("id"=>$id))->row()->patient_id;
+        $this->db->where("id",$id);
+        $this->db->delete("inpatient_measure_blood_press");
+        return $pid;
+    }
+    function save_inpatient_fluid_balance($id){
+        $data["date"] = $this->input->post("date");
+        $data["time"] = $this->input->post("time");
+        $list = $this->db->get_where("inpatient_fluid_balance", array(
+            "date"=>$data["date"],
+            "time"=>$data["time"],
+            "patient_id"=>$id
+        ));
+        if ($list->num_rows()>0){
+            $this->update_inpatient_fluid_balance($list->row()->id);
+            return;
+        }
+        $data["input_fluid_type"] = $this->input->post("inftype");
+        $data["input_fluid_amount"] = $this->input->post("inamount");
+        $data["output_fluid_type"] = $this->input->post("outftype");
+        $data["output_fluid_amount"] = $this->input->post("outamount");
+        $data["comment"] = $this->input->post("comment");
+        $data["doneby_account_type"] = $this->session->userdata('login_type');
+        $data["doneby_account_id"] = $this->session->userdata('login_user_id');
+        $data["patient_id"]=$id;
+        $this->db->insert("inpatient_fluid_balance",$data);
+    }
+
+    function update_inpatient_fluid_balance($id){
+        $data["date"] = $this->input->post("date");
+        $data["time"] = $this->input->post("time");
+        $data["input_fluid_type"] = $this->input->post("inftype");
+        $data["input_fluid_amount"] = $this->input->post("inamount");
+        $data["output_fluid_type"] = $this->input->post("outftype");
+        $data["output_fluid_amount"] = $this->input->post("outamount");
+        $data["comment"] = $this->input->post("comment");
+        $data["doneby_account_type"] = $this->session->userdata('login_type');
+        $data["doneby_account_id"] = $this->session->userdata('login_user_id');
+        $this->db->where("id",$id);
+        $this->db->update("inpatient_fluid_balance",$data);
+        $pid = $this->db->get_where("inpatient_fluid_balance",array("id"=>$id))->row()->patient_id;
+        return $pid;
+    }
+    function delete_inpatient_fluid_balance($id){
+        $pid = $this->db->get_where("inpatient_fluid_balance",array("id"=>$id))->row()->patient_id;
+        $this->db->where("id",$id);
+        $this->db->delete("inpatient_fluid_balance");
+        return $pid;
+    }
+    function update_inpatient_other_details($id){
+        $data["note"] = $this->input->post("note");
+        $date["stamp"] = strtotime(date("Y/md/ H:i:s"));
+        $data["doneby_account_type"] = $this->session->userdata('login_type');
+        $data["doneby_account_id"] = $this->session->userdata('login_user_id');
+        $list = $this->db->get_where("inpatient_other_details", array(
+            "patient_id"=>$id
+        ));
+        if ($list->num_rows()==0){
+            $data["patient_id"] = $id;
+            $this->db->insert("inpatient_other_details",$data);
+            return;
+        }else{
+            $this->db->where("patient_id",$id);
+            $this->db->update("inpatient_other_details",$data);
+        }
+       
+    }
+    function gen_trial_balance($from, $to){
+        $res_trial_bal_list = array();
+        $sql = "SELECT sum(generalledger.balance) as bal,  ledgers.name as name, ledgers.type as type FROM ledgers,generalledger WHERE generalledger.lid=ledgers.ledgerid and generalledger.stamp<=".$to." and generalledger.stamp>=".$from." GROUP BY generalledger.lid order by name;";
+        $ledger_list = $this->db->query($sql)->result_array();
+        $cr_bal=0; $dr_bal=0;
+        foreach($ledger_list as $item){
+            $tmp=array();
+            $tmp["item"] = $item["name"];
+            $type = $item["type"];
+            $bal = $item["bal"];
+            if($type=='Expense'||$type=='Asset'){
+                $tmp["cr"]=0;$tmp["dr"]=$bal;
+                $dr_bal+=$bal;
+            }
+            if($type=='Liability'||$type=='Revenue'||$type=='Equity'){
+                $cr_bal+=$bal;
+                $tmp["cr"]=$bal; 
+                $tmp["dr"]=0;
+            }
+            array_push($res_trial_bal_list,$tmp);
+        }
+        return array($res_trial_bal_list,$dr_bal,$cr_bal);
+    }
+    
+    function gen_income_statement_report($from, $to){
+        $res_trial_bal_list = array();
+        $sql = "SELECT sum(generalledger.balance) as bal,  ledgers.name as name, ledgers.type as type FROM ledgers,generalledger WHERE generalledger.lid=ledgers.ledgerid and generalledger.stamp<=".$to." and generalledger.stamp>=".$from." GROUP BY generalledger.lid order by type desc, name;";
+        $ledger_list = $this->db->query($sql)->result_array();
+        $total1=0; $total2=0;
+        foreach($ledger_list as $item){
+            $tmp=array();
+            
+            $type = $item["type"];
+            $bal = $item["bal"];
+            
+            if($type=='Revenue'){
+                $tmp["item"] = $item["name"];
+                $total2+=$bal;
+                $tmp["kshs2"]=$bal; 
+                $tmp["kshs1"]="";
+            }
+            if($type=='Expense'){
+                $tmp["item"] = $item["name"];
+                $tmp["kshs2"]="";$tmp["kshs1"]=$bal;
+                $total1+=$bal;
+            }
+            if($type=='Revenue'||$type=='Expense'){
+                array_push($res_trial_bal_list,$tmp);
+            }
+        };
+
+        return array($res_trial_bal_list,$total2-$total1,"");
+    }
+
+    function get_upload_rad_images($pateint_id,$reqid){
+        $res=array();
+        $upload_image_path="uploads/radiology_image/$pateint_id/$reqid/";
+        $res = directory_map($upload_image_path);
+        return $res;
     }
 }
 

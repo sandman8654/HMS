@@ -1,4 +1,7 @@
-
+<button onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/add_laboratory_request/');" 
+    class="btn btn-primary pull-right">
+        <?php echo get_phrase('new_request'); ?>
+</button>
 <div style="clear:both;"></div>
 <br>
 <table class="table table-bordered table-striped datatable" id="table-2">

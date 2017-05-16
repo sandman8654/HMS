@@ -24,7 +24,13 @@ foreach ($single_receptionist_info as $row) {
                                 <input type="text" name="name" class="form-control" id="field-1" value="<?php echo $row['name']; ?>">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('name'); ?></label>
 
+                            <div class="col-sm-5">
+                                <input disabled type="text" name="username" class="form-control" id="field-1" value="<?php echo $row['usr_name']; ?>">
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('email'); ?></label>
 
@@ -75,6 +81,7 @@ foreach ($single_receptionist_info as $row) {
 
                         <div class="col-sm-3 control-label col-sm-offset-2">
                             <input type="submit" class="btn btn-success" value="Update">
+                            <a href="<?php echo base_url().'index.php?admin/receptionist';?>" class="btn btn-danger btn-md">Exit</a>
                         </div>
                     </form>
 

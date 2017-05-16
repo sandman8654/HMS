@@ -80,7 +80,7 @@
 
                     <div class="form-login-error">
                         <h3>Invalid login</h3>
-                        <p>Please enter correct email and password!</p>
+                        <p>Please enter correct user name and password!</p>
                     </div>
 
                     <form method="post" role="form" id="form_login">
@@ -92,7 +92,7 @@
                                     <i class="entypo-user"></i>
                                 </div>
 
-                                <input type="text" class="form-control" name="email" id="email" placeholder="Email or User Name" autocomplete="off"  />
+                                <input type="text" class="form-control" name="username" id="username" placeholder="User Name" autocomplete="off"  />
                             </div>
 
                         </div>
