@@ -4022,6 +4022,9 @@ class Crud_model extends CI_Model {
         $res = directory_map($upload_image_path);
         return $res;
     }
+    function get_data_for_income_expense_chart(){
+        $now = date();
+    }
 }
 
 
