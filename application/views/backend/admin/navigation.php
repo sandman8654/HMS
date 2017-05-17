@@ -67,69 +67,84 @@
                 <span><?php echo get_phrase('dashboard'); ?></span>
             </a>
         </li>
-        
+<!--        
         <li class="<?php if ($page_name == 'manage_department') echo 'active'; ?> ">
             <a href="<?php echo base_url(); ?>index.php?admin/department">
                 <i class="fa fa-sitemap"></i>
                 <span><?php echo get_phrase('department'); ?></span>
             </a>
         </li>
-        
-        <li class="<?php if ($page_name == 'manage_doctor') echo 'active'; ?>">
-            <a href="<?php echo base_url(); ?>index.php?admin/doctor">
-                <i class="fa fa-user-md"></i>
-                <span><?php echo get_phrase('doctor'); ?></span>
-            </a>
-        </li>
-
-        <li class="<?php if ($page_name == 'edit_reception') echo 'active'; ?> ">
-            <a href="<?php echo base_url(); ?>index.php?admin/reception/register">
-                <i class="fa fa-th-list"></i>
-                <span><?php echo get_phrase('add_reception'); ?></span>
-            </a>
-        </li>
+-->     
         <li class="<?php if ($page_name == 'add_patient') echo 'active'; ?> ">
             <a href="<?php echo base_url(); ?>index.php?admin/patient/register">
                 <i class="fa fa-user-plus"></i>
-                <span><?php echo get_phrase('add_patient'); ?></span>
+                <span><?php echo get_phrase('register_new_patient'); ?></span>
+            </a>
+        </li>
+        <li class="<?php if ($page_name == 'edit_reception') echo 'active'; ?> ">
+            <a href="<?php echo base_url(); ?>index.php?admin/reception/register">
+                <i class="fa fa-th-list"></i>
+                <span><?php echo get_phrase('register_new_reception'); ?></span>
             </a>
         </li>
         
-        <li class="<?php if ($page_name == 'manage_nurse') echo 'active'; ?> ">
-            <a href="<?php echo base_url(); ?>index.php?admin/nurse">
-                <i class="fa fa-plus-square"></i>
-                <span><?php echo get_phrase('nurse'); ?></span>
-            </a>
-        </li>
+
         
-        <li class="<?php if ($page_name == 'manage_pharmacist') echo 'active'; ?> ">
-            <a href="<?php echo base_url(); ?>index.php?admin/pharmacist">
-                <i class="fa fa-medkit"></i>
-                <span><?php echo get_phrase('pharmacist'); ?></span>
+        <li >
+            <a href="#">
+                <i class="fa fa-users"></i>
+                <span><?php echo get_phrase('manage_employees'); ?></span>
             </a>
+            <ul>
+                <li class="<?php if ($page_name == 'manage_administrator') echo 'active'; ?>">
+                    <a href="<?php echo base_url(); ?>index.php?admin/admin">
+                        <i class="fa fa-user-secret"></i>
+                        <span><?php echo get_phrase('administrator'); ?></span>
+                    </a>
+                </li>
+                <li class="<?php if ($page_name == 'manage_doctor') echo 'active'; ?>">
+                    <a href="<?php echo base_url(); ?>index.php?admin/doctor">
+                        <i class="fa fa-user-md"></i>
+                        <span><?php echo get_phrase('doctor'); ?></span>
+                    </a>
+                </li>
+                <li class="<?php if ($page_name == 'manage_nurse') echo 'active'; ?> ">
+                    <a href="<?php echo base_url(); ?>index.php?admin/nurse">
+                        <i class="fa fa-plus-square"></i>
+                        <span><?php echo get_phrase('nurse'); ?></span>
+                    </a>
+                </li>
+                
+                <li class="<?php if ($page_name == 'manage_pharmacist') echo 'active'; ?> ">
+                    <a href="<?php echo base_url(); ?>index.php?admin/pharmacist">
+                        <i class="fa fa-medkit"></i>
+                        <span><?php echo get_phrase('pharmacist'); ?></span>
+                    </a>
+                </li>
+                
+                <li class="<?php if ($page_name == 'manage_laboratorist') echo 'active'; ?> ">
+                    <a href="<?php echo base_url(); ?>index.php?admin/laboratorist">
+                        <i class="fa fa-user"></i>
+                        <span><?php echo get_phrase('laboratorist'); ?></span>
+                    </a>
+                </li>
+                
+                <li class="<?php if ($page_name == 'manage_accountant') echo 'active'; ?> ">
+                    <a href="<?php echo base_url(); ?>index.php?admin/accountant">
+                        <i class="fa fa-money"></i>
+                        <span><?php echo get_phrase('accountant'); ?></span>
+                    </a>
+                </li>
+                
+                <li class="<?php if ($page_name == 'manage_receptionist') echo 'active'; ?> ">
+                    <a href="<?php echo base_url(); ?>index.php?admin/receptionist">
+                        <i class="fa fa-plus-square"></i>
+                        <span><?php echo get_phrase('receptionist'); ?></span>
+                    </a>
+                </li>
+            </ul>
         </li>
-        
-        <li class="<?php if ($page_name == 'manage_laboratorist') echo 'active'; ?> ">
-            <a href="<?php echo base_url(); ?>index.php?admin/laboratorist">
-                <i class="fa fa-user"></i>
-                <span><?php echo get_phrase('laboratorist'); ?></span>
-            </a>
-        </li>
-        
-        <li class="<?php if ($page_name == 'manage_accountant') echo 'active'; ?> ">
-            <a href="<?php echo base_url(); ?>index.php?admin/accountant">
-                <i class="fa fa-money"></i>
-                <span><?php echo get_phrase('accountant'); ?></span>
-            </a>
-        </li>
-        
-        <li class="<?php if ($page_name == 'manage_receptionist') echo 'active'; ?> ">
-            <a href="<?php echo base_url(); ?>index.php?admin/receptionist">
-                <i class="fa fa-plus-square"></i>
-                <span><?php echo get_phrase('receptionist'); ?></span>
-            </a>
-        </li>
-        
+ <!--       
         <li class="<?php if ($page_name == 'show_payment_history'   || $page_name == 'show_bed_allotment'
                             || $page_name == 'show_blood_bank'      || $page_name == 'show_blood_donor'
                             || $page_name == 'show_medicine'        || $page_name == 'show_operation_report' 
@@ -189,8 +204,8 @@
                     </a>
                 </li>
             </ul>
-        </li>
-        
+        </li> -->
+<!--        
         <li class="<?php
             if ($page_name == 'payroll_add' || $page_name == 'payroll_add_view'
                 || $page_name == 'payroll_list')
@@ -212,7 +227,7 @@
                 </li>
             </ul>
         </li>
-        
+    -->    
         <li class="<?php if ($page_name == 'manage_notice') echo 'active'; ?> ">
             <a href="<?php echo base_url(); ?>index.php?admin/notice">
                 <i class="entypo-doc-text-inv"></i>

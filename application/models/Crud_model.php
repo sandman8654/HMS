@@ -578,6 +578,31 @@ class Crud_model extends CI_Model {
         return $this->db->get('accountant')->result_array();
     }
     
+    
+    function select_admin_info()
+    {
+        return $this->db->get('admin')->result_array();
+    }
+    function save_admin_info()
+    {
+        $data['name'] 		= $this->input->post('name');
+        $data['user_name'] 		= $this->input->post('username');
+        $data['email'] 		= $this->input->post('email');
+        $data['password']       = sha1($this->input->post('password'));
+        $data['address'] 	= $this->input->post('address');
+        $data['phone']          = $this->input->post('phone');
+        
+        $this->db->insert('admin',$data);
+        
+        $admin_id  =   $this->db->insert_id();
+        move_uploaded_file($_FILES["image"]["tmp_name"], "uploads/admin_image/" . $admin_id . '.jpg');
+    }
+    function delete_admin_info($admin_id)
+    {
+        if ($this->db->count_all("admin")==1) return;
+        $this->db->where('admin_id',$admin_id);
+        $this->db->delete('accountant');
+    }
     function update_account_info($account_type,$account_id, $full_name="")
     {
         if ($full_name !="") 
@@ -593,6 +618,7 @@ class Crud_model extends CI_Model {
         
         move_uploaded_file($_FILES["image"]["tmp_name"], "uploads/$account_type"."_image/" . $account_id . '.jpg');
     }
+    
     function update_account_emp_info($account_type, $account_id, $type="")
     {
         if ($type=="" || $type=="personal_details"){
@@ -1601,7 +1627,7 @@ class Crud_model extends CI_Model {
             $plist = $this->select_patient_info_by_patient_id($pid)[0];
             $tmp["patient_id"] = $pid;
             $tmp["patient_name"] = $plist["name"];
-            $tmp["sent_date"] = date("Y-m-d H:i:s",$item["posted_date"]);
+            $tmp["sent_date"] = date("m/d/Y H:i:s",$item["posted_date"]);
             $tmp["queue_id"] = $item["id"];
             array_push($res,$tmp);
         };
@@ -3571,7 +3597,10 @@ class Crud_model extends CI_Model {
             $tmp["count"] = count($new_patient_list);
             $desc_list = array();
             foreach($new_patient_list as $item){
-                array_push($desc_list, array("desc"=>$item["name"]." - No: ".$item['patient_id'],"id"=>$item["patient_id"]));
+                array_push($desc_list, array(
+                    "desc"=>$item["name"]." - No: ".$item['patient_id'],
+                    "date"=>date("m/d/Y H:m:i",$item["registered_date"]),
+                    "id"=>$item["patient_id"]));
                 $total++;
             }
             $tmp["desc_list"] = $desc_list;
@@ -3587,7 +3616,10 @@ class Crud_model extends CI_Model {
             foreach($new_list as $item){
                 $pid = $item["patient_id"];
                 $pname = $this->select_patient_info_by_patient_id($pid)[0]["name"];
-                array_push($desc_list, array("desc"=>$pname." - No: ".$item['refno'],"id"=>$item["refno"]));
+                array_push($desc_list, array(
+                    "desc"=>$pname." - No: ".$item['refno'],
+                    "date"=>date("m/d/Y H:m:i",$item["recept_date"]),
+                    "id"=>$item["refno"]));
                 $total++;                
             }
             $tmp["desc_list"] = $desc_list;
@@ -3605,6 +3637,7 @@ class Crud_model extends CI_Model {
                 array_push($desc_list, array(
                     "desc"=>$pname." - No: ".$item['queue_id'],
                     "suburl"=>"register/".$item['patient_id'],
+                    "date"=>$item["sent_date"],
                     "id"=>$item["queue_id"]));
                 $total++;                
             }
@@ -3623,6 +3656,7 @@ class Crud_model extends CI_Model {
                 array_push($desc_list, array(
                     "desc"=>$pname." - No: ".$item['queue_id'],
                     "suburl"=>"register/".$item['patient_id'],
+                    "date"=>date("m/d/Y H:m:i",$item["last_date"]),   
                     "id"=>$item["queue_id"]));
                 $total++;                
             }
@@ -3640,6 +3674,7 @@ class Crud_model extends CI_Model {
                 $pname = $item["patient_name"];
                 array_push($desc_list, array(
                     "desc"=>$pname." - No: ".$item['recep_id'],
+                    "date"=>date("m/d/Y H:m:i",$item["posted_date"]), 
                     "suburl"=>"register",
                     "id"=>$item["recep_id"]));
                 $total++;                
@@ -3657,7 +3692,10 @@ class Crud_model extends CI_Model {
             foreach($new_list as $item){
                 $pid = $item["patient_id"];
                 $pname = $this->select_patient_info_by_patient_id($pid)[0]["name"];
-                array_push($desc_list, array("desc"=>$pname." - No: ".$item['id'],"id"=>$item["id"]));
+                array_push($desc_list, array(
+                    "desc"=>$pname." - No: ".$item['id'],
+                    "date"=>date("m/d/Y H:m:i",$item["start_time"]),
+                    "id"=>$item["id"]));
                 $total++;                
             }
             $tmp["desc_list"] = $desc_list;
@@ -3673,7 +3711,10 @@ class Crud_model extends CI_Model {
             foreach($new_list as $item){
                 $pid = $item["patient_id"];
                 $pname = $this->select_patient_info_by_patient_id($pid)[0]["name"];
-                array_push($desc_list, array("desc"=>$pname." - No: ".$item['id'],"id"=>$item["id"]));
+                array_push($desc_list, array(
+                    "desc"=>$pname." - No: ".$item['id'],
+                    "date"=>date("m/d/Y H:m:i",$item["start_time"]),
+                    "id"=>$item["id"]));
                 $total++;                
             }
             $tmp["desc_list"] = $desc_list;
@@ -3691,7 +3732,10 @@ class Crud_model extends CI_Model {
             foreach($new_list as $item){
                 $pid = $item["patient_id"];
                 $pname = $this->select_patient_info_by_patient_id($pid)[0]["name"];
-                array_push($desc_list, array("desc"=>$pname." - No: ".$item['id'],"id"=>$item["id"]));
+                array_push($desc_list, array(
+                    "desc"=>$pname." - No: ".$item['id'],
+                    "date"=>date("m/d/Y H:m:i",$item["timestamp"]),
+                    "id"=>$item["id"]));
                 $total++;                
             }
             $tmp["desc_list"] = $desc_list;
@@ -4073,7 +4117,7 @@ class Crud_model extends CI_Model {
         return json_encode($res);
     }
 
-    function get_data_for_patient_chart(){
+    function get_data_for_patient_chart(){  
         $time = time();
         $now_year = date("Y",$time);
         $now_month = date("m",$time);

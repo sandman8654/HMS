@@ -60,7 +60,38 @@
 
 			</div>
 			<div class="panel-body">
-				<div id="queuemngpanel"></div>
+				<div id="queuemngpanel">
+                    <?php 
+                        $queue_list = $this->crud_model->get_alarm_list(); 
+                        if(count($queue_list)==0){ ?>
+                    <div> No data display. </div>         
+                    <?php } else{ ?>
+                        <ul class="queue">
+                            <?php foreach ($queue_list["alarm_list"] as $row): ?>
+                            <li class="queue-list">
+                                <a href="<?php echo $row['url']?>">
+                                        <strong><?php echo $row["message"]." - ". $row["count"]; ?></strong>
+                                </a>
+                                <ul class="sub-queue">
+                                    <?php foreach($row["desc_list"] as $descitem) { ?>
+                                        <li class="sub-queue-list">
+                                            <a href="<?php echo $row['url']."/".((isset($descitem["suburl"])&&$descitem["suburl"]!="")?$descitem["suburl"]:'edit')."/".$descitem["id"]?>">
+                                                        <?php
+                                                        echo $descitem["desc"]."</a>";
+                                                        if ($descitem['date']!="")
+                                                            echo "<span class='date'>(".$descitem['date'].")</span>";
+                                                        ?>
+                                            
+                                        </li>
+                                    <?php } ?>
+                                </ul>
+                            </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php } ?>
+                        
+                    
+                </div>
 			</div>
 		</div>
 	</div>
@@ -195,25 +226,28 @@
     </div>
 
     <div class="col-sm-3">
-        <a href="<?php echo base_url(); ?>index.php?admin/payment_history">
+     <!--   <a href="<?php echo base_url(); ?>index.php?admin/payment_history">-->
             <div class="tile-stats tile-white-pink">
                 <div class="icon"><i class="fa fa-list-alt"></i></div>
-                <div class="num" data-start="0" data-end="<?php echo $this->db->count_all('invoice'); ?>" 
+                <div class="num" data-start="0" data-end="<?php echo $this->db->count_all('sales'); ?>" 
                      data-duration="1500" data-delay="0">0</div>
                 <h3><?php echo get_phrase('payment') ?></h3>
             </div>
-        </a>
+     <!--   </a>-->
     </div>
 
     <div class="col-sm-3">
-        <a href="<?php echo base_url(); ?>index.php?admin/medicine">
+     <!--   <a href="<?php echo base_url(); ?>index.php?admin/medicine">-->
             <div class="tile-stats tile-white-orange">
                 <div class="icon"><i class="fa fa-medkit"></i></div>
-                <div class="num" data-start="0" data-end="<?php echo $this->db->count_all('medicine'); ?>" 
+                <div class="num" data-start="0" data-end="<?php 
+                    $med = $this->db->get_where("items",array("Category"=>"PHARMACEUTICALS","Type"=>"GOOD"));
+                    echo $med->num_rows(); 
+                ?>" 
                      data-duration="1500" data-delay="0">0</div>
                 <h3><?php echo get_phrase('medicine') ?></h3>
             </div>
-        </a>
+      <!--  </a> -->
     </div>
 </div>
 

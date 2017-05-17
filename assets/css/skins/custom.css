@@ -705,3 +705,37 @@ a.upload-remove-icon{
   right:0px;
   top:0px;
 }
+#queuemngpanel{
+  overflow: auto;
+}
+.queue, .sub-queue, .queue-list,.sub-queue-list{
+  list-style: none;
+  margin:5px;
+  
+}
+ul.queue > li>a{
+  font-size:14px;
+  color:#03bdb0;
+  
+}
+
+ul.sub-queue{
+  font-size:13px;
+}
+li.sub-queue-list span.date{
+  color:#e60808;
+  font-size:11px;
+  padding:3px;
+  margin-left:5px;
+}
+li.sub-queue-list>a, ul.queue > li>a{
+  padding:5px;
+  -moz-transition: color 250ms ease-in-out, background-color 250ms ease-in-out;
+  -o-transition: color 250ms ease-in-out, background-color 250ms ease-in-out;
+  -webkit-transition: color 250ms ease-in-out, background-color 250ms ease-in-out;
+  transition: color 250ms ease-in-out, background-color 250ms ease-in-out;
+}
+li.sub-queue-list a:hover,ul.queue > li>a:hover{
+  color:#fff;
+  background-color: #03bdb0;
+}

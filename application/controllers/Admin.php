@@ -389,7 +389,58 @@ class Admin extends CI_Controller {
         }    
         
     }
+    function admin($task = "", $admin_id = "") {
+        if ($this->session->userdata('admin_login') != 1) {
+            $this->session->set_userdata('last_page', current_url());
+            redirect(base_url(), 'refresh');
+        }
+        $account_str = "admin";
+        if ($task == "create") {
+           $username = $_POST['username'];
+           if ($this->crud_model->check_sys_user_name($username)) {
+                $this->crud_model->save_admin_info();
+                $this->session->set_flashdata('message', get_phrase('admin_info_saved_successfuly'));
+            } else {
+                $this->session->set_flashdata('message', get_phrase('duplicate_system_user_name'));
+            }
+            redirect(base_url() . 'index.php?admin/admin');
+        }
+        if ($task=="edit"||$task=="register"||$task=="edit_employee"){
+           
+            if ($task=="edit_employee"){
+                $comm = "edit"."_employee_info";
+                $data['page_title'] = get_phrase("edit_employee_information");
+                $data['account_type_str'] = $account_str;
+                $data['account_id'] = $admin_id;
+                $data['tabs_type'] = $other;
+            } else{
+                $comm =  (($task=="register")?'add':'edit')."_".$account_str;
+                $data['page_title'] = get_phrase($comm);
+                $data['param2'] = $admin_id;
+            }
+            $data['page_name'] = $comm;
+            $this->load->view('backend/index', $data);
+            return;
+        }
+        if ($task == "update") {
+                $this->crud_model->update_admin_info($admin_id);
+                $this->session->set_flashdata('message', get_phrase('administrator_info_updated_successfuly'));
+                redirect(base_url() . 'index.php?admin/admin');
+        }
+         if ($task == "update_emp") {
+            $this->manage_emplyee_info($account_str, $admin_id, $other);
+            return;
+        }
+        if ($task == "delete") {
+            $this->crud_model->delete_admin_info($admin_id);
+            redirect(base_url() . 'index.php?admin/admin');
+        }
 
+        $data['admin_info'] = $this->crud_model->select_admin_info();
+        $data['page_name'] = 'manage_administrator';
+        $data['page_title'] = get_phrase('administrator');
+        $this->load->view('backend/index', $data);
+    }
     function nurse($task = "", $nurse_id = "") {
         if ($this->session->userdata('admin_login') != 1) {
             $this->session->set_userdata('last_page', current_url());

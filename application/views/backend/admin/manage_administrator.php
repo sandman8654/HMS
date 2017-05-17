@@ -1,6 +1,6 @@
-<button onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/add_accountant/');" 
+<button onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/add_admin/');" 
     class="btn btn-primary pull-right">
-        <?php echo get_phrase('add_accountant'); ?>
+        <?php echo get_phrase('add_administrator'); ?>
 </button>
 <div style="clear:both;"></div>
 <br>
@@ -18,10 +18,10 @@
     </thead>
 
     <tbody>
-        <?php foreach ($accountant_info as $row) { ?>   
+        <?php foreach ($admin_info as $row) { ?>   
             <tr>
                 <td>
-                    <img src="<?php echo $this->crud_model->get_image_url('accountant' , $row['accountant_id']);?>" 
+                    <img src="<?php echo $this->crud_model->get_image_url('admin' , $row['admin_id']);?>" 
                          class="img-circle" width="40px" height="40px">
                 </td>
                 <td><?php echo $row['name']?></td>
@@ -30,19 +30,17 @@
                 <td><?php echo $row['address']?></td>
                 <td><?php echo $row['phone']?></td>
                 <td>
-                <!--    <a  href="<?php echo base_url();?>index.php?modal/popup/edit_accountant/<?php echo $row['accountant_id']?>" 
-                        class="btn btn-default btn-sm btn-icon icon-left">-->
-                    <a  href="<?php echo base_url();?>index.php?admin/accountant/edit/<?php echo $row['accountant_id']?>" 
+                    <a  href="<?php echo base_url();?>index.php?admin/admin/edit/<?php echo $row['admin_id']?>" 
                         class="btn btn-default btn-sm btn-icon icon-left">
                             <i class="entypo-pencil"></i>
                             Edit
                     </a>
-                    <a  href="<?php echo base_url();?>index.php?admin/accountant/edit_employee/<?php echo $row['accountant_id']?>" 
+                    <a  href="<?php echo base_url();?>index.php?admin/admin/edit_employee/<?php echo $row['admin_id']?>" 
                         class="btn btn-default btn-sm btn-icon icon-left">
                             <i class="entypo-pencil"></i>
                             Edit Employee Info
                     </a>
-                    <a href="<?php echo base_url();?>index.php?admin/accountant/delete/<?php echo $row['accountant_id']?>" 
+                    <a href="<?php echo base_url();?>index.php?admin/admin/delete/<?php echo $row['admin_id']?>" 
                         class="btn btn-danger btn-sm btn-icon icon-left" onclick="return checkDelete();">
                             <i class="entypo-cancel"></i>
                             Delete

@@ -330,7 +330,7 @@ if ($isset_param) {
             var did = $("#send_to").val().toString();
             
             if (tid.length==0) {
-                $.alert("please select payments for patient!","Error"); return;
+                $.alert("please save triage data for patient!","Error"); return;
             }
             if (did.length==0) {
                 $.alert("please select doctor for patient!","Error"); return;

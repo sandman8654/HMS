@@ -26,7 +26,7 @@
                 "fillAlphas": 0.8,
                 "id": "AmGraph-2",
                 "lineAlpha": 0.2,
-                "title": "Reviews",
+                "title": "Revisits",
                 "type": "column",
                 "valueField": "revisits"
             },
