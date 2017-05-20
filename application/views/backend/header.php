@@ -25,7 +25,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                         <i class="entypo-mail"></i>
                         <?php if ($total_unread_message_number > 0): ?>
-                            <span class="badge badge-info"><?php echo $total_unread_message_number; ?></span>
+                            <span class="badge badge-secondary"><?php echo $total_unread_message_number; ?></span>
                         <?php endif; ?>
                     </a>
 
@@ -264,61 +264,58 @@
                         </li>
                         <li class=""><a href="#"  data-hover="dropdown-hover" aria-haspopup="true" data-close-others="true"><div class="round"><i class="fa fa-file-text-o custom"></i></div>reports</a>
                             <ul class="dropdown-menu">
-                                <li><a href="#">Cashier Daily Summary</a></li>   
+                       <!--         <li><a href="#">Cashier Daily Summary</a></li>   
                                 <li><a href="#">Unposted Entries</a></li>   
                                 <li><a href="#">Several Months Summary</a></li>   
-                                <li><a href="#">Managerial Daily Summary</a></li>  
+                                <li><a href="#">Managerial Daily Summary</a></li>  -->
                                 <li class="dropdown  dropdown-submenu"><a href="#">Financial Statements</a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="<?php echo base_url();?>index.php?admin/trial_bal_report">Trial Balance</a></li>    
-                                        <li><a href="<?php echo base_url();?>index.php?admin/income_statement_report">Income Statement</a></li>
-                                        <li><a href="<?php echo base_url();?>index.php?admin/balance_sheet_report">Balance Sheet</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/trial_bal_report">Trial Balance</a></li>    
+                                        <li><a href="<?php echo base_url();?>index.php?report/income_statement_report">Income Statement</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/balance_sheet_report">Balance Sheet</a></li>
                                     </ul>
                                 </li>
-                                <li class="dropdown  dropdown-submenu"><a href="#">Income Report</a>
+                                <li class="dropdown  dropdown-submenu"><a href="<?php echo base_url();?>index.php?report/income_report">Income Report</a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#">Today Income</a></li>
-                                        <li><a href="#">All</a></li>
-                                        <li><a href="#">With Profit</a></li>
-                                        <li><a href="#">With Loss</a></li>
-                                        <li><a href="#">By Cashier</a></li>
-                                        <li><a href="#">By Item</a></li>
-                                        <li><a href="#">By Department</a></li> 
-                                        <li><a href="#">By Patient</a></li>
-                                        <li><a href="#">By Doctor</a></li>
-                                        <li><a href="#">Departmental Income</a></li>   
+                                        <li><a href="<?php echo base_url();?>index.php?report/income_report/today">Today Income</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/income_report/all">All</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/income_report/wprofit">With Profit</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/income_report/wloss">With Loss</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/income_report/byitem">By Item</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/income_report/bydepart">By Department</a></li> 
+                                        <li><a href="<?php echo base_url();?>index.php?report/income_report/bypat">By Patient</a></li>
                                     </ul>
                                 </li> 
-                                <li class="dropdown  dropdown-submenu"><a href="#">Invoices Report</a>
+                                <li class="dropdown  dropdown-submenu"><a href="<?php echo base_url();?>index.php?report/invoice_report">Invoices Report</a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#">Today Invoices</a></li>
-                                        <li><a href="#">All Invoices</a></li>
-                                        <li><a href="#">By Company</a></li>
-                                        <li><a href="#">Receipts(Cash Paying)</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/invoice_report/today">Today Invoices</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/invoice_report/all">All Invoices</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/invoice_report/bycomp">By Company</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/invoice_report/bycash">Receipts(Cash Paying)</a></li>
                                     </ul>
                                 </li>
                                 <li class="dropdown  dropdown-submenu"><a href="#">Procurement</a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#">Goods Received-All</a></li>
-                                        <li><a href="#">Goods Received-By Item</a></li>
-                                        <li><a href="#">Goods Received-By Supplier</a></li>
-                                        <li><a href="#">Goods Returned-All</a></li>
-                                        <li><a href="#">Goods Returned-By Item</a></li>
-                                        <li><a href="#">Goods Returned-By Supplier</a></li>                                    
-                                        <li><a href="#">Reprint GRN(Received)</a></li>
-                                        <li><a href="#">Reprint GRN(Returned)</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/grn_report/all">Goods Received-All</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/grn_report/byitem">Goods Received-By Item</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/grn_report/bysup">Goods Received-By Supplier</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/grc_report/all">Goods Returned-All</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/grc_report/byitem">Goods Returned-By Item</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/grc_report/bysup">Goods Returned-By Supplier</a></li>                                    
+                                        <li><a href="<?php echo base_url();?>index.php?report/reprint_grn_received_report">Reprint GRN(Received)</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?report/reprint_grn_returned_report">Reprint GRN(Returned)</a></li>
                                         <li><a href="#">Reprint LPO</a></li>
                                         <li><a href="#">LPO Summaries</a></li>
                                         <li><a href="#">Invoice Listing-Inwards</a></li>
                                         <li><a href="#">Invoice Listing-Outwards</a></li>
-                                        <li><a href="#">Summarized Bin Card</a></li>
+                                        <!--<li><a href="#">Summarized Bin Card</a></li>-->
                                         <li><a href="#">Inventory-All</a></li>
                                         <li><a href="#">Inventory-By Category</a></li>
                                         <li><a href="#">Inventory-By Supplier</a></li>
-                                        <li><a href="#">Expiry Report</a></li>
+                                       <!-- <li><a href="#">Expiry Report</a></li>
                                         <li><a href="#">Reprint Variance Report</a></li>
                                         <li><a href="#">Variance Reports</a></li>
-                                        <li><a href="#">Variance Summaries</a></li>
+                                        <li><a href="#">Variance Summaries</a></li>-->
                                     </ul>
                                 </li>
                                 <li class="dropdown  dropdown-submenu"><a href="#">Goods Price List</a>
@@ -327,9 +324,7 @@
                                         <li><a href="#">By Section</a></li>
                                     </ul>
                                 </li>
-                                <li><a href="<?php echo base_url();?>index.php?admin/operation_report"><?php echo get_phrase('operation_report'); ?></a></li>
-                                <li><a href="<?php echo base_url();?>index.php?admin/birth_report"><?php echo get_phrase('birth_report'); ?></a></li>
-                                <li><a href="<?php echo base_url();?>index.php?admin/death_report"><?php echo get_phrase('death_report'); ?></a></li>
+                                
                                 <li class="dropdown  dropdown-submenu"><a href="#">HR Reports</a>
                                     <ul class="dropdown-menu">
                                         <li><a href="#">Detailed Monthly Report</a></li>
@@ -337,10 +332,10 @@
                                         <li><a href="#">Individual Bank Report</a></li>
                                         <li><a href="#">Salaries Summary</a></li>
                                         <li><a href="#">Employee Summary</a></li>
-                                        <li><a href="#">Individual Pay Slips</a></li>
+                                   <!--      <li><a href="#">Individual Pay Slips</a></li>
                                         <li><a href="#">All Pay Slips</a></li>
-                                        <li><a href="#">Attendance Report</a></li>
-                                        <li><a href="#">Leave Report</a></li>
+                                       <li><a href="#">Attendance Report</a></li>
+                                        <li><a href="#">Leave Report</a></li> -->
                                         <li><a href="#">Employees List</a></li>
                                     </ul>
                                 </li>
@@ -348,28 +343,28 @@
                                     <ul class="dropdown-menu">
                                         <li><a href="#">Stock Usage Report</a></li>
                                         <li><a href="#">Ledger Reports</a></li>
-                                        <li><a href="#">Queue Reports</a></li>
+                                    <!--    <li><a href="#">Queue Reports</a></li>-->
                                         <li><a href="#">Message Reports</a></li>
-                                        <li><a href="#">Activity Log-All</a></li>
-                                        <li><a href="#">Activity Log By User</a></li>
+                                    <!--    <li><a href="#">Activity Log-All</a></li>
+                                        <li><a href="#">Activity Log By User</a></li>-->
                                         <li><a href="#">Debtors List</a></li>
                                         <li><a href="#">Creditors List</a></li>
                                         <li><a href="#">Stock Movement Report</a></li>
-                                        <li><a href="#">System Users List</a></li>
+                                   <!--     <li><a href="#">System Users List</a></li>-->
                                     </ul>
-                                </li>
+                                </li><!--
                                 <li class="dropdown  dropdown-submenu"><a href="#">Assets Reports</a>
                                     <ul class="dropdown-menu">
                                         <li><a href="#">Asset List-All</a></li>
                                         <li><a href="#">Asset Tracking</a></li>
                                     </ul>
-                                </li>       
+                                </li>      
                                 <li class="dropdown  dropdown-submenu"><a href="#">Social Works Report</a>
                                     <ul class="dropdown-menu">
                                         <li><a href="#">Waiver Reports</a></li>
                                         <li><a href="#">Counselling Reports</a></li>
                                     </ul>
-                                </li>
+                                </li> -->
                                 <li class="dropdown  dropdown-submenu"><a href="#">Lab Reports</a>
                                     <ul class="dropdown-menu">
                                         <li><a href="#">All Tests</a></li>
@@ -392,13 +387,13 @@
                                         <li><a href="#">All Prescriptions</a></li>
                                         <li><a href="#">By Patient</a></li>
                                     </ul>
-                                </li>
+                                </li><!--
                                 <li class="dropdown  dropdown-submenu"><a href="#">Theatre Reports</a>
                                     <ul class="dropdown-menu">
                                         <li><a href="#">All Procedures</a></li>
                                         <li><a href="#">By Patient</a></li>
                                     </ul>
-                                </li>
+                                </li>-->
                                 <li class="dropdown  dropdown-submenu"><a href="#">Services Price List</a>
                                     <ul class="dropdown-menu">
                                         <li><a href="#">All</a></li>
@@ -408,13 +403,13 @@
                                 <li class="dropdown  dropdown-submenu"><a href="#">Records Reports</a>
                                     <ul class="dropdown-menu">
                                         <li><a href="#">Diagnosis Reports (OPD)</a></li>
-                                        <li><a href="#">Births Reports</a></li>
-                                        <li><a href="#">Deaths Reports</a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?admin/operation_report"><?php echo get_phrase('operation_report'); ?></a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?admin/birth_report"><?php echo get_phrase('birth_report'); ?></a></li>
+                                        <li><a href="<?php echo base_url();?>index.php?admin/death_report"><?php echo get_phrase('death_report'); ?></a></li>
                                         <li><a href="#">All Patients</a></li>
                                         <li><a href="#">Outpatients Summary</a></li>
-                                        <li><a href="#">Deaths Reports</a></li>
-                                        <li><a href="#">Unregistered Patients</a></li>
-                                        <li><a href="#">Patients Review Report</a></li>
+                                  <!--      <li><a href="#">Unregistered Patients</a></li>
+                                        <li><a href="#">Patients Review Report</a></li>-->
                                     </ul>
                                 </li>
                                 <li class="dropdown  dropdown-submenu"><a href="#">Stock Transfer Report</a>
@@ -422,9 +417,9 @@
                                         <li><a href="#">Stock Transfer-All</a></li>
                                         <li><a href="#">Stock Transfer-By Dept</a></li>
                                         <li><a href="#">Transfer Summaries</a></li>
-                                        <li><a href="#">Bin Card</a></li>
+                                 <!--       <li><a href="#">Bin Card</a></li>
                                         <li><a href="#">Re-Order Level-By Section</a></li>
-                                        <li><a href="#">Re-Order Level-By Supplier</a></li>
+                                        <li><a href="#">Re-Order Level-By Supplier</a></li>-->
                                     </ul>
                                 </li>
                             </ul>
@@ -489,7 +484,11 @@
                 <li class="notifications dropdown tooltip-primary" data-toggle="tooltip" data-original-title="To Do" data-placement="top" style="padding: 0px;">
                     <a href="#" class="dropdown-toggle" data-collapse-sidebar="1" data-toggle="chat" style="display:block;">
                         <i class="entypo-menu" style="color: #ccc;"></i>
-                        <span id="incomplete_todo_number"></span>
+                        <span id="incomplete_todo_number"><?php 
+                            $cn = $this->crud_model->get_todo_unmarked_count();
+                            if ($cn>0)
+                                echo "<span class=\"badge badge-secondary\">$cn</span>";
+                        ?></span>
                     </a>
                 </li>
 

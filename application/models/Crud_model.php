@@ -135,6 +135,7 @@ class Crud_model extends CI_Model {
         $this->db->where('type', 'address');
         $this->db->update('settings', $data);
 
+        
         $data['description'] = $this->input->post('company_name');
         $this->db->where('type', 'company_name');
         $this->db->update('settings', $data);
@@ -182,6 +183,12 @@ class Crud_model extends CI_Model {
         $data['description'] = $this->input->post('text_align');
         $this->db->where('type', 'text_align');
         $this->db->update('settings', $data);
+
+        $data['description'] = $this->input->post('tel');
+        $this->db->where('type', 'phone');
+        $this->db->update('settings', $data);
+
+        move_uploaded_file($_FILES['image']['tmp_name'], 'assets/images/logo.png');
     }
     
     // SMS settings.
@@ -1994,7 +2001,7 @@ class Crud_model extends CI_Model {
         foreach($params["carts"] as $cart){
             //insert into receipts table
             $tmp = array();
-            $tmp["timestamp"]=date("d/m/y H:i:s");
+            $tmp["timestamp"]=strtotime(date("m/d/Y H:i:s"));
             $tmp["patient_id"] = $pid ;
             $tmp["recept_id"]= $recepid ;
             $mode = $tmp["paymode"] =$cart["mode"];
@@ -2003,7 +2010,7 @@ class Crud_model extends CI_Model {
             $cardno = $tmp["cardno"] = $cart["refno"];
             $login_type = $tmp['receiver_account_type'] = $this->session->userdata('login_type');
             $login_id = $tmp['receiver_account_id'] = $this->session->userdata('login_user_id');
-            $now = strtotime(date("Y/m/d H:i:s"));
+            $now = strtotime(date("m/d/Y H:i:s"));
             $b &= $this->db->insert($tables["receipt"],$tmp);
    //         $total_amount += $amount;
             if (!$b) return $b;
@@ -2721,7 +2728,7 @@ class Crud_model extends CI_Model {
         $bal = $creditor_info->Bal;
         $data = $this->input->post("data");
         $refno = $this->input->post("refno");
-        $date = date("d/m/Y");
+        $date = date("m/d/Y");
         $b=true;
         $total_paying=0;
         $totinv="";
@@ -2805,7 +2812,7 @@ class Crud_model extends CI_Model {
         $res = array();
         foreach($info as $row){
             $tmp["id"] = $row["id"];
-            $tmp["date"] = $row["timestamp"];
+            $tmp["date"] = date("m/d/Y H:i:s", $row["timestamp"]);
             $tmp["invno"] = $row["invno"];
             $tmp["pname"] = $this->crud_model->select_patient_info_by_patient_id($row['patient_id'])[0]["name"];
             $tmp["pid"] = $row["patient_id"];
@@ -4036,58 +4043,463 @@ class Crud_model extends CI_Model {
         }
        
     }
-    function gen_trial_balance($from, $to){
+    function gen_trial_balance($from="", $to=""){
         $res_trial_bal_list = array();
-        $sql = "SELECT sum(generalledger.balance) as bal,  ledgers.name as name, ledgers.type as type FROM ledgers,generalledger WHERE generalledger.lid=ledgers.ledgerid and generalledger.stamp<=".$to." and generalledger.stamp>=".$from." GROUP BY generalledger.lid order by name;";
-        $ledger_list = $this->db->query($sql)->result_array();
-        $cr_bal=0; $dr_bal=0;
-        foreach($ledger_list as $item){
+        $this->db->where("ledgerid !=","601");
+        $this->db->order_by("name");
+        $ledgers = $this->db->get("ledgers")->result_array();
+        $table_gl = "generalledger";
+        $temp = array();
+     //   if ($from==$to) $to="";
+        foreach($ledgers as $item){
+            $a=0;$b=0;$c=0;
+            $this->db->where("lid ",$item["ledgerid"]);
+            $this->db->where("stamp <=",$from);
+            $this->db->group_by("lid");
+            $a = $this->db->get($table_gl)->row()->balance;
+            if ($to!=""){
+                $this->db->where("lid ",$item["ledgerid"]);
+                $this->db->where("stamp <",$to);
+                $this->db->group_by("lid");
+                $b = $this->db->get($table_gl)->row()->balance;
+            }else $b=0;
+            $c = $a-$b;
+            array_push($temp, array("lid"=>$item["ledgerid"],"type"=>$item["type"],"bal"=>$c,"name"=>$item["name"]));
+        };
+        $dr_bal=0;$cr_bal=0;
+        foreach($temp as $row){
             $tmp=array();
-            $tmp["item"] = $item["name"];
-            $type = $item["type"];
-            $bal = $item["bal"];
+            $tmp["item"] = $row["name"];
+            $type = $row["type"];
+            $bal = $row["bal"];
+            $tmp["cr"]=$tmp["dr"]="";
             if($type=='Expense'||$type=='Asset'){
-                $tmp["cr"]=0;$tmp["dr"]=$bal;
+                $tmp["dr"]=$bal;
                 $dr_bal+=$bal;
             }
             if($type=='Liability'||$type=='Revenue'||$type=='Equity'){
                 $cr_bal+=$bal;
                 $tmp["cr"]=$bal; 
-                $tmp["dr"]=0;
             }
             array_push($res_trial_bal_list,$tmp);
         }
         return array($res_trial_bal_list,$dr_bal,$cr_bal);
     }
     
-    function gen_income_statement_report($from, $to){
-        $res_trial_bal_list = array();
-        $sql = "SELECT sum(generalledger.balance) as bal,  ledgers.name as name, ledgers.type as type FROM ledgers,generalledger WHERE generalledger.lid=ledgers.ledgerid and generalledger.stamp<=".$to." and generalledger.stamp>=".$from." GROUP BY generalledger.lid order by type desc, name;";
-        $ledger_list = $this->db->query($sql)->result_array();
-        $total1=0; $total2=0;
-        foreach($ledger_list as $item){
+    function gen_income_statement_report($from="", $to=""){
+        $res_bal_list = array();
+        $this->db->where("ledgerid !=","601");
+        $this->db->order_by("type","desc");
+        $this->db->order_by("name");
+        $this->db->order_by("ledgerid");
+        $ledgers = $this->db->get("ledgers")->result_array();
+        $table_gl = "generalledger";
+        $temp = array();
+        if ($from==$to) $to="";
+        foreach($ledgers as $item){
+            $a=0;$b=0;$c=0;
+            $this->db->where("lid =",$item["ledgerid"]);
+            $this->db->where("stamp <=",$from);
+            $this->db->group_by("lid");
+            $a = $this->db->get($table_gl)->row()->balance;
+            if ($to!=""){
+                $this->db->where("lid =",$item["ledgerid"]);
+                $this->db->where("stamp <",$to);
+                $this->db->group_by("lid");
+                $b = $this->db->get($table_gl)->row()->balance;
+            }else $b=0;
+            $c = $a-$b;
+            array_push($temp, array("lid"=>$item["ledgerid"],"type"=>$item["type"],"bal"=>$c,"name"=>$item["name"]));
+        };
+        $total1=0;$total2=0;
+        foreach($temp as $row){
             $tmp=array();
-            
-            $type = $item["type"];
-            $bal = $item["bal"];
-            
-            if($type=='Revenue'){
-                $tmp["item"] = $item["name"];
-                $total2+=$bal;
-                $tmp["kshs2"]=$bal; 
-                $tmp["kshs1"]="";
-            }
+            $tmp["item"] = $row["name"];
+            $type = $row["type"];
+            $bal = $row["bal"];
+            $tmp["kshs1"]=$tmp["kshs2"]="";
             if($type=='Expense'){
-                $tmp["item"] = $item["name"];
-                $tmp["kshs2"]="";$tmp["kshs1"]=$bal;
+                $tmp["kshs1"]=$bal;
                 $total1+=$bal;
             }
-            if($type=='Revenue'||$type=='Expense'){
-                array_push($res_trial_bal_list,$tmp);
+            if($type=='Revenue'){
+                $total2+=$bal;
+                $tmp["kshs2"]=$bal; 
             }
+            if ($type=="Revenue"||$type=="Expense")
+                 array_push($res_bal_list,$tmp);
+        }
+        return array($res_bal_list,$total2-$total1,"");
+    }
+     function gen_balance_sheet_report($from, $to){
+        $res_bal_list = array();
+        $this->db->where("ledgerid !=","601");
+        $this->db->order_by("type","desc");
+        $this->db->order_by("name");
+        $this->db->order_by("ledgerid");
+        $ledgers = $this->db->get("ledgers")->result_array();
+        $table_gl = "generalledger";
+        $temp = array();
+        if ($from==$to) $to="";
+        foreach($ledgers as $item){
+            $a=0;$b=0;$c=0;
+            $this->db->where("lid =",$item["ledgerid"]);
+            $this->db->where("stamp <=",$from);
+            $this->db->group_by("lid");
+            $a = $this->db->get($table_gl)->row()->balance;
+            if ($to!=""){
+                $this->db->where("lid =",$item["ledgerid"]);
+                $this->db->where("stamp <",$to);
+                $this->db->group_by("lid");
+                $b = $this->db->get($table_gl)->row()->balance;
+            }else $b=0;
+            $c = $a-$b;
+            array_push($temp, array("lid"=>$item["ledgerid"],"type"=>$item["type"],"bal"=>$c,"name"=>$item["name"]));
         };
 
-        return array($res_trial_bal_list,$total2-$total1,"");
+        $exp=$rev=$ass=$ad=$li=$eq=$re=0;
+        $asset_bal_list=array();
+        $lieq_bal_list=array();
+        foreach($temp as $row){
+            $tmp=array();
+            $tmp["item"] = $row["name"];
+            $type = $row["type"];
+            $bal = $row["bal"];
+            $tmp["kshs"]=0;
+            if($type=='Expense'){
+//$tmp["kshs1"]=$bal;
+                $exp+=$bal;
+            }
+            if($type=='Revenue'){
+                $rev+=$bal;
+  //              $tmp["kshs2"]=$bal; 
+            }
+            if($type=='Asset'){
+                $ass+=$bal;
+                $tmp["kshs"]=$bal; 
+                array_push($asset_bal_list, $tmp);
+            }
+            if($type=='Liability'){
+                $tmp["kshs"]=$bal; 
+                array_push($lieq_bal_list, $tmp);
+                $li+=$bal;
+            }
+            if($type=='Equity'){
+                $tmp["kshs"]=($row["lid"]=="634")?$rev-$exp:$bal; 
+                array_push($lieq_bal_list, $tmp);
+                $eq+=$bal;
+            }
+            if ($row["lid"]=="633")
+                $ad = $bal;
+            if ($row["lid"]=="650")
+                $re = $bal;    
+
+        }
+        array_push($asset_bal_list, array("item"=>"Less: Accumulated Depreciation","kshs"=>"(".$ad.")"));
+        array_push($lieq_bal_list, array("item"=>"Less: Drawings","kshs"=>"(".$re.")"));
+        return array($asset_bal_list,$lieq_bal_list,$ass+$ad,$rev-$exp+$re+$li+$eq);
+
+    }
+    function income_analysis_report($from="",$to="",$type="",$option=""){
+        $items_list = $this->db->get("items")->result_array();
+        $items = array();
+        foreach($items_list as $row){
+            $temp["itemcode"] = $row["ItemCode"];
+            $temp["itemname"] = $row["ItemName"];
+            $temp["cost"] = $row["PurchPrice"];
+            if ($tmp["cost"]=="")$tmp["cost"]=0;
+            $temp["category"] = $row["Category"];
+            $temp["vat"] = $row["Vat"];
+            if ($tmp["vat"]=="")$tmp["vat"]=0;
+            
+            $items[(string)$row["ItemCode"]]=$temp;
+        }
+        $table = "sales";
+        $this->db->where("approved_date>=",$from);
+        if ($to !="" && $to !=0) $this->db->where("approved_date<=",$to);
+        $this->db->where("status !=",0);
+        $this->db->where("item_id !=",599);
+        $this->db->where("item_id !=",84);
+        
+        $sales_list = $this->db->get($table)->result_array();
+        $total_price=$total_cost=$vat=$discount=0;
+        $res =array();
+        foreach($sales_list as $row){
+            $tmp = array();
+            $tmp["trans_date"] = date("m/d/Y", $row["approved_date"]);
+            $patient_id = $this->db->get_where("receptions",array("refno"=>$row["recep_id"]))->row()->patient_id;
+            $tmp["patient_name"] = $this->select_patient_info_by_patient_id($patient_id)[0]["name"];
+            $itemcode =(string)$row['item_id'];
+            $tmp["item_name"] = $items[$itemcode]["itemname"];
+            $tmp["unit_price"] = $row["unit_price"];
+            $tmp["qty"] = $row["qty"];
+            $tmp["vat"] = $items[$itemcode]["vat"];
+            if ($tmp["vat"]=="")$tmp["vat"]=0;
+            $tmp["discount"] = $row["discount"];
+            if ($tmp["discount"]=="")$tmp["discount"]=0;
+            $tmp["total_sale"] = $row["unit_price"]*$row["qty"] - $tmp["discount"];//vat?
+            $tmp["posted"] = date("m/d/Y",$row["posted_date"]);
+            $tmp["cashier"] = $this->db->get_where($row["account_type"],array($row["account_type"]."_id"=>$row["cashier_id"]))->row()->name;
+
+            //get department info of cashier
+            $this->db->like("emp",$row["account_type"]."-".$row["cashier_id"]);
+            $dept = $this->db->get("employee")->row()->dept;
+            switch ($type){
+                case "today":
+                case "all":
+                    $total_price+=$tmp["total_sale"];
+                    $total_cost+= $items[$itemcode]["cost"];
+                    $vat+= $items[$itemcode]["vat"];
+                    $discount+=$tmp["discount"];
+                    array_push($res,$tmp);
+                    break;
+                case "wprofit":
+                    if ($tmp["total_sale"]>$items[$itemcode]["cost"]){
+                        $total_price+=$tmp["total_sale"];
+                        $total_cost+= $items[$itemcode]["cost"];
+                        $vat+= $items[$itemcode]["vat"];
+                        $discount+=$tmp["discount"];
+                        array_push($res,$tmp);
+                    }
+                    break;
+                case "wloss":
+                    if ($tmp["total_sale"]<$items[$itemcode]["cost"]){
+                        $total_price+=$tmp["total_sale"];
+                        $total_cost+= $items[$itemcode]["cost"];
+                        $vat+= $items[$itemcode]["vat"];
+                        $discount+=$tmp["discount"];
+                        array_push($res,$tmp);
+                    }
+                    break;
+                case "byitem":
+                    if ($itemcode==$option){
+                        $total_price+=$tmp["total_sale"];
+                        $total_cost+= $items[$itemcode]["cost"];
+                        $vat+= $items[$itemcode]["vat"];
+                        $discount+=$tmp["discount"];
+                        array_push($res,$tmp);
+                    }
+                    break;
+                case "bydepart":
+                    if ($dept == $option){
+                        $total_price+=$tmp["total_sale"];
+                        $total_cost+= $items[$itemcode]["cost"];
+                        $vat+= $items[$itemcode]["vat"];
+                        $discount+=$tmp["discount"];
+                        array_push($res,$tmp);
+                    }
+                    break;
+                case "bypat":
+                    if ($patient_id == $option){
+                        $total_price+=$tmp["total_sale"];
+                        $total_cost+= $items[$itemcode]["cost"];
+                        $vat+= $items[$itemcode]["vat"];
+                        $discount+=$tmp["discount"];
+                        array_push($res,$tmp);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        return array($res,$total_price,$total_cost,$vat,$discount);
+    }
+    function invoice_report($from="",$to="",$type="",$option=""){
+        $table="receipts";
+        
+        switch($type){
+            case "today":
+                $from = strtotime(date("m/d/Y"));
+                $to = time();
+                $where = "(paymode='Companies' OR paymode='Credit')";
+                break;
+            case "all":
+                $where = "(paymode='Companies' OR paymode='Credit')";
+                break;
+            case "bycomp":
+                $where = "(paymode='Companies' OR paymode='Credit')";
+                break;
+            case "bycash":
+                $where = "(paymode='Cash' OR paymode='Bank')";
+                break;
+            default:
+                break;
+        }
+        $where = "timestamp >='$from' AND timestamp <='$to'"." AND ".$where;
+        $this->db->where($where);
+        $list = $this->db->get($table)->result_array();
+        $res = array(); $cash=$comp=$cre=$bank=0;
+        foreach($list as $item){
+            $tmp["date"] = date("m/d/Y", $item["timestamp"]);
+            $tmp["patient_id"] = $item["patient_id"];
+            $tmp["patient_name"] = $this->select_patient_info_by_patient_id($tmp["patient_id"])[0]["name"];
+            $tmp["pay_mode"] = $item["paymode"];
+            $tmp["company"] = $this->db->get_where("creditcustomers",array('CustomerId'=>$item["company_id"]))->row()->CustomerName;
+            $tmp["inv_No"] = $item["invno"];
+            $tmp["amount"] = $item["amount"];
+            $tmp["time"] = date("H:i:s", $item["timestamp"]);
+            if($item["paymode"]=="Cash") $cash+=$item["amount"];
+            if($item["paymode"]=="Companies") $comp+=$item["amount"];
+            if($item["paymode"]=="Credit") $cre+=$item["amount"];
+            if($item["paymode"]=="Bank") $bank+=$item["amount"];
+            array_push($res,$tmp);
+        }
+        return array($res,$cash,$comp,$cre,$bank);
+    }
+    function good_received_report($from="",$to="",$type="",$option=""){
+        $this->db->where("Type","GOOD");
+        $items_list = $this->db->get("items")->result_array();
+        $items = array();
+        foreach($items_list as $row){
+            $temp["itemcode"] = $row["ItemCode"];
+            $temp["itemname"] = $row["ItemName"];
+            $items[(string)$row["ItemCode"]]=$temp;
+        }
+        $table = "purchases";
+        $this->db->where("Stamp>=",$from);
+        if ($to !="" && $to !=0) $this->db->where("Stamp<=",$to);
+        switch ($type){
+            case "all":
+                break;
+            case "byitem":
+                $this->db->where("ItemCode",$option);
+                break;
+            case "bysup":
+                $this->db->where("SupplierId",$option);
+                break;
+            default:
+                break;
+        }
+        $list = $this->db->get($table)->result_array();
+        $total_cost=0;
+        $res =array();
+        foreach($list as $row){
+            $tmp = array();
+            $tmp["trans_date"] = date("m/d/Y", $row["Stamp"]);
+            $tmp["grnno"] = $row["PurchNo"];
+            $tmp["supplier"] = $this->db->get_where("creditsuppliers",array('CustomerId'=>$row["SupplierId"]))->row()->CustomerName;
+            $itemcode =(string)$row['ItemCode'];
+            $tmp["item_name"] = $items[$itemcode]["itemname"];
+            $tmp["unit"] = $row["UnitBox"];
+            $tmp["part"] = $row["PartBox"];
+            $tmp["price"] = $row["PurchPrice"];
+            $tmp["total"] = $row["TotalPrice"];
+            $total_cost +=$row["TotalPrice"];
+            array_push($res,$tmp);
+        }
+        return array($res,$total_cost);
+    }
+    function good_returned_report($from="",$to="",$type="",$option=""){
+        $items_list = $this->db->get("items")->result_array();
+        $items = array();
+        foreach($items_list as $row){
+            $temp["itemcode"] = $row["ItemCode"];
+            $temp["itemname"] = $row["ItemName"];
+            $items[(string)$row["ItemCode"]]=$temp;
+        }
+        $table = "goodsreturned";
+        $this->db->where("stamp>=",$from);
+        if ($to !="" && $to !=0) $this->db->where("stamp<=",$to);
+        switch ($type){
+            case "all":
+                break;
+            case "byitem":
+                $this->db->where("code",$option);
+                break;
+            case "bysup":
+                $this->db->where("sid",$option);
+                break;
+            default:
+                break;
+        }
+        $list = $this->db->get($table)->result_array();
+        $total_cost=0;
+        $res =array();
+        foreach($list as $row){
+            $tmp = array();
+            $tmp["trans_date"] = date("m/d/Y", $row["stamp"]);
+            $tmp["grnno"] = $row["gnrno"];
+            $tmp["supplier"] = $this->db->get_where("creditsuppliers",array('CustomerId'=>$row["sid"]))->row()->CustomerName;
+            $itemcode =(string)$row['code'];
+            $tmp["item_name"] = $items[$itemcode]["itemname"];
+            $tmp["unit"] = $row["unit"];
+            $tmp["part"] = $row["part"];
+            $tmp["price"] = $row["pprice"];
+            $tmp["total"] = $row["total"];
+            $total_cost +=$tmp["total"];
+            array_push($res,$tmp);
+        }
+        return array($res,$total_cost);
+    }
+    function reprint_grn_received_report($refno){
+        $this->db->where("Type","GOOD");
+        $items_list = $this->db->get("items")->result_array();
+        $items = array();
+        foreach($items_list as $row){
+            $temp["itemcode"] = $row["ItemCode"];
+            $temp["itemname"] = $row["ItemName"];
+            $temp["pack"] = $row["Pack"];
+            $temp["saleprice"] = $row["SalePrice"];
+            $items[(string)$row["ItemCode"]]=$temp;
+        }
+
+        $this->db->where("PurchNo",$refno);
+        $table = "purchases";
+        $list=$this->db->get($table)->result_array();
+        $total=0;$supplier=$invno="";
+        $res = array();
+        $supplier = $this->db->get_where("creditsuppliers",array('CustomerId'=>$list[0]["SupplierId"]))->row()->CustomerName;
+        $invno = $list[0]["InvoiceNo"];
+        foreach($list as $row){
+            $itemcode =(string)$row['ItemCode'];
+            $tmp["item_name"] = $items[$itemcode]["itemname"];
+            $tmp["pack"] = $items[$itemcode]["pack"];
+            $tmp["batchno"] = $row["BatchNo"];
+            $tmp["expiry"] = $row["Expiry"];
+            $tmp["unit"] = $row["UnitBox"];
+            $tmp["part"] = $row["PartBox"];
+            $tmp["pprice"] = $row["PurchPrice"];
+            $tmp["sprice"] = $items[$itemcode]["saleprice"];
+            $tmp["total"] = $row["TotalPrice"];
+            if ( $tmp["total"]=="")  $tmp["total"]=0;
+            $total += $tmp["total"];
+            array_push($res,$tmp);
+        }
+        return array($res,$total,$supplier,$invno);
+    }
+    function reprint_grn_returned_report($refno){
+        $this->db->where("Type","GOOD");
+        $items_list = $this->db->get("items")->result_array();
+        $items = array();
+        foreach($items_list as $row){
+            $temp["itemcode"] = $row["ItemCode"];
+            $temp["itemname"] = $row["ItemName"];
+            $temp["pack"] = $row["Pack"];
+            $temp["saleprice"] = $row["SalePrice"];
+            $items[(string)$row["ItemCode"]]=$temp;
+        }
+
+        $this->db->where("gnrno",$refno);
+        $table = "goodsreturned";
+        $list=$this->db->get($table)->result_array();
+        $total=0;$supplier=$invno="";
+        $res = array();
+        $supplier = $this->db->get_where("creditsuppliers",array('CustomerId'=>$list[0]["sid"]))->row()->CustomerName;
+        $invno = $list[0]["invoice"];
+        foreach($list as $row){
+            $itemcode =(string)$row['code'];
+            $tmp["item_name"] = $items[$itemcode]["itemname"];
+            $tmp["pack"] = $items[$itemcode]["pack"];
+            $tmp["batchno"] = $row["batch"];
+            $tmp["unit"] = $row["unit"];
+            $tmp["part"] = $row["part"];
+            $tmp["pprice"] = $row["pprice"];
+            $tmp["total"] = $row["total"];
+            if ( $tmp["total"]=="")  $tmp["total"]=0;
+            $total += $tmp["total"];
+            array_push($res,$tmp);
+        }
+        return array($res,$total,$supplier,$invno);
     }
 
     function get_upload_rad_images($pateint_id,$reqid){
@@ -4103,15 +4515,41 @@ class Crud_model extends CI_Model {
         $m1 =$y1=0;
         $m1=$now_month+1; $y1=$now_year-1;
         $res=array();
+        $this->db->where("ledgerid !=","601");
+        $this->db->order_by("name");
+        $ledgers = $this->db->get("ledgers")->result_array();
+        $table_gl = "generalledger";
         for ($i=0;$i<=12;$i++){
             $m1++;
             If ($m1>12) {$m1=1; $y1++;};
             $from =strtotime($y1."-".$m1."-1");
             $to =strtotime($y1."-".$m1."-31");
-            $val = $this->gen_trial_balance($from, $to);
+            $a=0;
+            $temp = array();
+            foreach($ledgers as $item){
+                $a=0;$b=0;$c=0;
+                $this->db->where("lid ",$item["ledgerid"]);
+                $this->db->where("stamp>=".$from);
+                $this->db->where("stamp<=".$to);
+                $this->db->group_by("lid");
+                $a = $this->db->get($table_gl)->row()->balance;
+                array_push($temp, array("lid"=>$item["ledgerid"],"type"=>$item["type"],"bal"=>$a,"name"=>$item["name"]));
+            };
+            $dr_bal=0;$cr_bal=0;
+            foreach($temp as $row){
+                $tmp=array();
+                $type = $row["type"];
+                $bal = $row["bal"];
+                if($type=='Expense'||$type=='Asset'){
+                    $dr_bal+=$bal;
+                }
+                if($type=='Liability'||$type=='Revenue'||$type=='Equity'){
+                    $cr_bal+=$bal;
+                }
+            }
             $tmp["month"] = $y1.".".$m1; 
-            $tmp["expenses"] = $val[1];
-            $tmp["income"] = $val[2];
+            $tmp["expenses"] = $dr_bal;
+            $tmp["income"] = $cr_bal;
             array_push($res,$tmp);
         }
         return json_encode($res);
@@ -4145,6 +4583,54 @@ class Crud_model extends CI_Model {
             array_push($res,$tmp);
         }
         return json_encode($res);
+    }
+    function save_todo_item(){
+        $name = $this->input->post("title");
+        if($name=="") return;
+        $this->db->insert("todo_list",array(
+            "todo_name"=>$name,
+            "date"=>time(),
+            "status"=>0
+        ));
+        $id = $this->db->insert_id();
+        $this->db->where("id",$id);
+        $this->db->update("todo_list",array("todo_order"=>$id));
+    }
+    function todo_mark_as_done($id,$val){
+        $this->db->where("id",$id);
+        $this->db->update("todo_list",array("status"=>$val));
+    }
+    function todo_delete_item($id){
+        $this->db->where("id",$id);
+        $this->db->delete("todo_list");
+    }
+    function get_todo_unmarked_count(){
+        $this->db->where("status",0);
+        $cn = $this->db->get("todo_list")->num_rows();
+        return $cn;
+    }
+    function todo_swap_item($id,$swap_with){
+        $this->db->order_by("todo_order","ASC");
+        $list = $this->db->get("todo_list")->result_array();
+        $order_num=0;
+        foreach ($list as $item){
+            if($item["id"]==$id) break;
+            $order_num++;
+        }
+        if ($swap_with=="up" && $order_num==0) return;
+        if ($swap_with=="down" && $order_num==(count($list)-1)) return;
+        $chid = $list[$order_num-1]["id"];
+        $chorder = $list[$order_num-1]["todo_order"];
+        if ($swap_with=="down"){
+            $chid = $list[$order_num+1]["id"];
+            $chorder = $list[$order_num+1]["todo_order"];
+        }
+        $nowid = $list[$order_num]["id"];
+        $noworder = $list[$order_num]["todo_order"];
+        $this->db->where("id",$chid);
+        $this->db->update("todo_list",array("todo_order"=>$noworder));
+        $this->db->where("id",$nowid);
+        $this->db->update("todo_list",array("todo_order"=>$chorder));
     }
 }
 

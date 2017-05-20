@@ -12,7 +12,28 @@
             </div>
 
             <div class="panel-body">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label"><?php echo get_phrase('Logo_image'); ?></label>
 
+                    <div class="col-sm-9">
+
+                        <div class="fileinput fileinput-new" data-provides="fileinput">
+                            <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;" data-trigger="fileinput">
+                                <img src="<?php echo base_url().'uploads/logo_image/logo.png'; ?>" alt="...">
+                            </div>
+                            <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px"></div>
+                            <div>
+                                <span class="btn btn-white btn-file">
+                                    <span class="fileinput-new">Select image</span>
+                                    <span class="fileinput-exists">Change</span>
+                                    <input type="file" name="image" accept="image/*">
+                                </span>
+                                <a href="#" class="btn btn-orange fileinput-exists" data-dismiss="fileinput">Remove</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
                 <div class="form-group">
                     <label  class="col-sm-3 control-label"><?php echo get_phrase('system_name'); ?></label>
                     <div class="col-sm-5">
@@ -31,8 +52,15 @@
                 <div class="form-group">
                     <label  class="col-sm-3 control-label"><?php echo get_phrase('company_name'); ?></label>
                     <div class="col-sm-5">
-                        <input type="text" class="form-control" name="system_title" 
+                        <input type="text" class="form-control" name="company_name" 
                                value="<?php echo $this->db->get_where('settings', array('type' => 'company_name'))->row()->description; ?>">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-3 control-label"><?php echo get_phrase('Telehpone'); ?></label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" name="tel" 
+                               value="<?php echo $this->db->get_where('settings', array('type' => 'phone'))->row()->description; ?>">
                     </div>
                 </div>
                 <div class="form-group">
@@ -42,17 +70,18 @@
                                value="<?php echo $this->db->get_where('settings', array('type' => 'address'))->row()->description; ?>">
                     </div>
                 </div>
+               
                 <div class="form-group">
                     <label  class="col-sm-3 control-label"><?php echo get_phrase('location_description'); ?></label>
                     <div class="col-sm-5">
-                        <input type="text" class="form-control" name="address" 
+                        <input type="text" class="form-control" name="location_description" 
                                value="<?php echo $this->db->get_where('settings', array('type' => 'location_description'))->row()->description; ?>">
                     </div>
                 </div>
                 <div class="form-group">
                     <label  class="col-sm-3 control-label"><?php echo get_phrase('website'); ?></label>
                     <div class="col-sm-5">
-                        <input type="text" class="form-control" name="phone" 
+                        <input type="text" class="form-control" name="website" 
                                value="<?php echo $this->db->get_where('settings', array('type' => 'website'))->row()->description; ?>">
                     </div>
                 </div>

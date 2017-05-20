@@ -118,11 +118,6 @@ class Admin extends CI_Controller {
             $this->session->set_flashdata('message', get_phrase('settings_updated'));
             redirect(base_url() . 'index.php?admin/system_settings/', 'refresh');
         }
-        if ($param1 == 'upload_logo') {
-            move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/logo.png');
-            $this->session->set_flashdata('message', get_phrase('settings_updated'));
-            redirect(base_url() . 'index.php?admin/system_settings/', 'refresh');
-        }
         $page_data['page_name'] = 'system_settings';
         $page_data['page_title'] = get_phrase('system_settings');
         $page_data['settings'] = $this->db->get('settings')->result_array();
@@ -1900,75 +1895,8 @@ class Admin extends CI_Controller {
         $data['page_title'] = get_phrase('maternity');
         $this->load->view('backend/index', $data);
     }
-    function trial_bal_report($task = "") {
-        if ($this->session->userdata('admin_login') != 1) {
-            $this->session->set_userdata('last_page', current_url());
-            redirect(base_url(), 'refresh');
-        }
-        $msg="Trial Balance was generated successfully.";
-        $from=$this->input->post("from");
-        $to=$this->input->post("to");
-        $data=array();
-        if ($from!="" && $to!=""){
-            $from_date = strtotime($from);
-            $to_date = strtotime($to);
-            if($from_date<=$to_date){
-                $res = $this->crud_model->gen_trial_balance($from_date,$to_date);
-                $data["trial_bal_list"] = $res[0];
-                $data["total_dr"]=$res[1];
-                $data["total_cr"]=$res[2];
-                $data["from"] = $from;
-                $data["to"] = $to;
-            }else
-                $msg = "From Date can not be forward than To Date.";
-        }else
-            $msg = "Please select From and To dates.";
-
-        $this->session->set_flashdata('message', $msg);
-        $data['page_name'] = 'trial_report';
-        $data['page_title'] = get_phrase('trial_balance_report');
-        $this->load->view('backend/index', $data);
-    }
-    function income_statement_report($task = "") {
-       if ($this->session->userdata('admin_login') != 1) {
-            $this->session->set_userdata('last_page', current_url());
-            redirect(base_url(), 'refresh');
-        }
-        $msg="Income Statement Report was generated successfully.";
-        $from=$this->input->post("from");
-        $to=$this->input->post("to");
-        $data=array();
-        if ($from!="" && $to!=""){
-            $from_date = strtotime($from);
-            $to_date = strtotime($to);
-            if($from_date<=$to_date){
-                $res = $this->crud_model->gen_income_statement_report($from_date,$to_date);
-                $data["income_state_list"] = $res[0];
-                $data["total1"]=$res[1];
-                $data["total2"]=$res[2];
-                $data["from"] = $from;
-                $data["to"] = $to;
-            }else
-                $msg = "From Date can not be forward than To Date.";
-        }else
-            $msg = "Please select From and To dates.";
-
-        $this->session->set_flashdata('message', $msg);
-        $data['page_name'] = 'income_statement_report';
-        $data['page_title'] = get_phrase('income_statement_report');
-        $this->load->view('backend/index', $data);
-     }
-     function balance_sheet_report($task = "") {
-        if ($this->session->userdata('admin_login') != 1) {
-            $this->session->set_userdata('last_page', current_url());
-            redirect(base_url(), 'refresh');
-        }
-
-        $data['page_name'] = 'balance_sheet_report';
-        $data['page_title'] = get_phrase('balance_sheet_report');
-        $this->load->view('backend/index', $data);
-    }
-    function upload_scan_image($task="",$patient_id,$reqid){
+    
+    function upload_scan_image($task="",$patient_id="",$reqid=""){
         if ($task=="upload"){
             $filename = time()."-".basename($_FILES["file"]["name"]);
             $targetDir1="uploads/radiology_image/$patient_id/";
@@ -1990,6 +1918,30 @@ class Admin extends CI_Controller {
             echo "OK";
         }
         
+    }
+    function todo($task="",$task_id="",$swap_with=""){
+        if ($this->session->userdata('admin_login') != 1) {
+            $this->session->set_userdata('last_page', current_url());
+            redirect(base_url(), 'refresh');
+        }
+        if($task=="add"){
+            $this->crud_model->save_todo_item();
+        }else if($task=="reload"){
+            $this->load->view('backend/todo_view.php');
+        }else if($task=="reload_incomplete_todo"){
+            $cn = $this->crud_model->get_todo_unmarked_count();
+            if ($cn>0)
+                echo "<span class=\"badge badge-secondary\">$cn</span>";
+        }else if($task=="mark_as_done"){
+            $this->crud_model->todo_mark_as_done($task_id,1);
+        }else if($task=="mark_as_undone"){
+            $this->crud_model->todo_mark_as_done($task_id,0);
+        }else if($task=="delete"){
+            $this->crud_model->todo_delete_item($task_id);
+        }else if($task=="swap"){
+            $this->crud_model->todo_swap_item($task_id,$swap_with);
+        }
+       
     }
     
 }

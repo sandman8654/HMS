@@ -1,8 +1,9 @@
+
 <div class="row">
     <div class="col-sm-12">
-        <form role="form" class="form-horizontal form-groups-bordered" action="<?php echo base_url(); ?>index.php?admin/trial_bal_report" method="post" enctype="multipart/form-data">
+        <form role="form" class="form-horizontal form-groups-bordered" action="<?php echo base_url(); ?>index.php?report/trial_bal_report" method="post" enctype="multipart/form-data">
             <div class="form-group">
-                <div class="col-sm-5">
+                <div class="col-sm-3">
                     <div class = "col-sm-3">
                         <label for="" class="control-label pull-right">From:</label>
                     </div>
@@ -10,12 +11,20 @@
                         <input name="from" type="text" class="form-control datepicker" value="<?php echo $from; ?>"></input>
                     </div>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-sm-3">
                     <div class = "col-sm-3">
-                        <label for="" class="control-label pull-right">to:</label>
+                        <label for="" class="control-label pull-right">To:</label>
                     </div>
                     <div class = "col-sm-9">
                         <input name="to" type="text" class="form-control datepicker" value="<?php echo $to; ?>"></input>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class = "col-sm-3">
+                        <label for="" class="control-label pull-right">As At:</label>
+                    </div>
+                    <div class = "col-sm-9">
+                        <input name="as_at" type="text" class="form-control datepicker" value="<?php echo $as_at; ?>"></input>
                     </div>
                 </div>
                 <div class="col-sm-2">
@@ -58,15 +67,33 @@
         </table>
     </div>
 </div>
+
 <script type="text/javascript">
     jQuery(window).load(function ()
     {
         var $ = jQuery;
-
+        
         $("#table-2").dataTable({
             "bPaginate": false,
             "bSort":false,
-            "sDom": "<'row'<'col-xs-3 col-left'l><'col-xs-9 col-right'<'export-data'T>f>r>t<'row'<'col-xs-3 col-left'i><'col-xs-9 col-right'p>>"
+            "sDom": "<'row'<'col-xs-3 col-left'l><'col-xs-9 col-right'<'export-data'T>f>r>t<'row'<'col-xs-3 col-left'i><'col-xs-9 col-right'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    {
+                        "sExtends": "print",
+                        "fnClick": function( nButton, oConfig ) {
+                         //   $(".page-container").css({"padding": "30px 50px"});
+                        //    this.fnPrint( true, oConfig );
+                        <?php if ($as_at!="") {?>
+                                window.open("<?php echo base_url(); ?>"+"index.php?report/trial_bal_report/print_view/0/0/"+"<?php echo strtotime($as_at); ?>");
+                        <?php }else{ ?>
+                                window.open("<?php echo base_url(); ?>"+"index.php?report/trial_bal_report/print_view/"+"<?php echo strtotime($from).'/'.strtotime($to); ?>");
+                        <?php }?>
+                        
+                        }
+                    }
+                ]
+            }
         });
 
         $(".dataTables_wrapper select").select2({

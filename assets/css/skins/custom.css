@@ -739,3 +739,26 @@ li.sub-queue-list a:hover,ul.queue > li>a:hover{
   color:#fff;
   background-color: #03bdb0;
 }
+.DTTT_PrintMessage>.print-header{
+     text-align:center;
+}
+
+.DTTT_PrintMessage>.print-header p{
+    font-size: 16px;
+    text-align:center; 
+}
+.DTTT_PrintMessage>.print-header img{
+  position:absolute;
+  left:32px;
+  top:20px;
+  width:64px;
+  height:64px;
+}
+.print-footer{
+    padding:30px 30px 10px 30px;
+    text-align:center;
+}
+.print-footer p{
+    font-size: 14px;
+    text-align:center; 
+}
